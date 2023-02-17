@@ -20,6 +20,7 @@
 		"url": "https://github.com/simoncragg/synth-gpt"
 	},
 	"scripts": {
+		"test:app": "npm run --prefix app/ test -- --watchAll=false",
 		"prepare": "husky install"
 	},
 	"devDependencies": {

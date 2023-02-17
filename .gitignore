@@ -1,5 +1,11 @@
 # dependencies
 node_modules
 
+# distributables
+app/build
+
+# coverage
+app/coverage
+
 # ide
 .vscode
