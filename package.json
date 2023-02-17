@@ -20,6 +20,11 @@
 		"url": "https://github.com/simoncragg/synth-gpt"
 	},
 	"scripts": {
-		"echo \"Error: no test specified\" && exit 1"
+		"prepare": "husky install"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^17.4.3",
+		"@commitlint/config-conventional": "^17.4.3",
+		"husky": "^8.0.0"
 	}
 }
