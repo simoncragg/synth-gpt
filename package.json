@@ -1,0 +1,25 @@
+{
+	"name": "synth",
+	"version": "1.0.0",
+	"description": "An intelligent voice assistant",
+	"keywords": [
+		"ai",
+		"assistant",
+		"aws",
+		"gpt",
+		"node",
+		"react",
+		"serverless",
+		"typescript",
+		"voice"
+	],
+	"license": "MIT",
+	"author": "Simon Cragg",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/simoncragg/synth-gpt"
+	},
+	"scripts": {
+		"echo \"Error: no test specified\" && exit 1"
+	}
+}
