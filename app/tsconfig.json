@@ -24,5 +24,6 @@
     "noEmit": true,
     "jsx": "react-jsx"
   },
-  "include": ["src", "src/components/__tests__/App.test.tsx"]
+  "include": ["src/**/*"],
+  "exclude": ["src/**/*.test.tsx"]
 }

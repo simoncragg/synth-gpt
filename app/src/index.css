@@ -1,8 +1,4 @@
 body {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  
   font-family: 'Open Sans', sans-serif;
   color: #B3D1FF;
   -webkit-font-smoothing: antialiased;
@@ -11,9 +7,4 @@ body {
   height: 100vh;
   width: 100%;
   margin: 0;
-}
-
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
 }
