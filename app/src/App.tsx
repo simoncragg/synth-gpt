@@ -1,4 +1,4 @@
-import SpeechToText from "../SpeechToText/SpeechToText";
+import SpeechToText from "./components/SpeechToText/SpeechToText";
 import "./App.css";
 
 const App = () => {
