@@ -1,10 +1,15 @@
-import SpeechToText from "./components/SpeechToText/SpeechToText";
+import SpeechToText from "./features/chat/SpeechToText";
+import ChatLog from "./features/chat/ChatLog";
 import "./App.css";
 
 const App = () => {
+
 	return (
 		<div className="app-container">
-			<SpeechToText />
+			<div className="chat-container">
+				<SpeechToText />
+				<ChatLog />
+			</div>
 		</div>
 	);
 };

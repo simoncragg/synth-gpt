@@ -1,7 +1,7 @@
 import "regenerator-runtime/runtime";
-import React from "react";
-import { render, fireEvent } from "@testing-library/react";
-import SpeechToText from "./SpeechToText";
+import { renderWithProviders } from "../../../utils/test-utils";
+import { fireEvent } from "@testing-library/react";
+import SpeechToText from "../SpeechToText";
 import SpeechRecognition, { useSpeechRecognition} from "react-speech-recognition";
 
 jest.mock("react-speech-recognition", () => ({
@@ -25,23 +25,25 @@ describe("SpeechToText", () => {
 			browserSupportsSpeechRecognition: true,
 		});
 
-		const { getByAltText } = render(<SpeechToText />);
+		const { getByAltText } = renderWithProviders(<SpeechToText />);
+
 		const micImage = getByAltText("Start Listening");
-    
 		expect(micImage).toBeInTheDocument();
 	});
 
 	it("should start listening when the mic button is clicked", () => {
 
 		useSpeechRecognition.mockReturnValue({
-			transcript: transcriptText,
+			resetTranscript: jest.fn(),
 			listening: false,
 			browserSupportsSpeechRecognition: true,
 		});
 
-		const { getByRole } = render(<SpeechToText />);
+		const { getByRole } = renderWithProviders(<SpeechToText />);
+
 		const micButton = getByRole("button");
 		fireEvent.click(micButton);
+
 		expect(SpeechRecognition.startListening).toHaveBeenCalledWith({
 			continuous: true,
 		});
@@ -55,9 +57,11 @@ describe("SpeechToText", () => {
 			browserSupportsSpeechRecognition: true,
 		});
 
-		const { getByRole } = render(<SpeechToText />);
+		const { getByRole } = renderWithProviders(<SpeechToText />);
+		
 		const micButton = getByRole("button");
 		fireEvent.click(micButton);
+
 		expect(SpeechRecognition.stopListening).toHaveBeenCalledTimes(1);
 	});
 
@@ -69,7 +73,7 @@ describe("SpeechToText", () => {
 			browserSupportsSpeechRecognition: true,
 		});
 
-		const { getByText } = render(<SpeechToText />);
+		const { getByText } = renderWithProviders(<SpeechToText />);
 		const transcript = getByText(transcriptText);
 		expect(transcript).toBeInTheDocument();
 	});
@@ -80,8 +84,7 @@ describe("SpeechToText", () => {
 			browserSupportsSpeechRecognition: false,
 		});
 
-		const { getByText } = render(<SpeechToText />);
-
+		const { getByText } = renderWithProviders(<SpeechToText />);
 		const errorMessage = getByText("Browser doesn't support speech recognition.");
 		expect(errorMessage).toBeInTheDocument();
 	});

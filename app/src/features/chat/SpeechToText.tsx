@@ -1,11 +1,16 @@
-import React from "react";
+import { useDispatch } from "react-redux";
+import { sendMessage } from "./chatSlice";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import "./SpeechToText.css";
 
 const SpeechToText = () => {
+
+	const dispatch = useDispatch();
+
 	const {
 		transcript,
 		listening,
+		resetTranscript,
 		browserSupportsSpeechRecognition
 	} = useSpeechRecognition();
 
@@ -15,9 +20,13 @@ const SpeechToText = () => {
 
 	const toggleListen = () => {
 		if (!listening) {
+			resetTranscript();
 			SpeechRecognition.startListening({ continuous: true });
 		} else {
 			SpeechRecognition.stopListening();
+			if (transcript) {
+				dispatch(sendMessage(transcript));
+			}
 		}
 	};
 

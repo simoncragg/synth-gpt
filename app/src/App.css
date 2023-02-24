@@ -4,3 +4,10 @@
   align-items: center;
   height: 100vh;
 }
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}

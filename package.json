@@ -27,5 +27,6 @@
 		"@commitlint/cli": "^17.4.3",
 		"@commitlint/config-conventional": "^17.4.3",
 		"husky": "^8.0.0"
-	}
+	},
+	"dependencies": {}
 }
