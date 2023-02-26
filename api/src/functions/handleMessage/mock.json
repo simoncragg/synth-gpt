@@ -1,0 +1,6 @@
+{
+	"headers": {
+		"Content-Type": "application/json"
+	},
+	"body": "{\"message\": \"This is a test\"}"
+}

@@ -3,7 +3,12 @@
 	"version": "1.0.0",
 	"description": "An intelligent voice assistant",
 	"scripts": {
-		"test:app": "npm run --prefix app/ test -- --watchAll=false",
+		"start:api": "npm start --prefix ./api",
+		"start:app": "npm start --prefix ./app",
+		"start": "concurrently \"npm run start:api\" \"npm run start:app\" --prefix-colors \"magenta,cyan\"",
+		"test:api": "npm t --prefix ./api",
+		"test:app": "npm t --prefix ./app -- --watchAll=false",
+		"test": "concurrently \"npm run test:api\" \"npm run test:app\" --prefix-colors \"magenta,cyan\"",
 		"prepare": "husky install"
 	},
 	"keywords": [
@@ -30,7 +35,7 @@
 	"devDependencies": {
 		"@commitlint/cli": "^17.4.3",
 		"@commitlint/config-conventional": "^17.4.3",
+		"concurrently": "^7.6.0",
 		"husky": "^8.0.0"
-	},
-	"dependencies": {}
+	}
 }

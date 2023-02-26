@@ -2,9 +2,11 @@
 node_modules
 
 # distributables
+api/.esbuild
 app/build
 
 # coverage
+api/coverage
 app/coverage
 
 # ide
