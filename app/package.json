@@ -9,6 +9,10 @@
   },
   "license": "MIT",
   "author": "Simon Cragg",
+  "engines": {
+    "npm": ">=6.14.15",
+    "node": ">=16.18.0"
+  },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.3",
     "react": "^18.2.0",
