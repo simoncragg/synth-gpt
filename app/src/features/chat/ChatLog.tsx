@@ -1,8 +1,9 @@
 import { useSelector, shallowEqual } from "react-redux";
+import { RootStateType } from "../../store";
 
 const ChatLog = () => {
 	const messages = useSelector(
-		(state: RootState) => state.chat.messages,
+		(state: RootStateType) => state.chat.messages,
 		shallowEqual
 	);
 

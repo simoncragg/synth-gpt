@@ -1,13 +1,22 @@
-interface RootState {
-  chat: Chat;
-}
-
 interface Chat {
+  id: string;
   messages: ChatMessage[];
 }
 
+type SenderType = "user" | "bot";
+
 interface ChatMessage {
   id: string;
-  sender: "synth" | "user";
+  sender: SenderType;
+  message: string;
+  timestamp: number;
+}
+
+interface SendMessageRequest {
+  chatId: string;
+  message: string;
+}
+
+interface SendMessageResponse {
   message: string;
 }

@@ -1,28 +1,31 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 
+const chatId = uuidv4();
+console.log(`chatId >${chatId}<`);
+
 const initialState: Chat = {
-	messages: [{
-		id: uuidv4(),
-		sender: "synth",
-		message: "How can I help?"
-	} as ChatMessage],
+	id: chatId,
+	messages: [],
 };
+
+type AddMessagePayloadType = { sender: SenderType, message: string };
 
 const chatSlice = createSlice({
 	name: "chat",
 	initialState,
 	reducers: {
-		sendMessage: (chat: Chat, action: PayloadAction<string>) => {
+		addMessage: (chat: Chat, action: PayloadAction<AddMessagePayloadType>) => {
 			chat.messages.push({
 				id: uuidv4(),
-				sender: "user",
-				message: action.payload
+				sender: action.payload.sender,
+				message: action.payload.message,
+				timestamp: Date.now()
 			});
 		},
 	},
 });
 
-export const { sendMessage } = chatSlice.actions;
+export const { addMessage } = chatSlice.actions;
 
-export default chatSlice.reducer;
+export default chatSlice;

@@ -1,11 +1,11 @@
-import { useDispatch } from "react-redux";
-import { sendMessage } from "./chatSlice";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import "./SpeechToText.css";
 
-const SpeechToText = () => {
+type SpeechToTextProps = {
+	onResult : (transition: string) => void;
+};
 
-	const dispatch = useDispatch();
+const SpeechToText = ({ onResult  }: SpeechToTextProps) => {
 
 	const {
 		transcript,
@@ -25,7 +25,7 @@ const SpeechToText = () => {
 		} else {
 			SpeechRecognition.stopListening();
 			if (transcript) {
-				dispatch(sendMessage(transcript));
+				onResult (transcript);
 			}
 		}
 	};
@@ -33,7 +33,7 @@ const SpeechToText = () => {
 	return (
 		<>
 			<div className="mic-container">
-				<button role="button"
+				<button data-testid="mic-button" role="button"
 					onClick={toggleListen}
 				>
 					<img src="/mic.svg" alt="Start Listening" />
