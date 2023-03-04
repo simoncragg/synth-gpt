@@ -1,12 +1,13 @@
 import { v4 as uuidv4 } from "uuid";
 import { fireEvent } from "@testing-library/react";
 import { renderWithProviders } from "../../../utils/test-utils";
-import { useSendMessageMutation } from "../../../services/chatApi";
+import { useSendMessageMutation, useTextToSpeechMutation } from "../../../services/chatApi";
 import { useSpeechRecognition } from "react-speech-recognition";
 import Chat from "../Chat";
 
 jest.mock("../../../services/chatApi", () => ({
 	useSendMessageMutation: jest.fn(),
+	useTextToSpeechMutation: jest.fn(),
 	chatApi: {
 		reducer: {},
 		middleware: []
@@ -41,6 +42,10 @@ describe("Chat", () => {
 
 		const sendMessageMock = jest.fn();
 		useSendMessageMutation.mockImplementation(() => [sendMessageMock, { isLoading: false }]);
+
+		const textToSpeechMock = jest.fn();
+		useTextToSpeechMutation.mockImplementation(() => [textToSpeechMock, { isLoading: false }]);
+
 		const { getByTestId } = renderWithProviders(<Chat />, {
 			preloadedState: {
 				chat: {

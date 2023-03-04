@@ -7,7 +7,7 @@ export default {
 		{
 			http: {
 				method: "post",
-				path: "api/v1/chat/{id}",
+				path: "api/v1/textToSpeech",
 				request: {
 					schemas: {
 						"application/json": schema,

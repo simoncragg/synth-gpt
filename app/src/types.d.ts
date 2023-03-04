@@ -20,3 +20,12 @@ interface SendMessageRequest {
 interface SendMessageResponse {
   message: string;
 }
+
+interface TextToSpeechRequest {
+  transcript: string;
+}
+
+interface TextToSpeechResponse {
+  transcript: string;
+  audioUrl: string;
+}

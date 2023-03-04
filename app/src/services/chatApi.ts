@@ -23,7 +23,20 @@ export const chatApi = createApi({
 				dispatch(addMessage(botMessage));
 			}
 		}),
+		textToSpeech: build.mutation<TextToSpeechResponse, TextToSpeechRequest>({
+			query(request) {
+				const { transcript } = request;
+				return {
+					url: "textToSpeech",
+					method: "POST",
+					body: { transcript },
+				};
+			}
+		}),
 	}),
 });
 
-export const { useSendMessageMutation } = chatApi;
+export const {
+	useSendMessageMutation,
+	useTextToSpeechMutation
+} = chatApi;

@@ -5,6 +5,9 @@ node_modules
 api/.esbuild
 app/build
 
+# s3 local
+api/s3
+
 # coverage
 api/coverage
 app/coverage
