@@ -1,9 +1,9 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
+import { formatJSONResponse } from "@libs/api-gateway";
 import { generateAudioStreamAsync } from "../../proxies/elevenLabsApiProxy";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
-import { formatJSONResponse } from "@libs/api-gateway";
 import schema from "./schema";
 
 const s3CredsForDev = { accessKeyId: "S3RVER", secretAccessKey: "S3RVER" };
