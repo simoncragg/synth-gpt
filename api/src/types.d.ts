@@ -34,3 +34,13 @@ interface ChatUsage {
 	completion_tokens: number;
 	total_tokens: number;
 }
+
+interface Chat {
+	id: string;
+	messages: ChatMessageWithTimestamp[];
+}
+
+interface ChatMessageWithTimestamp extends ChatMessage {
+	timestamp: number;
+}
+

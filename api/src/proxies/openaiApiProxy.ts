@@ -1,15 +1,10 @@
 import fetch from "node-fetch";
 
-export async function generateChatResponseAsync(userInput: string): Promise<ChatMessage> {
-
-	const systemPrompt = "You are a helpful voice assistant. Wrap any code snippets in a <code:{language}> tag.";
+export async function generateChatResponseAsync(messages: ChatMessage[]): Promise<ChatMessage> {
 
 	const data = {
 		model: "gpt-3.5-turbo",
-		messages: [
-			{ role: "system", content: systemPrompt },
-			{ role: "user", content: userInput },
-		],
+		messages,
 	};
 
 	const headers = {

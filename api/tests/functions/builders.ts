@@ -1,6 +1,6 @@
 import { JsonValue } from "type-fest";
 
-export function buildHttpPostEvent(path: string, body: JsonValue) {
+export function buildHttpPostEvent(path: string, body: JsonValue, pathParameters: { [key: string]: string } = null) {
 	return {
 		body,
 		rawBody: JSON.stringify(body),
@@ -9,7 +9,7 @@ export function buildHttpPostEvent(path: string, body: JsonValue) {
 		multiValueHeaders: {},
 		isBase64Encoded: false,
 		path,
-		pathParameters: null,
+		pathParameters,
 		queryStringParameters: null,
 		multiValueQueryStringParameters: null,
 		stageVariables: null,
