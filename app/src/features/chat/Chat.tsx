@@ -12,8 +12,8 @@ const Chat = () => {
 		(state: RootStateType) => state.chat.id
 	);
 
-	const [sendMessage, { data: sendMessageResult }] = useSendMessageMutation();
-	const [textToSpeech, { data: textToSpeechResult }] = useTextToSpeechMutation();
+	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] = useSendMessageMutation();
+	const [textToSpeech, { data: textToSpeechResult, isLoading: isLoadingAudio }] = useTextToSpeechMutation();
 
 	useEffect(() => {
 		const message = sendMessageResult?.message;
@@ -38,7 +38,7 @@ const Chat = () => {
 
 	return (
 		<div className="chat-container">
-			<SpeechToText onResult ={onSpeechRecognitionResult} />
+			<SpeechToText onResult ={onSpeechRecognitionResult} isLoading={isLoadingText || isLoadingAudio} />
 			<ChatLog />
 
 		</div>

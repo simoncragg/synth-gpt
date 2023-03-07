@@ -2,10 +2,11 @@ import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognitio
 import "./SpeechToText.css";
 
 type SpeechToTextProps = {
-	onResult : (transition: string) => void;
+	onResult: (transition: string) => void;
+	isLoading: boolean;
 };
 
-const SpeechToText = ({ onResult  }: SpeechToTextProps) => {
+const SpeechToText = ({ onResult, isLoading }: SpeechToTextProps) => {
 
 	const {
 		transcript,
@@ -33,12 +34,17 @@ const SpeechToText = ({ onResult  }: SpeechToTextProps) => {
 	return (
 		<>
 			<div className="mic-container">
-				<button data-testid="mic-button" role="button"
-					onClick={toggleListen}
-				>
-					<img src="/mic.svg" alt="Start Listening" />
-				</button>
-				{ listening && <div className="mic-pulse" />}
+				{ isLoading ? (
+					<div className="loader"></div>
+				) : (
+					<>
+						<button data-testid="mic-button" role="button" onClick={toggleListen}>
+							<img src="/mic.svg" alt="Start Listening" />
+						</button>
+						{ listening && <div className="mic-pulse" /> }
+					</>
+				)}
+
 			</div>
 
 			<div className="transcript-container">
