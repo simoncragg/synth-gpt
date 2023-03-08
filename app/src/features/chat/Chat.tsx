@@ -25,10 +25,13 @@ const Chat = () => {
 	useEffect(() => {
 		const audioUrl = textToSpeechResult?.audioUrl;
 		if (audioUrl) {
-			const audio = new Audio();
-			audio.src = audioUrl;
-			audio.load();
-			audio.play();
+			const audio = new Audio(audioUrl);
+			audio.addEventListener("canplay", () => {
+				audio.play();
+			});
+			audio.addEventListener("error", () => {
+				console.log(`Error loading ${audioUrl}`);
+			});
 		}
 	}, [textToSpeechResult]);
 
