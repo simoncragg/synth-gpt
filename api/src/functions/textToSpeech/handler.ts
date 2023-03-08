@@ -19,7 +19,12 @@ const textToSpeech: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
 	const { transcript } = event.body;
 
 	try {
+
+		console.time("textToSpeech");
+
+		console.time("generateAudioStreamAsync");
 		const audioStream = await generateAudioStreamAsync(transcript);
+		console.timeEnd("generateAudioStreamAsync");
 
 		const s3 = new S3Client(s3Config);
 		const filename = `${Date.now()}.mpg`;
@@ -36,8 +41,10 @@ const textToSpeech: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
 			new GetObjectCommand({
 				Bucket: process.env.S3_AUDIO_BUCKET_NAME,
 				Key: filename
-			}), { expiresIn: 30 }
+			}), { expiresIn: 60 }
 		);
+
+		console.timeEnd("textToSpeech");
 
 		return formatJSONResponse<TextToSpeechResponseBody>({
 			transcript,

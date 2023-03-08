@@ -8,6 +8,8 @@ import schema from "./schema";
 
 const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	try {
+		console.time("handleMessage");
+
 		const chatId = event.pathParameters.id;
 		const { message } = event.body;
 
@@ -40,6 +42,8 @@ const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 		});
 
 		await chatRepository.updateItemAsync(chat);
+
+		console.timeEnd("handleMessage");
 
 		return formatJSONResponse<HandleMessageResponseBody>({
 			message: `${content}`
