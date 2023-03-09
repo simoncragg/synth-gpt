@@ -1,7 +1,7 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import { formatJSONResponse } from "@libs/api-gateway";
-import { generateAudioStreamAsync } from "../../proxies/elevenLabsApiProxy";
+import { performTextToSpeech } from "../../proxies/pollyApiProxy";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import schema from "./schema";
@@ -22,9 +22,9 @@ const textToSpeech: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
 
 		console.time("textToSpeech");
 
-		console.time("generateAudioStreamAsync");
-		const audioStream = await generateAudioStreamAsync(transcript);
-		console.timeEnd("generateAudioStreamAsync");
+		console.time("performTextToSpeech");
+		const audioStream = await performTextToSpeech(transcript);
+		console.timeEnd("performTextToSpeech");
 
 		const s3 = new S3Client(s3Config);
 		const filename = `${Date.now()}.mpg`;
