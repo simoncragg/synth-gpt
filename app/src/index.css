@@ -3,7 +3,7 @@ body {
   color: #B3D1FF;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(to bottom, #1e1e26, #2e2e37, #332b33);
+  background: #1e1e26;
   height: 100vh;
   width: 100%;
   margin: 0;
