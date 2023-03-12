@@ -3,8 +3,8 @@ import { useSelector } from "react-redux";
 import { useSendMessageMutation, useTextToSpeechMutation } from "../../services/chatApi";
 import { RootStateType } from "../../store";
 import SpeechToText from "./SpeechToText";
+
 import ChatLog from "./ChatLog";
-import "./Chat.css";
 
 const Chat = () => {
 
@@ -40,11 +40,22 @@ const Chat = () => {
 	};
 
 	return (
-		<div className="chat-container">
-			<SpeechToText onResult ={onSpeechRecognitionResult} isLoading={isLoadingText || isLoadingAudio} />
-			<ChatLog />
+		<>
+			<div className="fixed left-0 bottom-4 z-50 w-full">
+				<div className="flex flex-col left-0 items-center">
+					{ isLoadingText || isLoadingAudio ? (
+						<div className="relative bg-[#1e1e26] rounded-full">
+							<div className="loader"></div>
+						</div>
+					) : (
+						<SpeechToText onResult ={onSpeechRecognitionResult} />
+					)}
+				
+				</div>
+			</div>
 
-		</div>
+			<ChatLog />
+		</>
 	);
 };
 

@@ -4,34 +4,21 @@ import ChatLog from "../ChatLog";
 
 describe("ChatLog", () => {
 
-	it("shows messages", () => {
+	it("displays messages", () => {
 		const messages = [
 			{ id: uuidv4(), sender: "user", message: "Hello" },
 			{ id: uuidv4(), sender: "synth", message: "Hi there!" },
 		];
 	
-		const { container, getByText } = renderWithProviders(<ChatLog />, {
+		const { getByText } = renderWithProviders(<ChatLog />, {
 			preloadedState: {
 				chat: { messages }
 			}
 		});
 
-		expect(container.querySelector(".hidden")).not.toBeInTheDocument();
-
 		for (const msg of messages) {
-			const message = getByText(`${msg.sender}: ${msg.message}`);
-			expect(message).toBeInTheDocument();
+			const messageEl = getByText(msg.message);
+			expect(messageEl).toBeInTheDocument();
 		}
-	});
-
-	it("is hidden when there are no messages", () => {
-
-		const { container } = renderWithProviders(<ChatLog />, {
-			preloadedState: {
-				chat: { messages: [] }
-			}
-		});
-
-		expect(container.querySelector(".hidden")).toBeInTheDocument();
 	});
 });

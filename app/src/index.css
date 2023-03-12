@@ -1,19 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 body {
   font-family: 'Open Sans', sans-serif;
-  color: #B3D1FF;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  color: #b3d1ff;
   background: #1e1e26;
-  height: 100vh;
-  width: 100%;
-  margin: 0;
 }
 
-.hidden {
-  display: none;
+.logo {
+  font-family: 'Oxanium', cursive;
 }
 
 .loader {
+  position: relative;
+  display: flex;
+  justify-content: center;
   -webkit-animation: spin 1s linear infinite;
           animation: spin 1s linear infinite;
   border: 3px solid #ddd;
@@ -21,6 +23,7 @@ body {
   border-radius: 50%;
   height: 75px;
   width: 75px;
+  z-index: 99;
 }
 
 @-webkit-keyframes spin {

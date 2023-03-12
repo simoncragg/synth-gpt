@@ -7,8 +7,12 @@
         "eslint:recommended",
         "plugin:@typescript-eslint/recommended"
     ],
-    "overrides": [
-    ],
+    "overrides": [{
+        "files": ["*.config.js"],
+        "env": {
+        "node": true
+        }
+    }],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {
         "ecmaVersion": "latest",
