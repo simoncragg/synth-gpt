@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { renderWithProviders } from "../../../utils/test-utils";
-import ChatLog from "../ChatLog";
+import ChatLog from "./ChatLog";
 
 describe("ChatLog", () => {
 

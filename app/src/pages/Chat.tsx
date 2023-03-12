@@ -1,10 +1,10 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
-import { useSendMessageMutation, useTextToSpeechMutation } from "../../services/chatApi";
-import { RootStateType } from "../../store";
-import SpeechToText from "./SpeechToText";
+import { useSendMessageMutation, useTextToSpeechMutation } from "../services/chatApi";
+import { RootStateType } from "../store";
+import SpeechToText from "../features/chat/components/SpeechToText";
 
-import ChatLog from "./ChatLog";
+import ChatLog from "../features/chat/components/ChatLog";
 
 const Chat = () => {
 

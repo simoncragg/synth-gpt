@@ -1,5 +1,5 @@
 import { useSelector, shallowEqual } from "react-redux";
-import { RootStateType } from "../../store";
+import { RootStateType } from "../../../store";
 import { AiOutlineUser } from "react-icons/ai";
 import { RiVoiceprintFill } from "react-icons/ri";
 

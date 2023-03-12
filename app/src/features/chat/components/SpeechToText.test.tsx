@@ -1,7 +1,7 @@
 import "regenerator-runtime/runtime";
 import { renderWithProviders } from "../../../utils/test-utils";
 import { fireEvent } from "@testing-library/react";
-import SpeechToText from "../SpeechToText";
+import SpeechToText from "./SpeechToText";
 import SpeechRecognition, { useSpeechRecognition} from "react-speech-recognition";
 
 jest.mock("react-speech-recognition", () => ({

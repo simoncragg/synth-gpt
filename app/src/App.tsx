@@ -1,4 +1,4 @@
-import Chat from "./features/chat/Chat";
+import Chat from "./pages/Chat";
 import { Navbar } from "flowbite-react";
 import { AiFillGithub } from "react-icons/ai";
 import { RiVoiceprintFill } from "react-icons/ri";
