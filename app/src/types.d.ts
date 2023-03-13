@@ -1,3 +1,5 @@
+/* Chat */
+
 interface Chat {
   id: string;
   messages: ChatMessage[];
@@ -8,9 +10,11 @@ type SenderType = "user" | "bot";
 interface ChatMessage {
   id: string;
   sender: SenderType;
-  message: string;
+  content: string;
   timestamp: number;
 }
+
+/* SendMessage */
 
 interface SendMessageRequest {
   chatId: string;
@@ -21,6 +25,8 @@ interface SendMessageResponse {
   message: string;
 }
 
+/* TextToSpeech */
+
 interface TextToSpeechRequest {
   transcript: string;
 }
@@ -28,4 +34,22 @@ interface TextToSpeechRequest {
 interface TextToSpeechResponse {
   transcript: string;
   audioUrl: string;
+}
+
+/* Message Parts */
+
+type MessagePartType = "Paragraph" | "OrderedList";
+
+interface MessagePart {
+  type: MessagePartType,
+}
+
+interface Paragraph extends MessagePart {
+  type: "Paragraph";
+  text: string;
+}
+
+interface OrderedList extends MessagePart {
+  type: "OrderedList";
+  items: string[];
 }

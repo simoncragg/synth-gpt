@@ -6,10 +6,10 @@ describe("ChatLog", () => {
 
 	it("displays messages", () => {
 		const messages = [
-			{ id: uuidv4(), sender: "user", message: "Hello" },
-			{ id: uuidv4(), sender: "synth", message: "Hi there!" },
+			{ id: uuidv4(), sender: "user", timestamp: Date.now(), content: "Hello" },
+			{ id: uuidv4(), sender: "bot", timestamp: Date.now() + 1000, content: "Hi there!" },
 		];
-	
+
 		const { getByText } = renderWithProviders(<ChatLog />, {
 			preloadedState: {
 				chat: { messages }
@@ -17,7 +17,7 @@ describe("ChatLog", () => {
 		});
 
 		for (const msg of messages) {
-			const messageEl = getByText(msg.message);
+			const messageEl = getByText(msg.content);
 			expect(messageEl).toBeInTheDocument();
 		}
 	});

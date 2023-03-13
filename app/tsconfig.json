@@ -25,5 +25,5 @@
     "jsx": "react-jsx"
   },
   "include": ["src"],
-  "exclude": ["src/**/*.test.tsx", "src/utils"]
+  "exclude": ["src/**/*.test.tsx", "src/**/*.test.ts", "src/utils"]
 }

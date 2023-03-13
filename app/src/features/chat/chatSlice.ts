@@ -19,7 +19,7 @@ const chatSlice = createSlice({
 			chat.messages.push({
 				id: uuidv4(),
 				sender: action.payload.sender,
-				message: action.payload.message,
+				content: action.payload.message,
 				timestamp: Date.now()
 			});
 		},
