@@ -12,6 +12,11 @@ body {
   font-family: 'Oxanium', cursive;
 }
 
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #000000;
+}
+
 .loader {
   position: relative;
   display: flex;

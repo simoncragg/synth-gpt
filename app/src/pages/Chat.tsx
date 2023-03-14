@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useSendMessageMutation, useTextToSpeechMutation } from "../services/chatApi";
 import { RootStateType } from "../store";
-import SpeechToText from "../features/chat/components/SpeechToText";
-
+import { mapToContentParts } from "../features/chat/mappers/contentMapper";
 import ChatLog from "../features/chat/components/ChatLog";
+import SpeechToText from "../features/chat/components/SpeechToText";
 
 const Chat = () => {
 
@@ -18,7 +18,8 @@ const Chat = () => {
 	useEffect(() => {
 		const message = sendMessageResult?.message;
 		if (message) {
-			textToSpeech({ transcript: message });
+			const transcript = mapToSpokenTranscript(message);
+			textToSpeech({ transcript });
 		}
 	}, [sendMessageResult]);
 
@@ -60,4 +61,18 @@ const Chat = () => {
 };
 
 export default Chat;
+
+function mapToSpokenTranscript(message: string) {
+	const contentParts = mapToContentParts(message);
+	return contentParts.reduce((transcript: string, part: MessagePart) => {
+		switch (part.type) {
+			case "OrderedList":
+				return `${transcript}${(part as OrderedList).numberedPoints.join("\n")}`;
+			case "Paragraph":
+				return `${transcript}${(part as Paragraph).text}\n`;
+			default:
+				return transcript;
+		}
+	}, "");
+}
 

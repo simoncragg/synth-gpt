@@ -2,7 +2,6 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
 
 const chatId = uuidv4();
-console.log(`chatId >${chatId}<`);
 
 const initialState: Chat = {
 	id: chatId,

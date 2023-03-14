@@ -3,6 +3,7 @@ import { RootStateType } from "../../../store";
 import { AiOutlineUser } from "react-icons/ai";
 import { RiVoiceprintFill } from "react-icons/ri";
 import { mapToContentParts } from "../mappers/contentMapper";
+import Code from "../../../components/Code";
 
 const ChatLog = () => {
 	const messages = useSelector(
@@ -23,12 +24,18 @@ const ChatLog = () => {
 						switch (part.type) {
 							case "OrderedList": 
 								return (
-									<ol>
-										{(part as OrderedList).items.map((item: string, index: number) => (
-											<li key={index} className="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">{item}</li>
+									<ol data-testid="numberedPoints">
+										{(part as OrderedList).numberedPoints.map((numberedPoint: string, index: number) => (
+											<li key={index} className="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">{numberedPoint}</li>
 										))}
 									</ol>
 								);
+
+							case "CodeSnippet":
+								return (
+									<Code code={(part as CodeSnippet).code} language={(part as CodeSnippet).language} />
+								);
+
 							default:
 								return (
 									<p className="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">

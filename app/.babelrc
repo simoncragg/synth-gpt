@@ -1,0 +1,12 @@
+{
+  "presets": ["@babel/env", "@babel/react"],
+  "plugins": [
+      ["prismjs", {
+        "languages": ["css", "csharp", "java", "javascript", "json", "markup", "python", "rust", "swift", "typescript"],
+        "plugins": ["line-numbers"],
+        "theme": "okaidia",
+        "css": true
+      }
+    ]
+  ]
+}

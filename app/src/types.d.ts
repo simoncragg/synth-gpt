@@ -38,7 +38,7 @@ interface TextToSpeechResponse {
 
 /* Message Parts */
 
-type MessagePartType = "Paragraph" | "OrderedList";
+type MessagePartType = "Paragraph" | "OrderedList" | "CodeSnippet";
 
 interface MessagePart {
   type: MessagePartType,
@@ -51,5 +51,11 @@ interface Paragraph extends MessagePart {
 
 interface OrderedList extends MessagePart {
   type: "OrderedList";
-  items: string[];
+  numberedPoints: string[];
+}
+
+interface CodeSnippet extends MessagePart {
+  type: "CodeSnippet";
+  language: string;
+  code: string;
 }
