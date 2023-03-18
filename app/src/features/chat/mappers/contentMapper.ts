@@ -2,8 +2,6 @@ export function mapToContentParts(content: string): MessagePart[] {
 	const parts = [];
 	const lines = content.split("\n");
 
-	console.log(lines);
-
 	let i = 0;
 	while (i < lines.length) {
 
