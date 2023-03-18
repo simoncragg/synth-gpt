@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useSendMessageMutation, useTextToSpeechMutation } from "../services/chatApi";
-import { RootStateType } from "../store";
 import { mapToContentParts } from "../features/chat/mappers/contentMapper";
+import { RootStateType } from "../store";
+
 import ChatLog from "../features/chat/components/ChatLog";
 import SpeechToText from "../features/chat/components/SpeechToText";
 
@@ -42,20 +43,25 @@ const Chat = () => {
 
 	return (
 		<>
-			<div className="fixed left-0 bottom-4 z-50 w-full">
-				<div className="flex flex-col left-0 items-center">
-					{ isLoadingText || isLoadingAudio ? (
+			<div className="flex flex-col items-center mt-16 pt-4 px-8 sm:ml-64 sm:mt-2 overflow-y-auto h-[calc(100vh-10px)]">
+				<div className="flex flex-col items-center text-base w-full pt-4 sm:w-[75%]">
+					<div className="flex w-full mb-[100px]">
+						<ChatLog />
+					</div>
+				</div>
+			</div>
+
+			<div className="fixed sm:left-[128px] bottom-0 w-full overflow-y-hidden">
+				<div className="flex flex-col left-0 items-center mb-4">
+					{isLoadingText || isLoadingAudio ? (
 						<div className="relative bg-[#1e1e26] rounded-full">
 							<div className="loader"></div>
 						</div>
 					) : (
 						<SpeechToText onResult ={onSpeechRecognitionResult} />
 					)}
-				
 				</div>
 			</div>
-
-			<ChatLog />
 		</>
 	);
 };
@@ -75,4 +81,3 @@ function mapToSpokenTranscript(message: string) {
 		}
 	}, "");
 }
-
