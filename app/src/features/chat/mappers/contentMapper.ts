@@ -48,7 +48,7 @@ function isNumberedPoint(line: string): boolean {
 }
 
 function isCodeMarker(line: string): boolean {
-	return /^```(?:bash|c|cpp|csharp|css|html|java|javascript|jsx|markup|python|rust|swift|toml|tsx|typescript)/.test(line);
+	return /^```(?:bash|c|cshtml|cpp|csharp|css|docker|fsharp|git|html|java|javascript|json|jsx|kotlin|lua|markdown|markup|python|rust|scala|swift|toml|tsx|typescript)/.test(line);
 }
 
 function extractNumberedPoints(lines: string[]): string[] {
