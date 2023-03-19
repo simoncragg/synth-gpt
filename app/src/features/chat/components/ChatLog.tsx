@@ -4,6 +4,7 @@ import { AiOutlineUser } from "react-icons/ai";
 import { RiVoiceprintFill } from "react-icons/ri";
 import { mapToContentParts } from "../mappers/contentMapper";
 import Code from "../../../components/Code";
+import "./ChatLog.css";
 
 const ChatLog = () => {
 	const messages = useSelector(
