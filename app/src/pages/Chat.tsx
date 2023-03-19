@@ -3,14 +3,14 @@ import { useSelector } from "react-redux";
 import { useSendMessageMutation, useTextToSpeechMutation } from "../services/chatApi";
 import { mapToContentParts } from "../features/chat/mappers/contentMapper";
 import { RootStateType } from "../store";
-
+import HeroSection from "../components/HeroSection";
 import ChatLog from "../features/chat/components/ChatLog";
 import SpeechToText from "../features/chat/components/SpeechToText";
 
 const Chat = () => {
 
-	const chatId = useSelector(
-		(state: RootStateType) => state.chat.id
+	const { id: chatId, messages } = useSelector(
+		(state: RootStateType) => state.chat
 	);
 
 	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] = useSendMessageMutation();
@@ -45,9 +45,15 @@ const Chat = () => {
 		<>
 			<div className="flex flex-col items-center mt-16 pt-4 px-8 sm:ml-64 sm:mt-2 overflow-y-auto h-[calc(100vh-10px)]">
 				<div className="flex flex-col items-center text-base w-full pt-4 sm:w-[75%]">
+
+					{ isLoadingText || messages.length === 0 && (
+						<HeroSection />
+					)}
+
 					<div className="flex w-full mb-[100px]">
 						<ChatLog />
 					</div>
+
 				</div>
 			</div>
 
