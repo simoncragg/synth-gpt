@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useSendMessageMutation, useTextToSpeechMutation } from "../services/chatApi";
-import { mapToContentParts } from "../features/chat/mappers/contentMapper";
+import { mapToSpokenTranscript } from "../features/chat/mappers/contentMapper";
 import { RootStateType } from "../store";
 import HeroSection from "../components/HeroSection";
 import ChatLog from "../features/chat/components/ChatLog";
@@ -89,17 +89,3 @@ const Chat = () => {
 };
 
 export default Chat;
-
-function mapToSpokenTranscript(message: string) {
-	const contentParts = mapToContentParts(message);
-	return contentParts.reduce((transcript: string, part: MessagePart) => {
-		switch (part.type) {
-			case "OrderedList":
-				return `${transcript}${(part as OrderedList).numberedPoints.join("\n")}`;
-			case "Paragraph":
-				return `${transcript}${(part as Paragraph).text}\n`;
-			default:
-				return transcript;
-		}
-	}, "");
-}

@@ -43,6 +43,22 @@ export function mapToContentParts(content: string): MessagePart[] {
 	return parts;
 }
 
+export function mapToSpokenTranscript(message: string) {
+	const contentParts = mapToContentParts(message);
+	return contentParts.reduce((transcript: string, part: MessagePart) => {
+		switch (part.type) {
+			case "OrderedList":
+				return `${transcript}${(part as OrderedList).numberedPoints.join("\n")}`;
+			case "Paragraph":
+				return `${transcript}${(part as Paragraph).text}\n`;
+			default:
+				return transcript;
+		}
+	}, "");
+}
+
+/* private functions */
+
 function isNumberedPoint(line: string): boolean {
 	return /^\d+\.\s/.test(line);
 }
