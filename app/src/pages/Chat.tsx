@@ -19,6 +19,10 @@ const Chat = () => {
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
+		scrollTo(scrollToTargetRef.current);
+	}, [messages]);
+
+	useEffect(() => {
 		const message = sendMessageResult?.message;
 		if (message) {
 			const transcript = mapToSpokenTranscript(message);
@@ -27,7 +31,6 @@ const Chat = () => {
 	}, [sendMessageResult]);
 
 	useEffect(() => {
-		scrollTo(scrollToTargetRef.current);
 		playAudio(textToSpeechResult?.audioUrl);
 	}, [textToSpeechResult]);
 
