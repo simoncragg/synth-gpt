@@ -1,9 +1,11 @@
-import { v4 as uuidv4 } from "uuid";
 import { fireEvent } from "@testing-library/react";
 import { renderWithProviders } from "../utils/test-utils";
 import { useSendMessageMutation, useTextToSpeechMutation } from "../services/chatApi";
 import { useSpeechRecognition } from "react-speech-recognition";
+import { v4 as uuidv4 } from "uuid";
 import Chat from "./Chat";
+
+window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
 jest.mock("../services/chatApi", () => ({
 	useSendMessageMutation: jest.fn(),
@@ -23,15 +25,12 @@ jest.mock("react-speech-recognition", () => ({
 	},
 }));
 
+const chatId = uuidv4();
+const transcript = "this is a test";
+
 describe("Chat", () => {
 
-	it("should call useSendMessageMutation with correct arguments when onTransitionEnd is called", () => {
-
-		const chatId = uuidv4();
-
-		console.log(`chatId: ${chatId}`);
-
-		const transcript = "this is a test";
+	it("should call useSendMessageMutation with correct args when onTransitionEnd is called", () => {
 
 		useSpeechRecognition.mockReturnValue({
 			transcript: transcript,
@@ -46,15 +45,7 @@ describe("Chat", () => {
 		const textToSpeechMock = jest.fn();
 		useTextToSpeechMutation.mockImplementation(() => [textToSpeechMock, { isLoading: false }]);
 
-		const { getByTestId } = renderWithProviders(<Chat />, {
-			preloadedState: {
-				chat: {
-					id: chatId,
-					messages: []
-				}
-			}
-		});
-
+		const { getByTestId } = renderChat();
 		fireEvent.click(getByTestId("mic-button"));
 
 		expect(sendMessageMock).toHaveBeenCalledWith({
@@ -62,4 +53,37 @@ describe("Chat", () => {
 			message: transcript,
 		});
 	});
+
+	it("should scroll to bottom of window", () => {
+
+		useSpeechRecognition.mockReturnValue({
+			transcript: transcript,
+			listening: true,
+			browserSupportsSpeechRecognition: true,
+			resetTranscript: jest.fn()
+		});
+
+		useSendMessageMutation.mockImplementation(() => [jest.fn(), { isLoading: false }]);
+		useTextToSpeechMutation.mockImplementation(() => [jest.fn(), { isLoading: false }]);
+
+		const { getByTestId } = renderChat();
+		fireEvent.click(getByTestId("mic-button"));
+
+		const scrollTarget = getByTestId("scroll-target");
+		expect(scrollTarget.scrollIntoView).toHaveBeenCalledWith(
+			expect.objectContaining({
+				behavior: "smooth"
+			}));
+	});
+
+	const renderChat = () => {
+		return renderWithProviders(<Chat />, {
+			preloadedState: {
+				chat: {
+					id: chatId,
+					messages: []
+				}
+			}
+		});
+	};
 });

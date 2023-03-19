@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { useSendMessageMutation, useTextToSpeechMutation } from "../services/chatApi";
 import { mapToContentParts } from "../features/chat/mappers/contentMapper";
@@ -16,6 +16,8 @@ const Chat = () => {
 	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] = useSendMessageMutation();
 	const [textToSpeech, { data: textToSpeechResult, isLoading: isLoadingAudio }] = useTextToSpeechMutation();
 
+	const scrollToTargetRef = useRef<HTMLDivElement>(null);
+
 	useEffect(() => {
 		const message = sendMessageResult?.message;
 		if (message) {
@@ -25,7 +27,23 @@ const Chat = () => {
 	}, [sendMessageResult]);
 
 	useEffect(() => {
-		const audioUrl = textToSpeechResult?.audioUrl;
+		scrollTo(scrollToTargetRef.current);
+		playAudio(textToSpeechResult?.audioUrl);
+	}, [textToSpeechResult]);
+
+	const onSpeechRecognitionResult = (transcript: string) => {
+		sendMessage({ chatId, message: transcript });
+	};
+
+	const scrollTo = (target: HTMLDivElement | null) => {
+		target?.scrollIntoView({
+			behavior: "smooth", 
+			block: "end", 
+			inline: "nearest"
+		});
+	};
+
+	const playAudio = (audioUrl: string | undefined) => {
 		if (audioUrl) {
 			const audio = new Audio(audioUrl);
 			audio.addEventListener("canplay", () => {
@@ -35,10 +53,6 @@ const Chat = () => {
 				console.log(`Error loading ${audioUrl}`);
 			});
 		}
-	}, [textToSpeechResult]);
-
-	const onSpeechRecognitionResult = (transcript: string) => {
-		sendMessage({ chatId, message: transcript });
 	};
 
 	return (
@@ -53,6 +67,8 @@ const Chat = () => {
 					<div className="flex w-full mb-[100px]">
 						<ChatLog />
 					</div>
+
+					<div ref={scrollToTargetRef} data-testid="scroll-target"></div>
 
 				</div>
 			</div>
