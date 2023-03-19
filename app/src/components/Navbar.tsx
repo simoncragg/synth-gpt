@@ -56,10 +56,10 @@ const Navbar = () => {
 				aria-label="Sidebar" 
 			>
 				<div className="p-4">
-					<a href="/" className="flex items-center bg-gray-800">
-						<RiVoiceprintFill className="text-blue-300 w-6 h-6" />
-						<span className="logo pl-2 whitespace-nowrap text-2xl text-white">
-							synth gpt
+					<a href="/" className="flex gap-2">
+						<RiVoiceprintFill className="text-blue-300 w-4 h-4 mt-1" />
+						<span className="logo whitespace-nowrap text-white text-2xl">
+								synth gpt
 						</span>
 					</a>
 				</div>
