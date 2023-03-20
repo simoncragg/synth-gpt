@@ -52,7 +52,12 @@ interface Paragraph extends MessagePart {
 
 interface OrderedList extends MessagePart {
   type: "OrderedList";
-  numberedPoints: string[];
+  listItems: ListItem[];
+}
+
+interface ListItem {
+  id: string;
+  text: string;
 }
 
 interface CodeSnippet extends MessagePart {

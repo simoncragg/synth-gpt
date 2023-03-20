@@ -1,5 +1,11 @@
 import { mapToContentParts } from "./contentMapper";
 
+const mockedId = "mockedId";
+
+jest.mock("uuid", () => ({
+	v4: () => mockedId
+}));
+
 describe("mapToContentParts", () => {
 
 	it("should map a simple paragraph", () => {
@@ -54,10 +60,10 @@ describe("mapToContentParts", () => {
 				}),
 				expect.objectContaining({
 					type: "OrderedList",
-					numberedPoints: [
-						"1. List item one. First sentence.",
-						"2. List item two. Second sentence.",
-						"3. List item three. Third sentence."
+					listItems: [
+						expect.objectContaining({ id: mockedId, text: "1. List item one. First sentence." }),
+						expect.objectContaining({ id: mockedId, text: "2. List item two. Second sentence." }),
+						expect.objectContaining({ id: mockedId, text: "3. List item three. Third sentence." })
 					]
 				}),
 			]
@@ -83,10 +89,10 @@ describe("mapToContentParts", () => {
 				}),
 				expect.objectContaining({
 					type: "OrderedList",
-					numberedPoints: [
-						"1. List item one. First sentence.",
-						"2. List item two. Second sentence.",
-						"3. List item three. Third sentence."
+					listItems: [
+						expect.objectContaining({ id: mockedId, text: "1. List item one. First sentence." }),
+						expect.objectContaining({ id: mockedId, text: "2. List item two. Second sentence." }),
+						expect.objectContaining({ id: mockedId, text: "3. List item three. Third sentence." })
 					]
 				}),
 				expect.objectContaining({

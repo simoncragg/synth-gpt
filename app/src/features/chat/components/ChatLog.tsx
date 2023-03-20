@@ -26,8 +26,8 @@ const ChatLog = () => {
 							case "OrderedList": 
 								return (
 									<ol data-testid="numberedPoints">
-										{(part as OrderedList).numberedPoints.map((numberedPoint: string, index: number) => (
-											<li key={index} className="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">{numberedPoint}</li>
+										{(part as OrderedList).listItems.map((listItem: ListItem) => (
+											<li key={listItem.id} className="mb-4 text-base font-normal text-gray-500 dark:text-gray-400">{listItem.text}</li>
 										))}
 									</ol>
 								);

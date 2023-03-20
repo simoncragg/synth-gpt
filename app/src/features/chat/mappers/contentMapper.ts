@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from "uuid";
+
 export function mapToContentParts(content: string): MessagePart[] {
 	const parts = [];
 	const lines = content.split("\n");
@@ -9,7 +11,9 @@ export function mapToContentParts(content: string): MessagePart[] {
 			const numberedPoints = extractNumberedPoints(lines.filter((line, idx) => idx >= i));
 			parts.push({
 				type: "OrderedList",
-				numberedPoints,
+				listItems: numberedPoints.map(text => {
+					return { id: uuidv4(), text };
+				}),
 			} as OrderedList);
 			i += numberedPoints.length;
 		}
@@ -48,7 +52,9 @@ export function mapToSpokenTranscript(message: string) {
 	return contentParts.reduce((transcript: string, part: MessagePart) => {
 		switch (part.type) {
 			case "OrderedList":
-				return `${transcript}${(part as OrderedList).numberedPoints.join("\n")}`;
+				return `${transcript}${(part as OrderedList).listItems
+					.map(li => li.text)
+					.join("\n")}`;
 			case "Paragraph":
 				return `${transcript}${(part as Paragraph).text}\n`;
 			default:
