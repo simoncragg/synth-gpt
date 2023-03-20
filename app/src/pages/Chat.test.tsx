@@ -30,14 +30,18 @@ const transcript = "this is a test";
 
 describe("Chat", () => {
 
-	it("should call useSendMessageMutation with correct args when onTransitionEnd is called", () => {
-
+	const setupSpeechRecognitionHook = (transcript: string, listening: boolean) => {
 		useSpeechRecognition.mockReturnValue({
-			transcript: transcript,
-			listening: true,
+			transcript,
+			listening,
 			browserSupportsSpeechRecognition: true,
 			resetTranscript: jest.fn()
 		});
+	};
+
+	it("should call useSendMessageMutation with correct args when transcript changes", () => {
+
+		setupSpeechRecognitionHook(transcript, true);
 
 		const sendMessageMock = jest.fn();
 		useSendMessageMutation.mockImplementation(() => [sendMessageMock, { isLoading: false }]);
@@ -56,12 +60,7 @@ describe("Chat", () => {
 
 	it("should scroll to bottom of window", () => {
 
-		useSpeechRecognition.mockReturnValue({
-			transcript: transcript,
-			listening: true,
-			browserSupportsSpeechRecognition: true,
-			resetTranscript: jest.fn()
-		});
+		setupSpeechRecognitionHook(transcript, true);
 
 		useSendMessageMutation.mockImplementation(() => [jest.fn(), { isLoading: false }]);
 		useTextToSpeechMutation.mockImplementation(() => [jest.fn(), { isLoading: false }]);

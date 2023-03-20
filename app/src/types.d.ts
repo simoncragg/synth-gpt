@@ -2,6 +2,7 @@
 
 interface Chat {
   id: string;
+  transcript: string;
   messages: ChatMessage[];
 }
 

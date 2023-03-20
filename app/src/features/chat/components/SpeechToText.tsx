@@ -1,12 +1,12 @@
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { useDispatch } from "react-redux";
+import { updateTranscript } from "../chatSlice";
 import { BsStopFill } from "react-icons/bs";
 import "./SpeechToText.css";
 
-type SpeechToTextProps = {
-	onResult: (transition: string) => void;
-};
+const SpeechToText = () => {
 
-const SpeechToText = ({ onResult }: SpeechToTextProps) => {
+	const dispatch = useDispatch();
 
 	const {
 		transcript,
@@ -26,7 +26,7 @@ const SpeechToText = ({ onResult }: SpeechToTextProps) => {
 		} else {
 			SpeechRecognition.stopListening();
 			if (transcript) {
-				onResult (transcript);
+				dispatch(updateTranscript({transcript}));
 			}
 		}
 	};

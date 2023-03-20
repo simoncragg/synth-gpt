@@ -9,7 +9,7 @@ import SpeechToText from "../features/chat/components/SpeechToText";
 
 const Chat = () => {
 
-	const { id: chatId, messages } = useSelector(
+	const { id: chatId, transcript, messages } = useSelector(
 		(state: RootStateType) => state.chat
 	);
 
@@ -17,6 +17,12 @@ const Chat = () => {
 	const [textToSpeech, { data: textToSpeechResult, isLoading: isLoadingAudio }] = useTextToSpeechMutation();
 
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		if (transcript) {
+			sendMessage({ chatId, message: transcript });
+		}
+	}, [transcript]);
 
 	useEffect(() => {
 		scrollTo(scrollToTargetRef.current);
@@ -33,10 +39,6 @@ const Chat = () => {
 	useEffect(() => {
 		playAudio(textToSpeechResult?.audioUrl);
 	}, [textToSpeechResult]);
-
-	const onSpeechRecognitionResult = (transcript: string) => {
-		sendMessage({ chatId, message: transcript });
-	};
 
 	const scrollTo = (target: HTMLDivElement | null) => {
 		target?.scrollIntoView({
@@ -83,7 +85,7 @@ const Chat = () => {
 							<div className="loader"></div>
 						</div>
 					) : (
-						<SpeechToText onResult ={onSpeechRecognitionResult} />
+						<SpeechToText />
 					)}
 				</div>
 			</div>
