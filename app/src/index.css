@@ -25,10 +25,6 @@ pre[class*="language-"] {
           animation: spin 1s linear infinite;
   border: 3px solid #ddd;
   border-top: 3px solid #00ffff;
-  border-radius: 50%;
-  height: 75px;
-  width: 75px;
-  z-index: 99;
 }
 
 @-webkit-keyframes spin {

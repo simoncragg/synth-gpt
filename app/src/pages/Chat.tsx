@@ -81,8 +81,8 @@ const Chat = () => {
 			<div className="fixed sm:left-[128px] bottom-0 w-full overflow-y-hidden">
 				<div className="flex flex-col left-0 items-center mb-4">
 					{isLoadingText || isLoadingAudio ? (
-						<div className="relative bg-[#1e1e26] rounded-full">
-							<div className="loader"></div>
+						<div className="relative bg-slate-900 rounded-full p-2">
+							<div className="loader w-[70px] h-[70px] rounded-full z-50"></div>
 						</div>
 					) : (
 						<SpeechToText />
