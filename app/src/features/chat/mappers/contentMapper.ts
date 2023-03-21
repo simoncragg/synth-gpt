@@ -54,7 +54,7 @@ export function mapToSpokenTranscript(message: string) {
 			case "OrderedList":
 				return `${transcript}${(part as OrderedList).listItems
 					.map(li => li.text)
-					.join("\n")}`;
+					.join("\n")}\n`;
 			case "Paragraph":
 				return `${transcript}${(part as Paragraph).text}\n`;
 			default:
