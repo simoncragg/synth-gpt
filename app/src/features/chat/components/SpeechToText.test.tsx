@@ -59,6 +59,8 @@ describe("SpeechToText", () => {
 				chat: {
 					id: uuidv4(),
 					transcript: "",
+					composedMessage: "",
+					attachments: [],
 					messages: []
 				}
 			}
@@ -68,7 +70,7 @@ describe("SpeechToText", () => {
 		expect(transcript).toBeInTheDocument();
 	});
 
-	it.only("should stop listening and update the store's transcript when the mic button is clicked", () => {
+	it("should stop listening and update the store's transcript when the mic button is clicked", () => {
 
 		setupSpeechRecognitionHook(mockTranscript, true);
 
@@ -93,6 +95,29 @@ describe("SpeechToText", () => {
 
 		const { getByText } = renderWithProviders(<SpeechToText />);
 		const errorMessage = getByText("Browser doesn't support speech recognition.");
+		expect(errorMessage).toBeInTheDocument();
+	});
+
+	it.each([
+		"Hello Cynth",
+		"Hey Cynth",
+		"Hi Cynth",
+		"Hiya Cynth",
+		"Hello Cynthia",
+		"Hey Cynthia",
+		"Hi Cynthia",
+		"Hiya Cynthia",
+		"Hello Seth",
+		"Hey Seth",
+		"Hi Seth",
+		"Hiya Seth",
+	])("should fix common misheard name in a greeting", (misheardGreeting: string) => {
+
+		setupSpeechRecognitionHook(`${misheardGreeting}, how's it going?`, true);
+
+		const { getByText } = renderWithProviders(<SpeechToText />);
+		const greetingWord = misheardGreeting.split(" ")[0];
+		const errorMessage = getByText(`${greetingWord} Synth, how's it going?`);
 		expect(errorMessage).toBeInTheDocument();
 	});
 });

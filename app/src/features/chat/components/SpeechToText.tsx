@@ -1,11 +1,13 @@
-import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { updateTranscript } from "../chatSlice";
 import { BsStopFill } from "react-icons/bs";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import "./SpeechToText.css";
 
 const SpeechToText = () => {
 
+	const [fixedTranscript, setFixedTranscript] = useState("");
 	const dispatch = useDispatch();
 
 	const {
@@ -19,6 +21,12 @@ const SpeechToText = () => {
 		return <span>Browser doesn't support speech recognition.</span>;
 	}
 
+	useEffect(() => {
+		if (transcript) {
+			setFixedTranscript(fixTranscript(transcript));
+		}
+	}, [transcript]);
+
 	const toggleListen = () => {
 		if (!listening) {
 			resetTranscript();
@@ -26,9 +34,15 @@ const SpeechToText = () => {
 		} else {
 			SpeechRecognition.stopListening();
 			if (transcript) {
-				dispatch(updateTranscript({transcript}));
+				dispatch(updateTranscript({transcript: fixedTranscript}));
+				resetTranscript();
 			}
 		}
+	};
+
+	const fixTranscript = (transcript: string) => {
+		return transcript
+			.replace(/^(Hello|Hey|Hiya|Hi)(?:,|,\s|\s)(?:Cynthia|Cynth|Seth)/, (match, capturedGroup) => `${capturedGroup} Synth`);
 	};
 
 	return (
@@ -37,8 +51,8 @@ const SpeechToText = () => {
 				<div className="pb-8 text-2xl">I'm listening ...</div>
 			)}
 
-			{ transcript && (
-				<div className="pb-8 text-3xl">{transcript}</div>	
+			{ fixedTranscript && (
+				<div className="pb-8 text-3xl">{fixedTranscript}</div>	
 			)}
 
 			<button 
