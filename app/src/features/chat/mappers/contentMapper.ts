@@ -6,12 +6,13 @@ export function mapToContentParts(content: string): MessagePart[] {
 
 	let i = 0;
 	while (i < lines.length) {
-
 		if (isNumberedPoint(lines[i])) {
-			const numberedPoints = extractNumberedPoints(lines.filter((line, idx) => idx >= i));
+			const numberedPoints = extractNumberedPoints(
+				lines.filter((line, idx) => idx >= i)
+			);
 			parts.push({
 				type: "OrderedList",
-				listItems: numberedPoints.map(text => {
+				listItems: numberedPoints.map((text) => {
 					return { id: uuidv4(), text };
 				}),
 			} as OrderedList);
@@ -26,7 +27,7 @@ export function mapToContentParts(content: string): MessagePart[] {
 			parts.push({
 				type: "CodeSnippet",
 				language,
-				code
+				code,
 			} as CodeSnippet);
 
 			i += codeLines.length + 2;
@@ -35,7 +36,7 @@ export function mapToContentParts(content: string): MessagePart[] {
 		if (i < lines.length) {
 			parts.push({
 				type: "Paragraph",
-				text: clean(lines[i])
+				text: clean(lines[i]),
 			} as Paragraph);
 		}
 
@@ -53,7 +54,7 @@ export function mapToSpokenTranscript(message: string) {
 		switch (part.type) {
 			case "OrderedList":
 				return `${transcript}${(part as OrderedList).listItems
-					.map(li => li.text)
+					.map((li) => li.text)
 					.join("\n")}\n`;
 			case "Paragraph":
 				return `${transcript}${(part as Paragraph).text}\n`;
@@ -84,10 +85,7 @@ function extractNumberedPoints(lines: string[]): string[] {
 }
 
 function extractLanguage(line: string): string {
-	return line
-		.replace("```", "")
-		.replace("language-", "")
-		.toLowerCase();
+	return line.replace("```", "").replace("language-", "").toLowerCase();
 }
 
 function extractCodeLines(lines: string[]): string[] {
@@ -101,7 +99,5 @@ function extractCodeLines(lines: string[]): string[] {
 }
 
 function clean(line: string): string {
-	return line
-		.replace("```language", "")
-		.replace("```", "");
+	return line.replace("```language", "").replace("```", "");
 }

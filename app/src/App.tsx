@@ -2,7 +2,6 @@ import Navbar from "./components/Navbar";
 import Chat from "./pages/Chat";
 
 const App = () => {
-	
 	return (
 		<>
 			<Navbar />
