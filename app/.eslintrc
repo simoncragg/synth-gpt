@@ -40,7 +40,9 @@
         "prettier/prettier": [
             "error", {
                 "endOfLine": "auto",
-                "tabWidth": 2 
+                "tabWidth": 2,
+                "singleQuote": false,
+                "jsxSingleQuote": false
             }
         ]
     }
