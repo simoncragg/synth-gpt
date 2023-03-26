@@ -24,7 +24,6 @@
     "react-redux": "^8.0.5",
     "react-speech-recognition": "^3.10.0",
     "redux": "^4.2.1",
-    "save-dev": "^0.0.1-security",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
