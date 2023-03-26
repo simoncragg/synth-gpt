@@ -15,7 +15,7 @@ const ChatLog = () => {
 	return (
 		<ol className="relative w-full border-l border-gray-200 dark:border-gray-700">
 			{messages.map(({ id, sender, timestamp, content }) => (
-				<li key={id} className="mb-10 ml-6">
+				<li key={id} className="mb-10 ml-6 zoom-in">
 					<span
 						className={`absolute flex items-center justify-center w-6 h-6 rounded-full -left-3 -mt-1.5 ring-8 ring-gray-800 ${
 							sender === "user" ? "bg-cyan-600" : "bg-fuchsia-600"

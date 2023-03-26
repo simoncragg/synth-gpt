@@ -1,14 +1,14 @@
-@keyframes zoomIn {
+.zoom-in {
+  animation-name: zoom-in;
+  animation-duration: 0.3s;
+	animation-timing-function: ease-in-out;
+}
+
+@keyframes zoom-in {
   from {
     transform: scale(0);
   }
   to {
     transform: scale(1);
   }
-}
-
-li {
-  animation-name: zoomIn;
-  animation-duration: 0.3s;
-	animation-timing-function: ease-in-out;
 }
