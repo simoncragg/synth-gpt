@@ -1,40 +1,42 @@
 /* Chat */
 
 interface Chat {
-  id: string;
-  transcript: string;
-  messages: ChatMessage[];
+	id: string;
+	transcript: string;
+	attachments: CodeAttachment[];
+	composedMessage: string;
+	messages: ChatMessage[];
 }
 
 type SenderType = "user" | "bot";
 
 interface ChatMessage {
-  id: string;
-  sender: SenderType;
-  content: string;
-  timestamp: number;
+	id: string;
+	sender: SenderType;
+	content: string;
+	timestamp: number;
 }
 
 /* SendMessage */
 
 interface SendMessageRequest {
-  chatId: string;
-  message: string;
+	chatId: string;
+	message: string;
 }
 
 interface SendMessageResponse {
-  message: string;
+	message: string;
 }
 
 /* TextToSpeech */
 
 interface TextToSpeechRequest {
-  transcript: string;
+	transcript: string;
 }
 
 interface TextToSpeechResponse {
-  transcript: string;
-  audioUrl: string;
+	transcript: string;
+	audioUrl: string;
 }
 
 /* Message Parts */
@@ -42,26 +44,39 @@ interface TextToSpeechResponse {
 type MessagePartType = "Paragraph" | "OrderedList" | "CodeSnippet";
 
 interface MessagePart {
-  type: MessagePartType,
+	type: MessagePartType;
 }
 
 interface Paragraph extends MessagePart {
-  type: "Paragraph";
-  text: string;
+	type: "Paragraph";
+	text: string;
 }
 
 interface OrderedList extends MessagePart {
-  type: "OrderedList";
-  listItems: ListItem[];
+	type: "OrderedList";
+	listItems: ListItem[];
 }
 
 interface ListItem {
-  id: string;
-  text: string;
+	id: string;
+	text: string;
 }
 
 interface CodeSnippet extends MessagePart {
-  type: "CodeSnippet";
-  language: string;
-  code: string;
+	type: "CodeSnippet";
+	language: string;
+	code: string;
+}
+
+/* Attachments */
+
+type AttachmentType = "Code" | "Image";
+
+interface Attachment {
+	id: string;
+	type: AttachmentType;
+}
+
+interface CodeAttachment extends Attachment {
+	content: CodeSnippet;
 }

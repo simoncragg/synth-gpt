@@ -3,17 +3,29 @@ import { renderWithProviders } from "../../../utils/test-utils";
 import ChatLog from "./ChatLog";
 
 describe("ChatLog", () => {
-
 	it("displays simple paragraph messages", () => {
 		const messages = [
-			{ id: uuidv4(), sender: "user", timestamp: Date.now(), content: "Hello" },
-			{ id: uuidv4(), sender: "bot", timestamp: Date.now() + 1000, content: "Hi there!" },
+			{
+				id: uuidv4(),
+				sender: "user",
+				timestamp: Date.now(),
+				content: "Hello",
+			},
+			{
+				id: uuidv4(),
+				sender: "bot",
+				timestamp: Date.now() + 1000,
+				content: "Hi there!",
+			},
 		];
 
 		const { getByText } = renderWithProviders(<ChatLog />, {
 			preloadedState: {
-				chat: { messages }
-			}
+				chat: {
+					attachments: [],
+					messages,
+				},
+			},
 		});
 
 		for (const msg of messages) {
@@ -23,26 +35,33 @@ describe("ChatLog", () => {
 	});
 
 	it("displays paragraph and ordered list", () => {
-
 		const responseOpener = "Certainly, here are three reasons:";
 
 		const numberedPoints = [
 			"1. First list item.",
 			"2. Second list item.",
-			"3. Third list item."
+			"3. Third list item.",
 		];
 
 		const fullResponse = `${responseOpener}\n${numberedPoints.join("\n")}`;
 
 		const messages = [
 			{ id: uuidv4(), sender: "user", timestamp: Date.now(), content: "Hello" },
-			{ id: uuidv4(), sender: "bot", timestamp: Date.now() + 1000, content: fullResponse },
+			{
+				id: uuidv4(),
+				sender: "bot",
+				timestamp: Date.now() + 1000,
+				content: fullResponse,
+			},
 		];
 
 		const { getByText, getByTestId } = renderWithProviders(<ChatLog />, {
 			preloadedState: {
-				chat: { messages }
-			}
+				chat: {
+					attachments: [],
+					messages,
+				},
+			},
 		});
 
 		const el = getByText(responseOpener);
@@ -58,21 +77,36 @@ describe("ChatLog", () => {
 	});
 
 	it("displays paragraph and code block", () => {
-
-		const userCommand = "Write me some typescript code that calculates the first 10 Fibonacci numbers.";
+		const userCommand =
+			"Write me some typescript code that calculates the first 10 Fibonacci numbers.";
 		const responseText1 = "Sure, here's some typescript code:";
-		const code = "function fibonacci(n: number): number {\n// more code goes here\nif (n === 0) return 0; console.log(fibonacci(i));\n}\n";
-		const responseText2 = "This program defines a `fibonacci` function which recursively calculates the nth Fibonacci number. Then, it loops over the first 10 numbers and prints each one to the console";
+		const code =
+			"function fibonacci(n: number): number {\n// more code goes here\nif (n === 0) return 0; console.log(fibonacci(i));\n}\n";
+		const responseText2 =
+			"This program defines a `fibonacci` function which recursively calculates the nth Fibonacci number. Then, it loops over the first 10 numbers and prints each one to the console";
 
 		const messages = [
-			{ id: uuidv4(), sender: "user", timestamp: Date.now(), content: userCommand },
-			{ id: uuidv4(), sender: "bot", timestamp: Date.now() + 1321, content: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}` },
+			{
+				id: uuidv4(),
+				sender: "user",
+				timestamp: Date.now(),
+				content: userCommand,
+			},
+			{
+				id: uuidv4(),
+				sender: "bot",
+				timestamp: Date.now() + 1321,
+				content: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}`,
+			},
 		];
 
 		const { getByText, getByTestId } = renderWithProviders(<ChatLog />, {
 			preloadedState: {
-				chat: { messages }
-			}
+				chat: {
+					attachments: [],
+					messages,
+				},
+			},
 		});
 
 		const textToFind = [userCommand, responseText1, responseText2];

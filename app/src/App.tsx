@@ -6,7 +6,7 @@ const App = () => {
 		<>
 			<Navbar />
 
-			<div className="flex flex-col">
+			<div className="flex flex-col w-full sm:left-[256px]">
 				<Chat />
 			</div>
 		</>
