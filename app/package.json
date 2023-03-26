@@ -16,7 +16,6 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^1.9.3",
-    "babel-plugin-prismjs": "^2.1.0",
     "flowbite": "^1.6.4",
     "prismjs": "^1.29.0",
     "react": "^18.2.0",
@@ -42,6 +41,7 @@
     "@types/redux": "^3.6.0",
     "@types/uuid": "^9.0.0",
     "autoprefixer": "^10.4.14",
+    "babel-plugin-prismjs": "^2.1.0",
     "customize-cra": "^1.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
