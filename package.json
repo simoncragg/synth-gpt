@@ -36,6 +36,7 @@
 		"@commitlint/cli": "^17.4.3",
 		"@commitlint/config-conventional": "^17.4.3",
 		"concurrently": "^7.6.0",
+		"eslint-plugin-prettier": "^4.2.1",
 		"husky": "^8.0.0"
 	},
 	"dependencies": {

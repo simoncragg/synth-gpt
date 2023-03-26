@@ -5,7 +5,8 @@
     },
     "extends": [
         "eslint:recommended",
-        "plugin:@typescript-eslint/recommended"
+        "plugin:@typescript-eslint/recommended",
+        "plugin:prettier/recommended"
     ],
     "overrides": [{
         "files": ["*.config.js"],
@@ -19,7 +20,8 @@
         "sourceType": "module"
     },
     "plugins": [
-        "@typescript-eslint"
+        "@typescript-eslint",
+        "prettier"
     ],
     "rules": {
         "indent": [
@@ -34,6 +36,12 @@
         "semi": [
             "error",
             "always"
-        ]
+        ],
+        "prettier/prettier": [
+            "error", {
+                "endOfLine": "auto",
+                "tabWidth": 2 
+            }
+        ]}
     }
 }
