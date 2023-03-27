@@ -64,7 +64,7 @@ const Chat = () => {
 				audio.play();
 			});
 			audio.addEventListener("error", () => {
-				console.log(`Error loading ${audioUrl}`);
+				console.error(`Error loading ${audioUrl}`);
 			});
 		}
 	};
