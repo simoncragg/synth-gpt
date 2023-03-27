@@ -13,8 +13,6 @@ const ChatLog = () => {
 		shallowEqual
 	);
 
-	console.log(messages);
-
 	return (
 		<ol
 			data-testid="chat-log"

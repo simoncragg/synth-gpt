@@ -9,10 +9,6 @@ const polly = new Polly({
 });
 
 export async function performTextToSpeech(text: string) {
-
-	console.log("process.env.POLLY_ACCESS_KEY_ID", process.env.POLLY_ACCESS_KEY_ID);
-	console.log("process.env.POLLY_SECRET_ACCESS_KEY", process.env.POLLY_SECRET_ACCESS_KEY);
-
 	const command = new SynthesizeSpeechCommand({
 		Text: text,
 		OutputFormat: "mp3",

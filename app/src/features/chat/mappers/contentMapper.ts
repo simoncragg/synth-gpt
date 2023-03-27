@@ -43,8 +43,6 @@ export function mapToContentParts(content: string): MessagePart[] {
 		i++;
 	}
 
-	//console.log("parts", parts);
-
 	return parts;
 }
 

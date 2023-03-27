@@ -71,7 +71,6 @@ describe("ChatLog", () => {
 		expect(orderedListEl).toBeInTheDocument();
 
 		for (const text of numberedPoints) {
-			console.log(orderedListEl.innerHTML);
 			expect(orderedListEl.innerHTML.includes(text)).toBeTruthy();
 		}
 	});
