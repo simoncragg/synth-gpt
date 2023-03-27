@@ -53,6 +53,11 @@
     "tailwindcss": "^3.2.7",
     "typescript": "^4.9.5"
   },
+  "overrides": {
+    "react-app": {
+      "flat": "^5.0.1"
+    }
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
