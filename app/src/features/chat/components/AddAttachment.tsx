@@ -65,8 +65,8 @@ const AddAttachment = () => {
 				onClose={() => setIsModalOpen(false)}
 			>
 				<Modal.Header>
-					<span className="gap-2">
-						<ImAttachment />
+					<span className="flex w-full gap-2">
+						<ImAttachment className="mt-0.5" />
 						Attach Code
 					</span>
 				</Modal.Header>
