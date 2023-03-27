@@ -50,7 +50,8 @@
 	},
 	"overrides": {
 		"serverless-dynamodb-local": {
-			"flat": "^5.0.1"
+			"flat": "^5.0.1",
+			"minimatch": "^3.0.5"
 		}
 	}
 }
