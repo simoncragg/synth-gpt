@@ -1,4 +1,9 @@
-import { configureStore, combineReducers, getDefaultMiddleware, PreloadedState } from "@reduxjs/toolkit";
+import {
+	configureStore,
+	combineReducers,
+	getDefaultMiddleware,
+	PreloadedState,
+} from "@reduxjs/toolkit";
 import { chatApi } from "./services/chatApi";
 import chatSlice from "./features/chat/chatSlice";
 

@@ -9,7 +9,6 @@ interface CodeProps {
 }
 
 const Code = ({ code, language }: CodeProps) => {
-
 	useEffect(() => {
 		Prism.highlightAll();
 	}, []);
@@ -31,7 +30,7 @@ const Code = ({ code, language }: CodeProps) => {
 			<div className="flex items-center relative text-gray-200 bg-gray-800 px-4 py-2 text-xs font-sans rounded-t">
 				<span className="">{language}</span>
 				<button className="flex ml-auto gap-2" onClick={copyToClipboard}>
-					{ !isCopied ? (
+					{!isCopied ? (
 						<>
 							<FiClipboard className="mt-0.5" />
 							Copy code
@@ -46,7 +45,9 @@ const Code = ({ code, language }: CodeProps) => {
 			</div>
 			<div className="Code">
 				<pre className="line-numbers">
-					<code data-testid="code" className={`language-${language}`}>{code}</code>
+					<code data-testid="code" className={`language-${language}`}>
+						{code}
+					</code>
 				</pre>
 			</div>
 		</div>

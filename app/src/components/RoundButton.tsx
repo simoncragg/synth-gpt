@@ -4,7 +4,11 @@ interface RoundButtonProps {
 	onClick: () => void;
 }
 
-export const RoundButton = ({ ariaLabel, children, onClick }: RoundButtonProps) => {
+export const RoundButton = ({
+	ariaLabel,
+	children,
+	onClick,
+}: RoundButtonProps) => {
 	return (
 		<button
 			type="button"
@@ -16,4 +20,3 @@ export const RoundButton = ({ ariaLabel, children, onClick }: RoundButtonProps) 
 		</button>
 	);
 };
-
