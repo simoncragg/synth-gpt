@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"main": "serverless.ts",
 	"scripts": {
-		"start": "concurrently \"npm run dynamodb:start\" \"sls offline start\" --prefix-colors \"yellow,magenta\"",
+		"start": "concurrently \"rimraf ./s3/synth-gpt-audio-dev/. \" \"npm run dynamodb:start\" \"sls offline start\" --prefix-colors \"blue,yellow,magenta\"",
 		"dynamodb:start": "docker run --name dynamodb-local -p 8000:8000 amazon/dynamodb-local",
 		"test": "jest"
 	},
@@ -38,6 +38,7 @@
 		"jest": "^29.4.3",
 		"jest-mock": "^29.4.3",
 		"json-schema-to-ts": "^1.5.0",
+		"rimraf": "^4.4.1",
 		"serverless": "^3.27.0",
 		"serverless-dynamodb-local": "^0.2.40",
 		"serverless-esbuild": "^1.37.3",
