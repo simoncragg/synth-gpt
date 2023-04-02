@@ -3,13 +3,13 @@ import { useSelector } from "react-redux";
 import {
 	useSendMessageMutation,
 	useTextToSpeechMutation,
-} from "../services/chatApi";
-import { mapToSpokenTranscript } from "../features/chat/mappers/contentMapper";
-import { RootStateType } from "../store";
-import HeroSection from "../components/HeroSection";
-import ChatLog from "../features/chat/components/ChatLog";
-import SpeechToText from "../features/chat/components/SpeechToText";
-import AddAttachment from "../features/chat/components/AddAttachment";
+} from "../../../services/chatApi";
+import { mapToSpokenTranscript } from "../mappers/contentMapper";
+import { RootStateType } from "../../../store";
+import HeroSection from "../../../components/HeroSection";
+import ChatLog from "./ChatLog";
+import SpeechToText from "./SpeechToText";
+import AddAttachment from "./AddAttachment";
 
 const Chat = () => {
 	const { chatId, composedMessage, attachments, messages } = useSelector(
@@ -18,7 +18,6 @@ const Chat = () => {
 
 	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] =
 		useSendMessageMutation();
-
 	const [
 		textToSpeech,
 		{ data: textToSpeechResult, isLoading: isLoadingAudio },
@@ -28,7 +27,10 @@ const Chat = () => {
 
 	useEffect(() => {
 		if (composedMessage) {
-			sendMessage({ chatId, message: composedMessage });
+			sendMessage({
+				chatId,
+				message: composedMessage,
+			});
 		}
 	}, [composedMessage]);
 
@@ -37,9 +39,9 @@ const Chat = () => {
 	}, [messages]);
 
 	useEffect(() => {
-		if (sendMessageResult?.message?.content) {
-			const { content } = sendMessageResult.message;
-			const transcript = mapToSpokenTranscript(content);
+		const message = sendMessageResult?.message;
+		if (message) {
+			const transcript = mapToSpokenTranscript(message.content);
 			textToSpeech({ transcript });
 		}
 	}, [sendMessageResult]);

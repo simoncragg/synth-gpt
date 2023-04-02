@@ -1,15 +1,16 @@
-import Navbar from "./components/Navbar";
-import Chat from "./pages/Chat";
+import React from "react";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import ChatPage from "./pages/ChatPage";
 
 const App = () => {
 	return (
-		<>
-			<Navbar />
-
-			<div className="flex flex-col w-full sm:left-[256px]">
-				<Chat />
-			</div>
-		</>
+		<BrowserRouter>
+			<Routes>
+				<Route path="/" element={<Navigate to="/chat" replace />} />
+				<Route path="/chat" element={<ChatPage />} />
+				<Route path="/chat/:chatId" element={<ChatPage />} />
+			</Routes>
+		</BrowserRouter>
 	);
 };
 

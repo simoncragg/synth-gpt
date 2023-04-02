@@ -1,17 +1,17 @@
 import { v4 as uuidv4 } from "uuid";
 import { fireEvent } from "@testing-library/react";
 import { within } from "@testing-library/dom";
-import { renderWithProviders } from "../utils/test-utils";
+import { renderWithProviders } from "../../../utils/test-utils";
 import {
 	useSendMessageMutation,
 	useTextToSpeechMutation,
-} from "../services/chatApi";
+} from "../../../services/chatApi";
 import { useSpeechRecognition } from "react-speech-recognition";
 import Chat from "./Chat";
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
-jest.mock("../services/chatApi", () => ({
+jest.mock("../../../services/chatApi", () => ({
 	useSendMessageMutation: jest.fn(),
 	useTextToSpeechMutation: jest.fn(),
 	chatApi: {
