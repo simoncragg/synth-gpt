@@ -17,7 +17,10 @@ interface Message {
 
 interface Chat {
 	chatId: string;
+	title: string;
 	messages: ChatMessage[];
+	createdTime: number;
+	updatedTime: number;
 }
 
 interface ChatMessage extends Message {

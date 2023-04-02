@@ -14,6 +14,7 @@ const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync
 
 describe("handleMessage handler", () => {
 	const chatId = uuidv4();
+	const title = "New chat";
 	const handleMessage = "handleMessage";
 	const context = buildContext(handleMessage);
 
@@ -66,7 +67,8 @@ describe("handleMessage handler", () => {
 		await main(event, context);
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
-			chatId: event.pathParameters.chatId,
+			chatId,
+			title,
 			messages: [
 				userMessage,
 				expect.objectContaining({
@@ -76,10 +78,13 @@ describe("handleMessage handler", () => {
 					timestamp: expect.any(Number),
 				})
 			],
+			createdTime: expect.any(Number),
+			updatedTime: expect.any(Number),
 		});
 	});
 
 	it("should update existing item in chats db table", async () => {
+		const createdTime = 1678144807000;
 		const loadedMessages = [
 			{
 				id: uuidv4(),
@@ -91,14 +96,17 @@ describe("handleMessage handler", () => {
 				id: uuidv4(),
 				role: "assistant" as const,
 				content: "Hello there! How may I assist you today?",
-				timestamp: 1678144807000,
+				timestamp: createdTime,
 			}
 		];
 
 		const getByChatIdAsyncMock = mocked(ChatRepository.prototype.getByChatIdAsync);
 		getByChatIdAsyncMock.mockResolvedValue({
 			chatId,
+			title,
 			messages: loadedMessages,
+			createdTime,
+			updatedTime: createdTime,
 		});
 
 		const userMessage = {
@@ -126,6 +134,7 @@ describe("handleMessage handler", () => {
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
 			chatId,
+			title,
 			messages: [
 				loadedMessages[0],
 				loadedMessages[1],
@@ -137,6 +146,8 @@ describe("handleMessage handler", () => {
 					timestamp: expect.any(Number),
 				}),
 			],
+			createdTime,
+			updatedTime: expect.any(Number),
 		});
 	});
 
@@ -151,7 +162,6 @@ describe("handleMessage handler", () => {
 			role: "user" as const,
 			content: "how are you feeling?",
 			timestamp: Date.now(),
-
 		};
 
 		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { chatId });

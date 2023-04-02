@@ -30,10 +30,16 @@ export class ChatRepository {
 			TableName: chatsTableName,
 			Key: { chatId: chat.chatId },
 			UpdateExpression: [
-				"set messages = :messages",
+				"set title = :title,",
+				"messages = :messages,",
+				"createdTime = :createdTime,",
+				"updatedTime = :updatedTime"
 			].join(" "),
 			ExpressionAttributeValues: {
+				":title": chat.title,
 				":messages": chat.messages,
+				":createdTime": chat.createdTime,
+				":updatedTime": chat.updatedTime
 			},
 		};
 
