@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: ChatState = {
-	id: uuidv4(),
+	chatId: uuidv4(),
 	transcript: "",
 	attachments: [],
 	composedMessage: null,

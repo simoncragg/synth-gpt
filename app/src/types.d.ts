@@ -1,7 +1,7 @@
 /* Chat */
 
 interface ChatState {
-	id: string;
+	chatId: string;
 	transcript: string;
 	attachments: CodeAttachment[];
 	composedMessage: ChatMessage | null;

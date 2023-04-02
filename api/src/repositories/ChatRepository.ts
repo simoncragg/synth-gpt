@@ -1,6 +1,6 @@
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
-const DYNAMODB_TABLE_NAME = `chats-${process.env.STAGE}`;
+const chatsTableName = `chats-${process.env.STAGE}`;
 
 export class ChatRepository {
 	private readonly documentClient: DocumentClient;
@@ -9,19 +9,16 @@ export class ChatRepository {
 		this.documentClient = new DocumentClient(this.getClientConfig());
 	}
 
-	async getByIdAsync(id: string): Promise<Chat | undefined> {
+	async getByChatIdAsync(chatId: string): Promise<Chat | undefined> {
+
 		const params = {
-			TableName: DYNAMODB_TABLE_NAME,
-			Key: { id },
+			TableName: chatsTableName,
+			Key: { chatId },
 		};
 
 		try {
 			const result = await this.documentClient.get(params).promise();
-			if (!result.Item) {
-				return undefined;
-			}
-
-			return this.toChat(result.Item);
+			return result.Item as Chat;
 		} catch (error) {
 			console.error(error);
 			throw new Error("Failed to get chat");
@@ -30,10 +27,14 @@ export class ChatRepository {
 
 	async updateItemAsync(chat: Chat): Promise<void> {
 		const params = {
-			TableName: DYNAMODB_TABLE_NAME,
-			Key: { id: chat.id },
-			UpdateExpression: "set messages = :messages",
-			ExpressionAttributeValues: { ":messages": chat.messages },
+			TableName: chatsTableName,
+			Key: { chatId: chat.chatId },
+			UpdateExpression: [
+				"set messages = :messages",
+			].join(" "),
+			ExpressionAttributeValues: {
+				":messages": chat.messages,
+			},
 		};
 
 		try {
@@ -42,13 +43,6 @@ export class ChatRepository {
 			console.error(error);
 			throw new Error("Failed to update chat");
 		}
-	}
-
-	private toChat(item: DocumentClient.AttributeMap): Chat {
-		return {
-			id: item.id,
-			messages: item.messages,
-		};
 	}
 
 	private getClientConfig() {

@@ -13,13 +13,11 @@ const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
 const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync");
 
 describe("handleMessage handler", () => {
-
 	const chatId = uuidv4();
 	const handleMessage = "handleMessage";
 	const context = buildContext(handleMessage);
 
 	it("should return generated chat response message for new chat", async () => {
-
 		const generatedResponse = {
 			role: "assistant" as const,
 			content: "Hello there! How may I assist you today?"
@@ -29,7 +27,6 @@ describe("handleMessage handler", () => {
 
 		const body = { message: "hello" };
 		const event = buildHttpPostEvent(`/${handleMessage}`, body, { id: chatId });
-
 		const result = await main(event, context);
 
 		expect(result).toHaveProperty("statusCode", 200);
@@ -43,7 +40,6 @@ describe("handleMessage handler", () => {
 	});
 
 	it("should add new item to chats db table", async () => {
-
 		const userContent = "hello";
 		const userTimestamp = 1678144804670;
 		const assistantTimestamp = 1678144805170;
@@ -66,12 +62,11 @@ describe("handleMessage handler", () => {
 
 		generateChatResponseAsyncMock.mockResolvedValue(assistantResponse);
 
-		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { id: chatId });
-
+		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { chatId });
 		await main(event, context);
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
-			id: chatId,
+			chatId: event.pathParameters.chatId,
 			messages: [
 				userMessage,
 				expect.objectContaining({
@@ -100,9 +95,9 @@ describe("handleMessage handler", () => {
 			}
 		];
 
-		const getByIdAsyncMock = mocked(ChatRepository.prototype.getByIdAsync);
-		getByIdAsyncMock.mockResolvedValue({
-			id: chatId,
+		const getByChatIdAsyncMock = mocked(ChatRepository.prototype.getByChatIdAsync);
+		getByChatIdAsyncMock.mockResolvedValue({
+			chatId,
 			messages: loadedMessages,
 		});
 
@@ -130,7 +125,7 @@ describe("handleMessage handler", () => {
 		await main(event, context);
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
-			id: chatId,
+			chatId,
 			messages: [
 				loadedMessages[0],
 				loadedMessages[1],
@@ -146,7 +141,6 @@ describe("handleMessage handler", () => {
 	});
 
 	it("should return error response on failure to generate chat response", async () => {
-
 		const error = "An unexpected error occurred whilst processing your request";
 		generateChatResponseAsyncMock.mockRejectedValue(
 			new Error(error)
@@ -159,8 +153,8 @@ describe("handleMessage handler", () => {
 			timestamp: Date.now(),
 
 		};
-		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { id: chatId });
 
+		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { chatId });
 		const result = await main(event, context);
 
 		expect(result).toEqual(formatJSONResponse({

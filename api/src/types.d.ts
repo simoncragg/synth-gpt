@@ -16,7 +16,7 @@ interface Message {
 }
 
 interface Chat {
-	id: string;
+	chatId: string;
 	messages: ChatMessage[];
 }
 

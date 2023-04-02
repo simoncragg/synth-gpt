@@ -52,6 +52,7 @@ describe("Chat", () => {
 
 	it("should render user message in chat log and auto-scroll page", () => {
 		setupMocks(transcript);
+
 		const { getByTestId } = renderChat(chatId, {
 			chat: {
 				id: chatId,
@@ -68,6 +69,7 @@ describe("Chat", () => {
 				],
 			},
 		});
+
 		const chatLog = getByTestId("chat-log");
 		expect(within(chatLog).getByText(transcript)).toBeInTheDocument();
 
@@ -145,7 +147,7 @@ describe("Chat", () => {
 		return renderWithProviders(<Chat />, {
 			preloadedState: initialState ?? {
 				chat: {
-					id: chatId,
+					chatId,
 					transcript: "",
 					attachments: [],
 					composedMessage: null,

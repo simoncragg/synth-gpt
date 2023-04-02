@@ -12,12 +12,9 @@ import SpeechToText from "../features/chat/components/SpeechToText";
 import AddAttachment from "../features/chat/components/AddAttachment";
 
 const Chat = () => {
-	const {
-		id: chatId,
-		composedMessage,
-		attachments,
-		messages,
-	} = useSelector((state: RootStateType) => state.chat);
+	const { chatId, composedMessage, attachments, messages } = useSelector(
+		(state: RootStateType) => state.chat
+	);
 
 	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] =
 		useSendMessageMutation();

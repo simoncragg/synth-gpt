@@ -101,13 +101,13 @@ const serverlessConfiguration: AWS = {
 					TableName: "chats-${opt:stage, 'dev'}",
 					AttributeDefinitions: [
 						{
-							AttributeName: "id",
+							AttributeName: "chatId",
 							AttributeType: "S"
 						},
 					],
 					KeySchema: [
 						{
-							AttributeName: "id",
+							AttributeName: "chatId",
 							KeyType: "HASH"
 						},
 					],
