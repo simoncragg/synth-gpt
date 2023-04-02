@@ -11,7 +11,7 @@ export const chatApi = createApi({
 			query(request) {
 				const { chatId, message } = request;
 				return {
-					url: `chat/${chatId}`,
+					url: `chats/${chatId}`,
 					method: "POST",
 					body: message,
 				};

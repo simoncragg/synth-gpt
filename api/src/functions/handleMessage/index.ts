@@ -7,7 +7,7 @@ export default {
 		{
 			http: {
 				method: "post",
-				path: "api/v1/chat/{chatId}",
+				path: "api/v1/chats/{chatId}",
 				request: {
 					schemas: {
 						"application/json": schema,
