@@ -8,7 +8,7 @@
 	"main": "serverless.ts",
 	"scripts": {
 		"start": "concurrently \"rimraf ./s3/synth-gpt-audio-dev/. \" \"npm run dynamodb:start\" \"sls offline start\" --prefix-colors \"blue,yellow,magenta\"",
-		"dynamodb:start": "docker run --name dynamodb-local -p 8000:8000 amazon/dynamodb-local",
+		"dynamodb:start": "docker run --name dynamodb-local -p 8000:8000 amazon/dynamodb-local -jar DynamoDBLocal.jar -sharedDb",
 		"test": "jest"
 	},
 	"engines": {
