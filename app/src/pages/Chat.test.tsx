@@ -8,6 +8,7 @@ import {
 import { useSpeechRecognition } from "react-speech-recognition";
 import { v4 as uuidv4 } from "uuid";
 import Chat from "./Chat";
+import { PreloadedState } from "redux";
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
@@ -31,19 +32,12 @@ jest.mock("react-speech-recognition", () => ({
 
 const chatId = uuidv4();
 const transcript = "this is a test";
-const sendMessageMock = jest.fn();
 
 describe("Chat", () => {
+	it("should invoke sendMessage passing chatId and transcribed message when send button is pressed", () => {
+		const { sendMessageMock } = setupMocks(transcript);
 
-	beforeEach(() => {
-		sendMessageMock.mockReset();
-	});
-
-	it("should invoke sendMessage passing chatId and transcribed message when send button is pressed", () => {	
-
-		setupMocks();
-
-		const { getByLabelText } = renderChat();
+		const { getByLabelText } = renderChat(chatId);
 		fireEvent.click(getByLabelText("listen-send"));
 
 		expect(sendMessageMock).toHaveBeenCalledWith({
@@ -52,14 +46,27 @@ describe("Chat", () => {
 		});
 	});
 
-	it("should add sent message to chat log and auto-scroll page", () => {
+	it("should render user message in chat log and auto-scroll page", () => {
+		setupMocks(transcript);
 
-		setupMocks();
+		const { getByTestId } = renderChat(chatId, {
+			chat: {
+				id: chatId,
+				transcript,
+				attachments: [],
+				composedMessage: "",
+				messages: [
+					{
+						id: uuidv4(),
+						role: "user" as const,
+						content: transcript,
+						timestamp: Date.now(),
+					},
+				],
+			},
+		});
 
-		const { getByTestId } = renderChat();
-		fireEvent.click(getByLabelText("listen-send"));
-
-		const chatLog = getByLabelText("chat-log");
+		const chatLog = getByTestId("chat-log");
 		expect(within(chatLog).getByText(transcript));
 
 		const scrollTarget = getByTestId("scroll-target");
@@ -70,10 +77,11 @@ describe("Chat", () => {
 		);
 	});
 
-	it.only("should add code to chat log when attached", () => {
-		setupMocks();
+	it("should add code to chat log when attached", () => {
+		setupMocks(transcript);
 
 		const { getByTestId } = renderChatAndAddAttachment(
+			chatId,
 			"console.log('Hello World!');"
 		);
 		const chatLog = getByTestId("chat-log");
@@ -82,11 +90,11 @@ describe("Chat", () => {
 		expect(code).toBeInTheDocument();
 	});
 
-	it.only("should send compiled message when send button is pressed", () => {
-
-		setupMocks();
+	it("should send the composed message when send button is pressed", () => {
+		const { sendMessageMock } = setupMocks(transcript);
 
 		const { getByLabelText } = renderChatAndAddAttachment(
+			chatId,
 			"console.log('Hello World!');"
 		);
 		fireEvent.click(getByLabelText("listen-send"));
@@ -99,8 +107,9 @@ describe("Chat", () => {
 		);
 	});
 
-	const setupMocks = () => {
-		setupSpeechRecognitionHook(transcript, true);
+	const setupMocks = (transcript: string, listening = true) => {
+		const sendMessageMock = jest.fn();
+		setupSpeechRecognitionHook(transcript, listening);
 		useSendMessageMutation.mockImplementation(() => [
 			sendMessageMock,
 			{ isLoading: false },
@@ -109,6 +118,7 @@ describe("Chat", () => {
 			jest.fn(),
 			{ isLoading: false },
 		]);
+		return { sendMessageMock };
 	};
 
 	const setupSpeechRecognitionHook = (
@@ -123,9 +133,12 @@ describe("Chat", () => {
 		});
 	};
 
-	const renderChat = () => {
+	const renderChat = (
+		chatId: string,
+		initialState?: PreloadedState<RootState>
+	) => {
 		return renderWithProviders(<Chat />, {
-			preloadedState: {
+			preloadedState: initialState ?? {
 				chat: {
 					id: chatId,
 					transcript: "",
@@ -137,8 +150,8 @@ describe("Chat", () => {
 		});
 	};
 
-	const renderChatAndAddAttachment = (codeToAttach: string) => {
-		const renderResult = renderChat();
+	const renderChatAndAddAttachment = (chatId: string, codeToAttach: string) => {
+		const renderResult = renderChat(chatId);
 		const { getByLabelText, getByRole } = renderResult;
 		fireEvent.click(getByLabelText("attachments-menu"));
 		fireEvent.click(getByLabelText("attach-code"));
