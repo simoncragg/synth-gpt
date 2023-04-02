@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { fireEvent } from "@testing-library/react";
 import { within } from "@testing-library/dom";
 import { renderWithProviders } from "../utils/test-utils";
@@ -6,9 +7,7 @@ import {
 	useTextToSpeechMutation,
 } from "../services/chatApi";
 import { useSpeechRecognition } from "react-speech-recognition";
-import { v4 as uuidv4 } from "uuid";
 import Chat from "./Chat";
-import { PreloadedState } from "redux";
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
@@ -34,7 +33,7 @@ const chatId = uuidv4();
 const transcript = "this is a test";
 
 describe("Chat", () => {
-	it("should invoke sendMessage passing chatId and transcribed message when send button is pressed", () => {
+	it("should invoke sendMessage passing chatId and composed message when send button is pressed", () => {
 		const { sendMessageMock } = setupMocks(transcript);
 
 		const { getByLabelText } = renderChat(chatId);
@@ -42,19 +41,23 @@ describe("Chat", () => {
 
 		expect(sendMessageMock).toHaveBeenCalledWith({
 			chatId,
-			message: transcript,
+			message: expect.objectContaining({
+				id: expect.any(String),
+				role: "user",
+				content: transcript,
+				timestamp: expect.any(Number),
+			}),
 		});
 	});
 
 	it("should render user message in chat log and auto-scroll page", () => {
 		setupMocks(transcript);
-
 		const { getByTestId } = renderChat(chatId, {
 			chat: {
 				id: chatId,
 				transcript,
 				attachments: [],
-				composedMessage: "",
+				composedMessage: null,
 				messages: [
 					{
 						id: uuidv4(),
@@ -65,9 +68,8 @@ describe("Chat", () => {
 				],
 			},
 		});
-
 		const chatLog = getByTestId("chat-log");
-		expect(within(chatLog).getByText(transcript));
+		expect(within(chatLog).getByText(transcript)).toBeInTheDocument();
 
 		const scrollTarget = getByTestId("scroll-target");
 		expect(scrollTarget.scrollIntoView).toHaveBeenCalledWith(
@@ -84,9 +86,9 @@ describe("Chat", () => {
 			chatId,
 			"console.log('Hello World!');"
 		);
+
 		const chatLog = getByTestId("chat-log");
 		const code = within(chatLog).getByText(/^'Hello World!'$/i);
-
 		expect(code).toBeInTheDocument();
 	});
 
@@ -99,12 +101,15 @@ describe("Chat", () => {
 		);
 		fireEvent.click(getByLabelText("listen-send"));
 
-		expect(sendMessageMock).toHaveBeenCalledWith(
-			expect.objectContaining({
-				chatId,
-				message: `${transcript}\n\`\`\`typescript\nconsole.log('Hello World!');\n\`\`\`\n`,
-			})
-		);
+		expect(sendMessageMock).toHaveBeenCalledWith({
+			chatId,
+			message: expect.objectContaining({
+				id: expect.any(String),
+				role: "user",
+				content: `${transcript}\n\`\`\`typescript\nconsole.log('Hello World!');\n\`\`\`\n`,
+				timestamp: expect.any(Number),
+			}),
+		});
 	});
 
 	const setupMocks = (transcript: string, listening = true) => {
@@ -143,7 +148,7 @@ describe("Chat", () => {
 					id: chatId,
 					transcript: "",
 					attachments: [],
-					composedMessage: "",
+					composedMessage: null,
 					messages: [],
 				},
 			},

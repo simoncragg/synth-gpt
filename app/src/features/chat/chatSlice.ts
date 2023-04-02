@@ -1,17 +1,15 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { v4 as uuidv4 } from "uuid";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const chatId = uuidv4();
-
-const initialState: Chat = {
-	id: chatId,
+const initialState: ChatState = {
+	id: uuidv4(),
 	transcript: "",
 	attachments: [],
-	composedMessage: "",
+	composedMessage: null,
 	messages: [],
 };
 
-type AddMessagePayloadType = { sender: SenderType; message: string };
+type AddMessagePayloadType = { message: ChatMessage };
 type AttachCodeSnippetPayloadType = { codeSnippet: CodeSnippet };
 type ComposeMessagePayloadType = { transcript: string };
 
@@ -20,21 +18,28 @@ const chatSlice = createSlice({
 	initialState,
 	reducers: {
 		composeMessage: (
-			chat: Chat,
+			chat: ChatState,
 			action: PayloadAction<ComposeMessagePayloadType>
 		) => {
 			chat.transcript = action.payload.transcript;
 			const codeAttachments = chat.attachments.filter(
 				(x) => x.type === "Code"
 			) as CodeAttachment[];
-			chat.composedMessage =
+			const content =
 				codeAttachments.length > 0
 					? `${chat.transcript}\n${flatMap(codeAttachments).join("\n")}`
 					: chat.transcript;
+
+			chat.composedMessage = {
+				id: uuidv4(),
+				role: "user",
+				content,
+				timestamp: Date.now(),
+			};
 			chat.attachments = [];
 		},
 		attachCodeSnippet: (
-			chat: Chat,
+			chat: ChatState,
 			action: PayloadAction<AttachCodeSnippetPayloadType>
 		) => {
 			chat.attachments.push({
@@ -43,14 +48,11 @@ const chatSlice = createSlice({
 				content: action.payload.codeSnippet,
 			} as CodeAttachment);
 		},
-		addMessage: (chat: Chat, action: PayloadAction<AddMessagePayloadType>) => {
-			const { sender, message } = action.payload;
-			chat.messages.push({
-				id: uuidv4(),
-				sender,
-				content: message,
-				timestamp: Date.now(),
-			});
+		addMessage: (
+			chat: ChatState,
+			action: PayloadAction<AddMessagePayloadType>
+		) => {
+			chat.messages.push(action.payload.message);
 		},
 	},
 });

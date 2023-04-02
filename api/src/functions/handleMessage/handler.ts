@@ -1,4 +1,5 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
+import { v4 as uuidv4 } from "uuid";
 import { ChatRepository } from "../../repositories/ChatRepository";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { generateChatResponseAsync } from "../../proxies/openaiApiProxy";
@@ -10,47 +11,48 @@ const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 	try {
 		console.time("handleMessage");
 
-		const chatId = event.pathParameters.id;
-		const { message } = event.body;
+		const { id: chatId } = event.pathParameters;
+		const message = event.body as ChatMessage;
 
 		const chatRepository = new ChatRepository();
 		const chat = await chatRepository.getByIdAsync(chatId) ?? {
 			id: chatId,
-			messages: [{
-				role: "system",
-				content: prePrompt,
-				timestamp: Date.now(),
-			}]
+			messages: [],
 		};
 
-		chat.messages.push({
-			role: "user",
-			content: message,
-			timestamp: Date.now()
-		});
+		chat.messages.push(message);
 
 		const { content } = await generateChatResponseAsync(
-			chat.messages.map(msg => {
-				return { role: msg.role, content: msg.content };
-			})
+			[
+				{
+					role: "system" as const,
+					content: prePrompt,
+				},
+				...chat.messages.map(msg => {
+					return { role: msg.role, content: msg.content };
+				})
+			]
 		);
 
-		chat.messages.push({
-			role: "assistant",
+		const assistantMessage = {
+			id: uuidv4(),
+			role: "assistant" as const,
 			content,
-			timestamp: Date.now()
-		});
+			timestamp: Date.now(),
+		};
+		chat.messages.push(assistantMessage);
 
 		await chatRepository.updateItemAsync(chat);
 
 		console.timeEnd("handleMessage");
 
 		return formatJSONResponse<HandleMessageResponseBody>({
-			message: `${content}`
+			message: assistantMessage
 		});
 	}
 	catch (error) {
 		console.log(error, { level: "error" });
+		console.timeEnd("handleMessage");
 		return formatJSONResponse<ErrorResponseBody>({
 			error: "An unexpected error occurred whilst processing your request"
 		}, 500);

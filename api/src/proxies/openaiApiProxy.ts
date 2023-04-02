@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-export async function generateChatResponseAsync(messages: ChatMessage[]): Promise<ChatMessage> {
+export async function generateChatResponseAsync(messages: Message[]): Promise<Message> {
 
 	const data = {
 		model: "gpt-3.5-turbo",

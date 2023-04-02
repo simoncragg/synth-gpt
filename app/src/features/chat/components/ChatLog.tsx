@@ -18,15 +18,15 @@ const ChatLog = () => {
 			data-testid="chat-log"
 			className="relative w-full border-l border-gray-700"
 		>
-			{messages.map(function ({ id, sender, timestamp, content }) {
+			{messages.map(function ({ id, role, timestamp, content }) {
 				return (
 					<li key={id} className="mb-10 ml-6 zoom-in">
 						<span
 							className={`absolute flex items-center justify-center w-6 h-6 rounded-full -left-3 -mt-1.5 ring-8 ring-gray-800 ${
-								sender === "user" ? "bg-cyan-600" : "bg-fuchsia-600"
+								role === "user" ? "bg-cyan-600" : "bg-fuchsia-600"
 							}`}
 						>
-							{sender === "user" ? <AiOutlineUser /> : <RiVoiceprintFill />}
+							{role === "user" ? <AiOutlineUser /> : <RiVoiceprintFill />}
 						</span>
 						<time className="block mb-1 text-sm font-normal leading-none text-gray-500">
 							{new Date(timestamp).toTimeString().substring(0, 8)}

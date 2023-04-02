@@ -1,5 +1,5 @@
 interface HandleMessageResponseBody {
-	message: string;
+	message: ChatMessage;
 }
 interface TextToSpeechResponseBody {
 	transcript: string;
@@ -10,37 +10,17 @@ interface ErrorResponseBody {
 	error: string;
 }
 
-interface ChatResponseBody {
-	id: string;
-	object: string;
-	created: number;
-	choices: Choice[];
-	usage: Usage;
-}
-
-interface ChatChoice {
-	index: number;
-	message: Message;
-	finish_reason: string;
-}
-
-interface ChatMessage {
-	role: "system" | "user" | "assistant";
-	content: string;
-}
-
-interface ChatUsage {
-	prompt_tokens: number;
-	completion_tokens: number;
-	total_tokens: number;
+interface Message {
+	role: "system" | "user" | "assistant",
+	content: string
 }
 
 interface Chat {
 	id: string;
-	messages: ChatMessageWithTimestamp[];
+	messages: ChatMessage[];
 }
 
-interface ChatMessageWithTimestamp extends ChatMessage {
+interface ChatMessage extends Message {
+	id: string;
 	timestamp: number;
 }
-

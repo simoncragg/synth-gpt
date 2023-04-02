@@ -9,7 +9,7 @@ import chatSlice from "./features/chat/chatSlice";
 
 const rootReducer = combineReducers({
 	chat: chatSlice.reducer,
-	chatApi: chatApi.reducer
+	chatApi: chatApi.reducer,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootStateType>) => {

@@ -6,8 +6,8 @@ import { Provider } from "react-redux";
 import { setupStore, AppStore, RootState } from "../store";
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, "queries"> {
-  preloadedState?: PreloadedState<RootState>
-  store?: AppStore
+	preloadedState?: PreloadedState<RootState>;
+	store?: AppStore;
 }
 
 export function renderWithProviders(

@@ -13,25 +13,17 @@ export const chatApi = createApi({
 				return {
 					url: `chat/${chatId}`,
 					method: "POST",
-					body: { message },
+					body: message,
 				};
 			},
 			async onQueryStarted(
 				request: SendMessageRequest,
 				{ dispatch, queryFulfilled }
 			) {
-				const userMessage = {
-					sender: "user" as const,
-					message: request.message,
-				};
-				dispatch(addMessage(userMessage));
+				dispatch(addMessage({ message: request.message }));
 
 				const { data: response } = await queryFulfilled;
-				const botMessage = {
-					sender: "bot" as const,
-					message: response.message,
-				};
-				dispatch(addMessage(botMessage));
+				dispatch(addMessage({ message: response.message }));
 			},
 		}),
 		textToSpeech: build.mutation<TextToSpeechResponse, TextToSpeechRequest>({

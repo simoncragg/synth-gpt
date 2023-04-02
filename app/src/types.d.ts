@@ -1,18 +1,18 @@
 /* Chat */
 
-interface Chat {
+interface ChatState {
 	id: string;
 	transcript: string;
 	attachments: CodeAttachment[];
-	composedMessage: string;
+	composedMessage: ChatMessage | null;
 	messages: ChatMessage[];
 }
 
-type SenderType = "user" | "bot";
+type RoleType = "user" | "assistant";
 
 interface ChatMessage {
 	id: string;
-	sender: SenderType;
+	role: RoleType;
 	content: string;
 	timestamp: number;
 }
@@ -21,11 +21,11 @@ interface ChatMessage {
 
 interface SendMessageRequest {
 	chatId: string;
-	message: string;
+	message: ChatMessage;
 }
 
 interface SendMessageResponse {
-	message: string;
+	message: ChatMessage;
 }
 
 /* TextToSpeech */

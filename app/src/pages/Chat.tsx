@@ -18,8 +18,10 @@ const Chat = () => {
 		attachments,
 		messages,
 	} = useSelector((state: RootStateType) => state.chat);
+
 	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] =
 		useSendMessageMutation();
+
 	const [
 		textToSpeech,
 		{ data: textToSpeechResult, isLoading: isLoadingAudio },
@@ -38,9 +40,9 @@ const Chat = () => {
 	}, [messages]);
 
 	useEffect(() => {
-		const message = sendMessageResult?.message;
-		if (message) {
-			const transcript = mapToSpokenTranscript(message);
+		if (sendMessageResult?.message?.content) {
+			const { content } = sendMessageResult.message;
+			const transcript = mapToSpokenTranscript(content);
 			textToSpeech({ transcript });
 		}
 	}, [sendMessageResult]);
