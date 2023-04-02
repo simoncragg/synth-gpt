@@ -23,6 +23,7 @@
 		"react-dom": "^18.2.0",
 		"react-icons": "^4.8.0",
 		"react-redux": "^8.0.5",
+		"react-router-dom": "^6.10.0",
 		"react-speech-recognition": "^3.10.0",
 		"redux": "^4.2.1",
 		"uuid": "^9.0.0"
