@@ -7,6 +7,14 @@ export const chatApi = createApi({
 		baseUrl: process.env.REACT_APP_CHAT_API_BASE_URL,
 	}),
 	endpoints: (build) => ({
+		getChats: build.query<Chat[], void>({
+			query() {
+				return {
+					url: "chats/",
+					method: "GET",
+				};
+			},
+		}),
 		sendMessage: build.mutation<SendMessageResponse, SendMessageRequest>({
 			query(request) {
 				const { chatId, message } = request;
@@ -39,4 +47,8 @@ export const chatApi = createApi({
 	}),
 });
 
-export const { useSendMessageMutation, useTextToSpeechMutation } = chatApi;
+export const {
+	useGetChatsQuery,
+	useSendMessageMutation,
+	useTextToSpeechMutation,
+} = chatApi;

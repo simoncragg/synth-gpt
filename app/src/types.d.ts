@@ -1,4 +1,4 @@
-/* Chat */
+/* Chat State */
 
 interface ChatState {
 	chatId: string;
@@ -15,6 +15,16 @@ interface ChatMessage {
 	role: RoleType;
 	content: string;
 	timestamp: number;
+}
+
+/* GetChats */
+
+interface Chat {
+	chatId: string;
+	title: string;
+	userId: string;
+	createdTime: number;
+	updatedTime: number;
 }
 
 /* SendMessage */

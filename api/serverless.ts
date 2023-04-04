@@ -1,4 +1,5 @@
 import type { AWS } from "@serverless/typescript";
+import getChats from "@functions/getChats";
 import handleMessage from "@functions/handleMessage";
 import textToSpeech from "@functions/textToSpeech";
 
@@ -72,13 +73,21 @@ const serverlessConfiguration: AWS = {
 			stages: [
 				"dev",
 			],
+			seed: {
+				domain: {
+					sources: {
+						table: "chats-${opt:stage, 'dev'}",
+						sources: ["./seed/chats.json"]
+					}
+				}
+			},
 			start: {
 				image: "dynamodb-local",
 				port: 8000,
 				inMemory: true,
 				heapInitial: "200m",
 				heapMax: "1g",
-				seed: false,
+				seed: true,
 				convertEmptyValues: true,
 				noStart: true,
 				migrate: true,
@@ -86,10 +95,11 @@ const serverlessConfiguration: AWS = {
 		},
 		s3: {
 			host: "localhost",
-			directory: `${__dirname}/s3`
+			directory: `${__dirname}/s3`,
 		},
 	},
 	functions: {
+		getChats,
 		handleMessage,
 		textToSpeech
 	},
@@ -100,26 +110,34 @@ const serverlessConfiguration: AWS = {
 				Properties: {
 					TableName: "chats-${opt:stage, 'dev'}",
 					AttributeDefinitions: [
-						{
-							AttributeName: "chatId",
-							AttributeType: "S"
-						},
+						{ AttributeName: "chatId", AttributeType: "S" },
+						{ AttributeName: "userId", AttributeType: "S" },
 					],
 					KeySchema: [
-						{
-							AttributeName: "chatId",
-							KeyType: "HASH"
-						},
+						{ AttributeName: "chatId", KeyType: "HASH" },
 					],
 					ProvisionedThroughput: {
 						ReadCapacityUnits: 1,
 						WriteCapacityUnits: 1,
 					},
+					GlobalSecondaryIndexes: [
+						{
+							IndexName: "userId-index",
+							KeySchema: [
+								{ AttributeName: "userId", KeyType: "HASH" },
+							],
+							Projection: { ProjectionType: "ALL" },
+							ProvisionedThroughput: {
+								ReadCapacityUnits: 1,
+								WriteCapacityUnits: 1,
+							},
+						},
+					],
 					BillingMode: "PAY_PER_REQUEST",
 					StreamSpecification: {
 						StreamViewType: "NEW_AND_OLD_IMAGES"
 					},
-				}
+				},
 			},
 			audioBucket: {
 				Type: "AWS::S3::Bucket",

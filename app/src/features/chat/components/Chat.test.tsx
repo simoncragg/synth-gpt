@@ -55,7 +55,7 @@ describe("Chat", () => {
 
 		const { getByTestId } = renderChat(chatId, {
 			chat: {
-				id: chatId,
+				chatId,
 				transcript,
 				attachments: [],
 				composedMessage: null,

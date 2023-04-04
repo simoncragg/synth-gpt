@@ -15,6 +15,7 @@ const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync
 describe("handleMessage handler", () => {
 	const chatId = uuidv4();
 	const title = "New chat";
+	const userId = "user-123";
 	const handleMessage = "handleMessage";
 	const context = buildContext(handleMessage);
 
@@ -27,7 +28,7 @@ describe("handleMessage handler", () => {
 		generateChatResponseAsyncMock.mockResolvedValue(generatedResponse);
 
 		const body = { message: "hello" };
-		const event = buildHttpPostEvent(`/${handleMessage}`, body, { id: chatId });
+		const event = buildHttpPostEvent(`/${handleMessage}`, body, { chatId });
 		const result = await main(event, context);
 
 		expect(result).toHaveProperty("statusCode", 200);
@@ -69,6 +70,7 @@ describe("handleMessage handler", () => {
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
 			chatId,
 			title,
+			userId,
 			messages: [
 				userMessage,
 				expect.objectContaining({
@@ -104,6 +106,7 @@ describe("handleMessage handler", () => {
 		getByChatIdAsyncMock.mockResolvedValue({
 			chatId,
 			title,
+			userId,
 			messages: loadedMessages,
 			createdTime,
 			updatedTime: createdTime,
@@ -135,6 +138,7 @@ describe("handleMessage handler", () => {
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
 			chatId,
 			title,
+			userId,
 			messages: [
 				loadedMessages[0],
 				loadedMessages[1],

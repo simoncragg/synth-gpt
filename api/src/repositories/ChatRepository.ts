@@ -10,7 +10,6 @@ export class ChatRepository {
 	}
 
 	async getByChatIdAsync(chatId: string): Promise<Chat | undefined> {
-
 		const params = {
 			TableName: chatsTableName,
 			Key: { chatId },
@@ -18,10 +17,33 @@ export class ChatRepository {
 
 		try {
 			const result = await this.documentClient.get(params).promise();
-			return result.Item as Chat;
+			return result?.Item as Chat | undefined;
 		} catch (error) {
 			console.error(error);
 			throw new Error("Failed to get chat");
+		}
+	}
+
+	async getByUserIdAsync(userId: string): Promise<ChatWithoutMessages[]> {
+		const params: DocumentClient.QueryInput = {
+			TableName: chatsTableName,
+			IndexName: "userId-index",
+			KeyConditionExpression: "userId = :userId",
+			ExpressionAttributeValues: {
+				":userId": userId
+			},
+			ProjectionExpression: "chatId, userId, title, createdTime, updatedTime"
+		};
+
+		try {
+			const result = await this.documentClient.query(params).promise();
+			const chats = result.Items as ChatWithoutMessages[];
+			return chats.sort((a, b) =>
+				b.updatedTime - a.updatedTime
+			);
+		} catch (error) {
+			console.error(error);
+			throw new Error(`Failed to get chats for userId: ${userId}`);
 		}
 	}
 
@@ -30,12 +52,14 @@ export class ChatRepository {
 			TableName: chatsTableName,
 			Key: { chatId: chat.chatId },
 			UpdateExpression: [
-				"set title = :title,",
+				"set userId = :userId,",
+				"title = :title,",
 				"messages = :messages,",
 				"createdTime = :createdTime,",
 				"updatedTime = :updatedTime"
 			].join(" "),
 			ExpressionAttributeValues: {
+				":userId": chat.userId,
 				":title": chat.title,
 				":messages": chat.messages,
 				":createdTime": chat.createdTime,

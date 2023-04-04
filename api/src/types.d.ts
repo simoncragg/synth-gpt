@@ -18,10 +18,13 @@ interface Message {
 interface Chat {
 	chatId: string;
 	title: string;
+	userId: string;
 	messages: ChatMessage[];
 	createdTime: number;
 	updatedTime: number;
 }
+
+type ChatWithoutMessages = Omit<Chat, "messages">;
 
 interface ChatMessage extends Message {
 	id: string;

@@ -11,6 +11,7 @@ const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 	try {
 		console.time("handleMessage");
 
+		const userId = "user-123";
 		const { chatId } = event.pathParameters;
 		const message = event.body as ChatMessage;
 
@@ -18,6 +19,7 @@ const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 		const chat = await chatRepository.getByChatIdAsync(chatId) ?? {
 			chatId,
 			title: "New chat",
+			userId,
 			messages: [],
 			createdTime: Date.now(),
 			updatedTime: Date.now(),
