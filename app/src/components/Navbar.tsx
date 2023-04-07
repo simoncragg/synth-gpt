@@ -1,11 +1,15 @@
+import { useSelector } from "react-redux";
 import { useState } from "react";
 import { AiFillGithub } from "react-icons/ai";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { RiAddFill, RiCloseFill, RiVoiceprintFill } from "react-icons/ri";
+import { RootStateType } from "../store";
+
 import ChatOrganiser from "../features/chat/components/ChatOrganiser";
 
 const Navbar = () => {
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+	const { title } = useSelector((state: RootStateType) => state.chat);
 
 	return (
 		<>
@@ -33,7 +37,7 @@ const Navbar = () => {
 								</button>
 							</div>
 						</div>
-						<div className="flex items-center bg-gray-800">New chat</div>
+						<div className="flex items-center bg-gray-800">{title}</div>
 						<div className="flex items-center">
 							<button
 								type="button"

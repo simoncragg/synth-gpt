@@ -3,41 +3,32 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 const initialState: ChatState = {
 	chatId: uuidv4(),
+	title: "New chat",
 	transcript: "",
 	attachments: [],
-	composedMessage: null,
 	messages: [],
 };
 
+type SetActiveChatPayloadType = { chat: Chat };
 type AddMessagePayloadType = { message: ChatMessage };
 type AttachCodeSnippetPayloadType = { codeSnippet: CodeSnippet };
-type ComposeMessagePayloadType = { transcript: string };
 
 const chatSlice = createSlice({
 	name: "chat",
 	initialState,
 	reducers: {
-		composeMessage: (
+		setActiveChat: (
 			chat: ChatState,
-			action: PayloadAction<ComposeMessagePayloadType>
+			action: PayloadAction<SetActiveChatPayloadType>
 		) => {
-			chat.transcript = action.payload.transcript;
-			const codeAttachments = chat.attachments.filter(
-				(x) => x.type === "Code"
-			) as CodeAttachment[];
-			const content =
-				codeAttachments.length > 0
-					? `${chat.transcript}\n${flatMap(codeAttachments).join("\n")}`
-					: chat.transcript;
-
-			chat.composedMessage = {
-				id: uuidv4(),
-				role: "user",
-				content,
-				timestamp: Date.now(),
-			};
+			const { chatId, title, messages } = action.payload.chat;
+			chat.chatId = chatId;
+			chat.title = title;
+			chat.transcript = "";
 			chat.attachments = [];
+			chat.messages = messages;
 		},
+
 		attachCodeSnippet: (
 			chat: ChatState,
 			action: PayloadAction<AttachCodeSnippetPayloadType>
@@ -48,23 +39,18 @@ const chatSlice = createSlice({
 				content: action.payload.codeSnippet,
 			} as CodeAttachment);
 		},
+
 		addMessage: (
 			chat: ChatState,
 			action: PayloadAction<AddMessagePayloadType>
 		) => {
 			chat.messages.push(action.payload.message);
+			chat.attachments = [];
 		},
 	},
 });
 
-export const { composeMessage, attachCodeSnippet, addMessage } =
+export const { setActiveChat, attachCodeSnippet, addMessage } =
 	chatSlice.actions;
 
 export default chatSlice;
-
-function flatMap(codeAttachments: CodeAttachment[]) {
-	return codeAttachments.flatMap(
-		(attachment) =>
-			`\`\`\`${attachment.content.language}\n${attachment.content.code}\n\`\`\`\n`
-	);
-}

@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import {
@@ -12,7 +13,7 @@ import SpeechToText from "./SpeechToText";
 import AddAttachment from "./AddAttachment";
 
 const Chat = () => {
-	const { chatId, composedMessage, attachments, messages } = useSelector(
+	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
 	);
 
@@ -24,15 +25,6 @@ const Chat = () => {
 	] = useTextToSpeechMutation();
 
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
-
-	useEffect(() => {
-		if (composedMessage) {
-			sendMessage({
-				chatId,
-				message: composedMessage,
-			});
-		}
-	}, [composedMessage]);
 
 	useEffect(() => {
 		scrollTo(scrollToTargetRef.current);
@@ -50,12 +42,40 @@ const Chat = () => {
 		playAudio(textToSpeechResult?.audioUrl);
 	}, [textToSpeechResult]);
 
-	const scrollTo = (target: HTMLDivElement | null) => {
-		target?.scrollIntoView({
-			behavior: "smooth",
-			block: "end",
-			inline: "nearest",
+	const onTranscriptionEnded = (transcript: string) => {
+		const message = composeMessage(transcript, attachments);
+		sendMessage({
+			chatId,
+			message,
 		});
+	};
+
+	const composeMessage = (
+		transcript: string,
+		attachments: Attachment[]
+	): ChatMessage => {
+		const codeAttachments = attachments.filter(
+			(x) => x.type === "Code"
+		) as CodeAttachment[];
+
+		const flatMap = (codeAttachments: CodeAttachment[]) => {
+			return codeAttachments.flatMap(
+				(attachment) =>
+					`\`\`\`${attachment.content.language}\n${attachment.content.code}\n\`\`\`\n`
+			);
+		};
+
+		const content =
+			codeAttachments.length > 0
+				? `${transcript}\n${flatMap(codeAttachments).join("\n")}`
+				: transcript;
+
+		return {
+			id: uuidv4(),
+			role: "user",
+			content,
+			timestamp: Date.now(),
+		};
 	};
 
 	const playAudio = (audioUrl: string | undefined) => {
@@ -70,22 +90,24 @@ const Chat = () => {
 		}
 	};
 
+	const scrollTo = (target: HTMLDivElement | null) => {
+		target?.scrollIntoView({
+			behavior: "smooth",
+			block: "end",
+			inline: "nearest",
+		});
+	};
+
 	return (
 		<>
-			<div className="flex flex-col items-center mt-16 pt-4 px-8 sm:ml-64 sm:mt-2 overflow-y-auto h-[calc(100vh-10px)]">
-				<div className="flex flex-col items-center text-base w-full pt-4 sm:w-3/4">
-					{isLoadingText ||
-						(messages.length === 0 && attachments.length === 0 && (
-							<HeroSection />
-						))}
+			{isLoadingText ||
+				(messages.length === 0 && attachments.length === 0 && <HeroSection />)}
 
-					<div className="flex w-full mb-[100px]">
-						<ChatLog />
-					</div>
-
-					<div ref={scrollToTargetRef} data-testid="scroll-target"></div>
-				</div>
+			<div className="flex w-full mb-[100px]">
+				<ChatLog />
 			</div>
+
+			<div ref={scrollToTargetRef} data-testid="scroll-target"></div>
 
 			<div className="fixed sm:left-[256px] bottom-0 w-full sm:w-[calc(100vw-256px)] overflow-y-hidden">
 				<div className="flex flex-col left-0 items-center mb-4">
@@ -95,7 +117,7 @@ const Chat = () => {
 						</div>
 					) : (
 						<>
-							<SpeechToText />
+							<SpeechToText onTranscriptionEnded={onTranscriptionEnded} />
 							<AddAttachment />
 						</>
 					)}

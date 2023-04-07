@@ -56,9 +56,9 @@ describe("Chat", () => {
 		const { getByTestId } = renderChat(chatId, {
 			chat: {
 				chatId,
+				title: "New chat",
 				transcript,
 				attachments: [],
-				composedMessage: null,
 				messages: [
 					{
 						id: uuidv4(),
@@ -148,9 +148,9 @@ describe("Chat", () => {
 			preloadedState: initialState ?? {
 				chat: {
 					chatId,
+					title: "New chat",
 					transcript: "",
 					attachments: [],
-					composedMessage: null,
 					messages: [],
 				},
 			},

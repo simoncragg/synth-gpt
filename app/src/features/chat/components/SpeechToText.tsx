@@ -1,15 +1,16 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { composeMessage } from "../chatSlice";
 import { BsSend } from "react-icons/bs";
 import SpeechRecognition, {
 	useSpeechRecognition,
 } from "react-speech-recognition";
 import "./SpeechToText.css";
 
-const SpeechToText = () => {
+interface SpeechToTextProps {
+	onTranscriptionEnded: (transcript: string) => void;
+}
+
+const SpeechToText = ({ onTranscriptionEnded }: SpeechToTextProps) => {
 	const [fixedTranscript, setFixedTranscript] = useState("");
-	const dispatch = useDispatch();
 
 	const {
 		transcript,
@@ -31,7 +32,7 @@ const SpeechToText = () => {
 		} else {
 			SpeechRecognition.stopListening();
 			if (transcript) {
-				dispatch(composeMessage({ transcript: fixedTranscript }));
+				onTranscriptionEnded(fixedTranscript);
 			}
 		}
 	};

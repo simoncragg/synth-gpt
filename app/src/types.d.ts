@@ -2,9 +2,9 @@
 
 interface ChatState {
 	chatId: string;
+	title: string;
 	transcript: string;
 	attachments: CodeAttachment[];
-	composedMessage: ChatMessage | null;
 	messages: ChatMessage[];
 }
 
@@ -25,6 +25,13 @@ interface Chat {
 	userId: string;
 	createdTime: number;
 	updatedTime: number;
+	messages: ChatMessage[];
+}
+
+/* GetChat */
+
+interface GetChatResponse {
+	chat: Chat;
 }
 
 /* SendMessage */

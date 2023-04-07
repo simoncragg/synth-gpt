@@ -1,8 +1,8 @@
 import "regenerator-runtime/runtime";
-import { fireEvent } from "@testing-library/react";
-import { renderWithProviders } from "../../../utils/test-utils";
-import { v4 as uuidv4 } from "uuid";
-import SpeechRecognition, { useSpeechRecognition} from "react-speech-recognition";
+import { render, fireEvent } from "@testing-library/react";
+import SpeechRecognition, {
+	useSpeechRecognition,
+} from "react-speech-recognition";
 import SpeechToText from "./SpeechToText";
 
 jest.mock("react-speech-recognition", () => ({
@@ -15,10 +15,12 @@ jest.mock("react-speech-recognition", () => ({
 }));
 
 describe("SpeechToText", () => {
-
 	const mockTranscript = "this is a test";
- 
-	const setupSpeechRecognitionHook = (transcript: string, listening: boolean) => {
+
+	const setupSpeechRecognitionHook = (
+		transcript: string,
+		listening: boolean
+	) => {
 		useSpeechRecognition.mockReturnValue({
 			resetTranscript: jest.fn(),
 			transcript,
@@ -28,20 +30,18 @@ describe("SpeechToText", () => {
 	};
 
 	it("should render the component without errors", () => {
-
 		setupSpeechRecognitionHook("", false);
 
-		const { getByRole} = renderWithProviders(<SpeechToText />);
-		const micButton = getByRole("button");
+		const { getByRole } = renderSpeechToText();
 
+		const micButton = getByRole("button");
 		expect(micButton).toBeInTheDocument();
 	});
 
 	it("should start listening when the mic button is clicked", () => {
-
 		setupSpeechRecognitionHook("", false);
 
-		const { getByRole } = renderWithProviders(<SpeechToText />);
+		const { getByRole } = renderSpeechToText();
 		const micButton = getByRole("button");
 		fireEvent.click(micButton);
 
@@ -51,50 +51,35 @@ describe("SpeechToText", () => {
 	});
 
 	it("should display the transcript", () => {
-
 		setupSpeechRecognitionHook(mockTranscript, true);
 
-		const { getByText } = renderWithProviders(<SpeechToText />, {
-			preloadedState: {
-				chat: {
-					id: uuidv4(),
-					transcript: "",
-					composedMessage: "",
-					attachments: [],
-					messages: []
-				}
-			}
-		});
+		const { getByText } = renderSpeechToText();
 
 		const transcript = getByText(mockTranscript);
 		expect(transcript).toBeInTheDocument();
 	});
 
-	it("should stop listening and update the store's transcript when the mic button is clicked", () => {
-
+	it("should stop listening and pass the transcript to the onTranscriptionEnded callback prop", () => {
 		setupSpeechRecognitionHook(mockTranscript, true);
 
-		const { getByRole, store } = renderWithProviders(<SpeechToText />);
+		const { getByRole, onTranscriptionEndedMock } = renderSpeechToText();
 		const micButton = getByRole("button");
-
-		const preState = store.getState();
-		expect(preState.chat.transcript).toEqual("");
-
 		fireEvent.click(micButton);
 
-		const postState = store.getState();
-		expect(postState.chat.transcript).toEqual(mockTranscript);
 		expect(SpeechRecognition.stopListening).toHaveBeenCalledTimes(1);
+		expect(onTranscriptionEndedMock).toHaveBeenCalledWith(mockTranscript);
 	});
 
 	it("should display a message when the browser doesn't support speech recognition", () => {
-
 		useSpeechRecognition.mockReturnValue({
 			browserSupportsSpeechRecognition: false,
 		});
 
-		const { getByText } = renderWithProviders(<SpeechToText />);
-		const errorMessage = getByText("Browser doesn't support speech recognition.");
+		const { getByText } = renderSpeechToText();
+
+		const errorMessage = getByText(
+			"Browser doesn't support speech recognition."
+		);
 		expect(errorMessage).toBeInTheDocument();
 	});
 
@@ -111,13 +96,24 @@ describe("SpeechToText", () => {
 		"Hey Seth",
 		"Hi Seth",
 		"Hiya Seth",
-	])("should fix common misheard name in a greeting", (misheardGreeting: string) => {
+	])(
+		"should fix common misheard name in a greeting",
+		(misheardGreeting: string) => {
+			setupSpeechRecognitionHook(`${misheardGreeting}, how's it going?`, true);
 
-		setupSpeechRecognitionHook(`${misheardGreeting}, how's it going?`, true);
+			const { getByText } = renderSpeechToText();
 
-		const { getByText } = renderWithProviders(<SpeechToText />);
-		const greetingWord = misheardGreeting.split(" ")[0];
-		const errorMessage = getByText(`${greetingWord} Synth, how's it going?`);
-		expect(errorMessage).toBeInTheDocument();
-	});
+			const greetingWord = misheardGreeting.split(" ")[0];
+			const errorMessage = getByText(`${greetingWord} Synth, how's it going?`);
+			expect(errorMessage).toBeInTheDocument();
+		}
+	);
+
+	const renderSpeechToText = () => {
+		const onTranscriptionEndedMock = jest.fn();
+		const renderResult = render(
+			<SpeechToText onTranscriptionEnded={onTranscriptionEndedMock} />
+		);
+		return { ...renderResult, onTranscriptionEndedMock };
+	};
 });

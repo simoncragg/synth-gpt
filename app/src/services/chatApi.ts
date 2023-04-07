@@ -15,6 +15,14 @@ export const chatApi = createApi({
 				};
 			},
 		}),
+		getChat: build.query<Chat, string>({
+			query(chatId) {
+				return {
+					url: `chats/${chatId}`,
+					method: "GET",
+				};
+			},
+		}),
 		sendMessage: build.mutation<SendMessageResponse, SendMessageRequest>({
 			query(request) {
 				const { chatId, message } = request;
@@ -29,7 +37,6 @@ export const chatApi = createApi({
 				{ dispatch, queryFulfilled }
 			) {
 				dispatch(addMessage({ message: request.message }));
-
 				const { data: response } = await queryFulfilled;
 				dispatch(addMessage({ message: response.message }));
 			},
@@ -49,6 +56,7 @@ export const chatApi = createApi({
 
 export const {
 	useGetChatsQuery,
+	useGetChatQuery,
 	useSendMessageMutation,
 	useTextToSpeechMutation,
 } = chatApi;
