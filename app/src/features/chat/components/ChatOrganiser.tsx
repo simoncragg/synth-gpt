@@ -1,12 +1,16 @@
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useGetChatsQuery } from "../../../services/chatApi";
 import { BsPlus, BsChatLeft } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { TbLoader } from "react-icons/tb";
+import { newChatText } from "../../../constants";
+import { useGetChatsQuery } from "../../../services/chatApi";
 import { RootStateType } from "../../../store";
 
 const ChatOrganiser = () => {
+	const navigate = useNavigate();
+
 	const { chatId, messages } = useSelector(
 		(state: RootStateType) => state.chat
 	);
@@ -24,10 +28,13 @@ const ChatOrganiser = () => {
 		<>
 			<button
 				type="button"
-				className="flex w-full py-3 px-3 items-center gap-3 rounded-md hover:bg-gray-700 transition-colors duration-200 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20"
+				className="flex w-full py-3 px-2 items-center gap-2 rounded-md hover:bg-gray-700 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20"
+				onClick={() => {
+					navigate("../", { replace: messages.length === 0 });
+				}}
 			>
 				<BsPlus className="w-6 h-6" />
-				New chat
+				{newChatText}
 			</button>
 
 			{isLoading ? (

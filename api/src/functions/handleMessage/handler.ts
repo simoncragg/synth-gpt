@@ -1,8 +1,9 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
+import { middyfy } from "@libs/lambda";
 import { v4 as uuidv4 } from "uuid";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { generateChatResponseAsync } from "../../proxies/openaiApiProxy";
-import { middyfy } from "@libs/lambda";
+import { newChatText } from "../../constants";
 import { prePrompt } from "../../constants";
 import { ChatRepository } from "../../repositories/ChatRepository";
 import schema from "./schema";
@@ -18,7 +19,7 @@ const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 		const chatRepository = new ChatRepository();
 		const chat = await chatRepository.getByChatIdAsync(chatId) ?? {
 			chatId,
-			title: "New chat",
+			title: newChatText,
 			userId,
 			messages: [],
 			createdTime: Date.now(),

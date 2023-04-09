@@ -1,15 +1,18 @@
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useState } from "react";
 import { AiFillGithub } from "react-icons/ai";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { RiAddFill, RiCloseFill, RiVoiceprintFill } from "react-icons/ri";
+import { newChatText } from "../constants";
 import { RootStateType } from "../store";
 
 import ChatOrganiser from "../features/chat/components/ChatOrganiser";
 
 const Navbar = () => {
+	const navigate = useNavigate();
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-	const { title } = useSelector((state: RootStateType) => state.chat);
+	const { title, messages } = useSelector((state: RootStateType) => state.chat);
 
 	return (
 		<>
@@ -42,8 +45,11 @@ const Navbar = () => {
 							<button
 								type="button"
 								className="inline-flex items-center p-2 text-sm rounded-lg focus:outline-none focus:ring-2 text-gray-400 hover:bg-gray-700 focus:ring-gray-600"
+								onClick={() => {
+									navigate("../", { replace: messages.length === 0 });
+								}}
 							>
-								<span className="sr-only">New chat</span>
+								<span className="sr-only">{newChatText}</span>
 								<RiAddFill className="w-6 h-6" />
 							</button>
 						</div>

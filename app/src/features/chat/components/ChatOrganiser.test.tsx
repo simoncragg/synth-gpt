@@ -3,6 +3,7 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
+import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
 import userEvent from "@testing-library/user-event";
 import ChatOrganiser from "./ChatOrganiser";
@@ -31,17 +32,7 @@ describe("ChatOrganiser", () => {
 		server.close();
 	});
 
-	test("displays a button to add new chat", async () => {
-		const { getByRole } = renderChatOrganiser(chatId);
-
-		const addButton = getByRole("button", { name: /new chat/i });
-		expect(addButton).toBeInTheDocument();
-
-		userEvent.click(addButton);
-		await waitFor(() => expect(addButton).toHaveFocus());
-	});
-
-	test("renders loading indicator while chats are being fetched", async () => {
+	it("renders loading indicator while chats are being fetched", async () => {
 		const { getByTestId } = renderChatOrganiser(chatId);
 
 		await waitFor(() =>
@@ -49,7 +40,7 @@ describe("ChatOrganiser", () => {
 		);
 	});
 
-	test("renders the title of each chat", async () => {
+	it("renders the title of each chat", async () => {
 		const { getByText } = renderChatOrganiser(chatId);
 
 		await waitFor(() => {
@@ -60,11 +51,11 @@ describe("ChatOrganiser", () => {
 		});
 	});
 
-	test("clicking on a chat link triggers request to correct URL", async () => {
+	it("navigates to the correct URL when user clicks a chat link", async () => {
 		const selectedChat = mockChats[1];
+		window.history.pushState({}, "chat", "/chat");
 
 		const { getByText } = renderChatOrganiser(chatId);
-
 		await waitFor(() => {
 			const chatLink = getByText(selectedChat.title);
 			userEvent.click(chatLink);
@@ -73,19 +64,29 @@ describe("ChatOrganiser", () => {
 		expect(window.location.pathname).toBe(`/chat/${selectedChat.chatId}`);
 	});
 
-	const renderChatOrganiser = (
-		chatId: string,
-		initialState?: PreloadedState<RootState>
-	) => {
+	it("navigates to the root path when the 'New chat' button is clicked", async () => {
+		const selectedChat = mockChats[1];
+		window.history.pushState({}, "chat", `/chat/${selectedChat.chatId}`);
+
+		const { getByRole } = renderChatOrganiser(chatId);
+		const newChatButton = getByRole("button", { name: /new chat/i });
+		await waitFor(() => {
+			userEvent.click(newChatButton);
+		});
+
+		expect(window.location.pathname).toBe("/");
+	});
+
+	const renderChatOrganiser = (chatId: string) => {
 		return renderWithProviders(
 			<BrowserRouter>
 				<ChatOrganiser />
 			</BrowserRouter>,
 			{
-				preloadedState: initialState ?? {
+				preloadedState: {
 					chat: {
 						chatId,
-						title: "New chat",
+						title: newChatText,
 						transcript: "",
 						attachments: [],
 						messages: [],

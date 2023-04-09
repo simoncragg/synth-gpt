@@ -1,10 +1,11 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
-import { ChatRepository } from "../../src/repositories/ChatRepository";
 import { buildHttpPostEvent, buildContext } from "./builders";
-import { generateChatResponseAsync } from "../../src/proxies/openaiApiProxy";
 import { formatJSONResponse } from "../../src/libs/api-gateway";
+import { generateChatResponseAsync } from "../../src/proxies/openaiApiProxy";
 import { main } from "@functions/handleMessage/handler";
+import { newChatText } from "../../src/constants";
+import { ChatRepository } from "../../src/repositories/ChatRepository";
 
 jest.mock("../../src/proxies/openaiApiProxy");
 jest.mock("../../src/repositories/ChatRepository");
@@ -14,7 +15,7 @@ const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync
 
 describe("handleMessage handler", () => {
 	const chatId = uuidv4();
-	const title = "New chat";
+	const title = newChatText;
 	const userId = "user-123";
 	const handleMessage = "handleMessage";
 	const context = buildContext(handleMessage);

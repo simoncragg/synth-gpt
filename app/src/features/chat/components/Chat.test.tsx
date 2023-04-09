@@ -1,6 +1,7 @@
-import { v4 as uuidv4 } from "uuid";
 import { fireEvent } from "@testing-library/react";
+import { v4 as uuidv4 } from "uuid";
 import { within } from "@testing-library/dom";
+import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
 import {
 	useSendMessageMutation,
@@ -56,7 +57,7 @@ describe("Chat", () => {
 		const { getByTestId } = renderChat(chatId, {
 			chat: {
 				chatId,
-				title: "New chat",
+				title: newChatText,
 				transcript,
 				attachments: [],
 				messages: [
@@ -148,7 +149,7 @@ describe("Chat", () => {
 			preloadedState: initialState ?? {
 				chat: {
 					chatId,
-					title: "New chat",
+					title: newChatText,
 					transcript: "",
 					attachments: [],
 					messages: [],

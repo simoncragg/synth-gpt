@@ -1,16 +1,16 @@
-import { v4 as uuidv4 } from "uuid";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
+import { mapToSpokenTranscript } from "../mappers/contentMapper";
 import {
 	useSendMessageMutation,
 	useTextToSpeechMutation,
 } from "../../../services/chatApi";
-import { mapToSpokenTranscript } from "../mappers/contentMapper";
 import { RootStateType } from "../../../store";
-import HeroSection from "../../../components/HeroSection";
-import ChatLog from "./ChatLog";
-import SpeechToText from "./SpeechToText";
 import AddAttachment from "./AddAttachment";
+import ChatLog from "./ChatLog";
+import HeroSection from "../../../components/HeroSection";
+import SpeechToText from "./SpeechToText";
 
 const Chat = () => {
 	const { chatId, attachments, messages } = useSelector(
@@ -19,6 +19,7 @@ const Chat = () => {
 
 	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] =
 		useSendMessageMutation();
+
 	const [
 		textToSpeech,
 		{ data: textToSpeechResult, isLoading: isLoadingAudio },
@@ -100,8 +101,7 @@ const Chat = () => {
 
 	return (
 		<>
-			{isLoadingText ||
-				(messages.length === 0 && attachments.length === 0 && <HeroSection />)}
+			{messages.length === 0 && attachments.length === 0 && <HeroSection />}
 
 			<div className="flex w-full mb-[100px]">
 				<ChatLog />

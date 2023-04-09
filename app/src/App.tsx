@@ -7,7 +7,7 @@ const App = () => {
 		<BrowserRouter>
 			<Routes>
 				<Route path="/" element={<Navigate to="/chat" replace />} />
-				<Route path="/chat" element={<ChatPage />} />
+				<Route path="/chat" element={<ChatPage key="new-chat" />} />
 				<Route path="/chat/:chatId" element={<ChatPage />} />
 			</Routes>
 		</BrowserRouter>

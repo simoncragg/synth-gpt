@@ -1,19 +1,26 @@
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
+import { newChat, setActiveChat } from "../features/chat/chatSlice";
 import { useGetChatQuery } from "../services/chatApi";
-import { setActiveChat } from "../features/chat/chatSlice";
-import Navbar from "../components/Navbar";
 import Chat from "../features/chat/components/Chat";
+import Navbar from "../components/Navbar";
 
 const ChatPage = () => {
 	const dispatch = useDispatch();
+	const location = useLocation();
 	const chatId = useParams().chatId ?? null;
 
 	const { data: chat, isFetching } = useGetChatQuery(chatId ?? "", {
 		skip: !chatId,
 		refetchOnMountOrArgChange: true,
 	});
+
+	useEffect(() => {
+		if (location.pathname === "/chat") {
+			dispatch(newChat());
+		}
+	}, [location.pathname]);
 
 	useEffect(() => {
 		if (chat) {

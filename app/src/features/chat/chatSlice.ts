@@ -1,9 +1,10 @@
 import { v4 as uuidv4 } from "uuid";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { newChatText } from "../../constants";
 
 const initialState: ChatState = {
 	chatId: uuidv4(),
-	title: "New chat",
+	title: newChatText,
 	transcript: "",
 	attachments: [],
 	messages: [],
@@ -17,6 +18,14 @@ const chatSlice = createSlice({
 	name: "chat",
 	initialState,
 	reducers: {
+		newChat: (chat: ChatState) => {
+			chat.chatId = uuidv4();
+			chat.title = newChatText;
+			chat.transcript = "";
+			chat.attachments = [];
+			chat.messages = [];
+		},
+
 		setActiveChat: (
 			chat: ChatState,
 			action: PayloadAction<SetActiveChatPayloadType>
@@ -50,7 +59,7 @@ const chatSlice = createSlice({
 	},
 });
 
-export const { setActiveChat, attachCodeSnippet, addMessage } =
+export const { newChat, setActiveChat, attachCodeSnippet, addMessage } =
 	chatSlice.actions;
 
 export default chatSlice;
