@@ -23,6 +23,16 @@ export const chatApi = createApi({
 				};
 			},
 		}),
+		generateTitle: build.mutation<GenerateTitleResponse, GenerateTitleRequest>({
+			query(request) {
+				const { chatId, message } = request;
+				return {
+					url: `chats/${chatId}/generateTitle`,
+					method: "POST",
+					body: { message },
+				};
+			},
+		}),
 		sendMessage: build.mutation<SendMessageResponse, SendMessageRequest>({
 			query(request) {
 				const { chatId, message } = request;
@@ -57,6 +67,7 @@ export const chatApi = createApi({
 export const {
 	useGetChatsQuery,
 	useGetChatQuery,
+	useGenerateTitleMutation,
 	useSendMessageMutation,
 	useTextToSpeechMutation,
 } = chatApi;

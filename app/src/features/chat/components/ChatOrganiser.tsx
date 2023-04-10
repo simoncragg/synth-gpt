@@ -1,11 +1,13 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { BsPlus, BsChatLeft } from "react-icons/bs";
-import { Link } from "react-router-dom";
 import { TbLoader } from "react-icons/tb";
 import { newChatText } from "../../../constants";
-import { useGetChatsQuery } from "../../../services/chatApi";
+import {
+	useGenerateTitleMutation,
+	useGetChatsQuery,
+} from "../../../services/chatApi";
 import { RootStateType } from "../../../store";
 
 const ChatOrganiser = () => {
@@ -15,14 +17,37 @@ const ChatOrganiser = () => {
 		(state: RootStateType) => state.chat
 	);
 
-	const { refetch, data: chats = [], isLoading } = useGetChatsQuery();
+	const {
+		refetch: refetchChats,
+		data: chats = [],
+		isLoading,
+	} = useGetChatsQuery();
+
+	const [generateTitle, { data: genTitleResponse }] =
+		useGenerateTitleMutation();
 
 	useEffect(() => {
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
 		if (!currentChat) {
-			refetch();
+			refetchChats();
 		}
 	}, [messages]);
+
+	useEffect(() => {
+		const currentChat = chats.find((chat) => chat.chatId === chatId);
+		if (currentChat?.title === newChatText) {
+			generateTitle({
+				chatId,
+				message: messages[messages.length - 1].content,
+			});
+		}
+	}, [chats]);
+
+	useEffect(() => {
+		if (genTitleResponse?.title) {
+			refetchChats();
+		}
+	}, [genTitleResponse]);
 
 	return (
 		<>

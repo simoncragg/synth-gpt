@@ -1,3 +1,8 @@
+interface GenerateTitleResponseBody {
+	chatId: string;
+	title: string;
+}
+
 interface HandleMessageResponseBody {
 	message: ChatMessage;
 }

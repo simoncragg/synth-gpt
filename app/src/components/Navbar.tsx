@@ -1,12 +1,11 @@
-import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AiFillGithub } from "react-icons/ai";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
 import { RiAddFill, RiCloseFill, RiVoiceprintFill } from "react-icons/ri";
-import { newChatText } from "../constants";
 import { RootStateType } from "../store";
-
+import { newChatText } from "../constants";
 import ChatOrganiser from "../features/chat/components/ChatOrganiser";
 
 const Navbar = () => {

@@ -75,6 +75,32 @@ export class ChatRepository {
 		}
 	}
 
+	async updateTitleAsync(
+		chatId: string,
+		title: string,
+		updatedTime: number
+	): Promise<void> {
+		const params = {
+			TableName: chatsTableName,
+			Key: { chatId },
+			UpdateExpression: [
+				"set title = :title,",
+				"updatedTime = :updatedTime"
+			].join(" "),
+			ExpressionAttributeValues: {
+				":title": title,
+				":updatedTime": updatedTime
+			},
+		};
+
+		try {
+			await this.documentClient.update(params).promise();
+		} catch (error) {
+			console.error(error);
+			throw new Error("Failed to update chat");
+		}
+	}
+
 	private getClientConfig() {
 		return process.env.STAGE !== "dev"
 			? { region: process.env.REGION }

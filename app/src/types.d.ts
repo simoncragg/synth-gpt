@@ -34,6 +34,18 @@ interface GetChatResponse {
 	chat: Chat;
 }
 
+/* Generate Title */
+
+interface GenerateTitleRequest {
+	chatId: string;
+	message: string;
+}
+
+interface GenerateTitleResponse {
+	chatId: string;
+	title: string;
+}
+
 /* SendMessage */
 
 interface SendMessageRequest {
