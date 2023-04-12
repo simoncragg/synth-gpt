@@ -23,6 +23,16 @@ export const chatApi = createApi({
 				};
 			},
 		}),
+		deleteChat: build.mutation<DeleteChatResponse, DeleteChatRequest>({
+			query(request) {
+				const { chatId } = request;
+				return {
+					url: `chats/${chatId}`,
+					method: "DELETE",
+					body: {},
+				};
+			},
+		}),
 		generateTitle: build.mutation<GenerateTitleResponse, GenerateTitleRequest>({
 			query(request) {
 				const { chatId, message } = request;
@@ -68,6 +78,7 @@ export const {
 	useGetChatsQuery,
 	useGetChatQuery,
 	useGenerateTitleMutation,
+	useDeleteChatMutation,
 	useSendMessageMutation,
 	useTextToSpeechMutation,
 } = chatApi;

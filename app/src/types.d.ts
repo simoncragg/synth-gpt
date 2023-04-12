@@ -34,6 +34,18 @@ interface GetChatResponse {
 	chat: Chat;
 }
 
+/* Delete Chat */
+
+interface DeleteChatRequest {
+	chatId: string;
+}
+
+interface DeleteChatResponse {
+	chatid: string;
+	isSuccess: boolean;
+	error?: string;
+}
+
 /* Generate Title */
 
 interface GenerateTitleRequest {

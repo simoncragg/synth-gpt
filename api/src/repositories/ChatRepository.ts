@@ -101,6 +101,20 @@ export class ChatRepository {
 		}
 	}
 
+	async deleteByChatIdAsync(chatId: string): Promise<void> {
+		const params = {
+			TableName: chatsTableName,
+			Key: { chatId },
+		};
+
+		try {
+			await this.documentClient.delete(params).promise();
+		} catch (error) {
+			console.error(error);
+			throw new Error("Failed to delete chat");
+		}
+	}
+
 	private getClientConfig() {
 		return process.env.STAGE !== "dev"
 			? { region: process.env.REGION }

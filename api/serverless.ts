@@ -1,7 +1,8 @@
 import type { AWS } from "@serverless/typescript";
-import getChats from "@functions/getChats";
-import getChat from "@functions/getChat";
+import deleteChat from "@functions/deleteChat";
 import generateTitle from "@functions/generateTitle";
+import getChat from "@functions/getChat";
+import getChats from "@functions/getChats";
 import handleMessage from "@functions/handleMessage";
 import textToSpeech from "@functions/textToSpeech";
 
@@ -101,9 +102,10 @@ const serverlessConfiguration: AWS = {
 		},
 	},
 	functions: {
-		getChats,
-		getChat,
+		deleteChat,
 		generateTitle,
+		getChat,
+		getChats,
 		handleMessage,
 		textToSpeech
 	},

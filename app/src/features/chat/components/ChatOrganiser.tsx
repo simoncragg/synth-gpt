@@ -1,14 +1,16 @@
 import { useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { BsPlus, BsChatLeft } from "react-icons/bs";
+import { BsPlus } from "react-icons/bs";
 import { TbLoader } from "react-icons/tb";
 import { newChatText } from "../../../constants";
 import {
+	useDeleteChatMutation,
 	useGenerateTitleMutation,
 	useGetChatsQuery,
 } from "../../../services/chatApi";
 import { RootStateType } from "../../../store";
+import ChatLink from "./ChatLink";
 
 const ChatOrganiser = () => {
 	const navigate = useNavigate();
@@ -25,6 +27,8 @@ const ChatOrganiser = () => {
 
 	const [generateTitle, { data: genTitleResponse }] =
 		useGenerateTitleMutation();
+
+	const [deleteChat, { data: deleteChatResponse }] = useDeleteChatMutation();
 
 	useEffect(() => {
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
@@ -48,6 +52,12 @@ const ChatOrganiser = () => {
 			refetchChats();
 		}
 	}, [genTitleResponse]);
+
+	useEffect(() => {
+		if (deleteChatResponse?.isSuccess) {
+			navigate("../", { replace: false });
+		}
+	}, [deleteChatResponse]);
 
 	return (
 		<>
@@ -74,20 +84,12 @@ const ChatOrganiser = () => {
 					<div className="flex flex-col gap-2 text-gray-100 text-sm">
 						{chats.map((chat: Chat) => {
 							return (
-								<Link
-									key={chat.chatId}
-									to={`/chat/${chat.chatId}`}
-									className={`flex py-3 px-3 items-center gap-3 relative rounded-md cursor-pointer break-all hover:pr-4${
-										chat.chatId === chatId
-											? " bg-gray-700"
-											: " hover:bg-gray-700/50"
-									}`}
-								>
-									<BsChatLeft className="w-4 h-4" />
-									<div className="flex-1 text-ellipsis max-h-5 overflow-hidden break-all relative">
-										{chat.title}
-									</div>
-								</Link>
+								<ChatLink
+									key={`chat-link-${chat.chatId}`}
+									chat={chat}
+									isSelected={chat.chatId === chatId}
+									deleteChat={(chatId) => deleteChat({ chatId })}
+								/>
 							);
 						})}
 					</div>

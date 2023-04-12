@@ -1,3 +1,9 @@
+interface DeleteChatResponse {
+	chatId: string;
+	isSuccess: boolean;
+	error?: string;
+}
+
 interface GenerateTitleResponseBody {
 	chatId: string;
 	title: string;
