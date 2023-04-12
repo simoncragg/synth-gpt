@@ -77,19 +77,16 @@ export class ChatRepository {
 
 	async updateTitleAsync(
 		chatId: string,
-		title: string,
-		updatedTime: number
+		title: string
 	): Promise<void> {
 		const params = {
 			TableName: chatsTableName,
 			Key: { chatId },
 			UpdateExpression: [
-				"set title = :title,",
-				"updatedTime = :updatedTime"
+				"set title = :title"
 			].join(" "),
 			ExpressionAttributeValues: {
-				":title": title,
-				":updatedTime": updatedTime
+				":title": title
 			},
 		};
 

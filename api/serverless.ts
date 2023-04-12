@@ -4,6 +4,7 @@ import generateTitle from "@functions/generateTitle";
 import getChat from "@functions/getChat";
 import getChats from "@functions/getChats";
 import handleMessage from "@functions/handleMessage";
+import patchChat from "@functions/patchChat";
 import textToSpeech from "@functions/textToSpeech";
 
 const serverlessConfiguration: AWS = {
@@ -107,6 +108,7 @@ const serverlessConfiguration: AWS = {
 		getChat,
 		getChats,
 		handleMessage,
+		patchChat,
 		textToSpeech
 	},
 	resources: {

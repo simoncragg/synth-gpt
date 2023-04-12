@@ -18,21 +18,17 @@ describe("generateTitle handler", () => {
 	const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
 
 	it("should generate a chat title and update the chat in the ChatRepository", async () => {
-		// Arrange
 		generateChatResponseAsyncMock.mockResolvedValue({
 			role: "assistant" as const,
 			content: generatedTitle,
 		});
-
 		jest.spyOn(ChatRepository.prototype, "updateTitleAsync");
 
-		// Act
 		const event = buildHttpPostEvent(`/${generateTitle}`, { message }, { chatId });
 		const result = await main(event, context);
 
-		// Assert
 		expect(ChatRepository.prototype.updateTitleAsync)
-			.toHaveBeenCalledWith(chatId, generatedTitle, expect.any(Number));
+			.toHaveBeenCalledWith(chatId, generatedTitle);
 
 		expect(result).toEqual({
 			statusCode: 200,
@@ -41,15 +37,12 @@ describe("generateTitle handler", () => {
 	});
 
 	it("should return an error response if an unexpected error occurs", async () => {
-		// Arrange
 		const errorMessage = "An unexpected error occurred whilst processing your request";
 		generateChatResponseAsyncMock.mockRejectedValue(new Error(errorMessage));
 
-		// Act
 		const event = buildHttpPostEvent(`/${generateTitle}`, { message }, { chatId });
 		const result = await main(event, context);
 
-		// Assert
 		expect(result).toEqual({
 			statusCode: 500,
 			body: JSON.stringify({ error: errorMessage }),

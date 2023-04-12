@@ -1,20 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { BsChatLeft } from "react-icons/bs";
-import { FiTrash2 } from "react-icons/fi";
+import { FiEdit3, FiTrash2 } from "react-icons/fi";
 import { Link } from "react-router-dom";
 import { MdClose, MdDone } from "react-icons/md";
 
 interface ChatLinkProps {
 	chat: Chat;
 	isSelected: boolean;
+	editChatTitle: (chatId: string, title: string) => void;
 	deleteChat: (chatId: string) => void;
 }
 
-type PendingStateType = "deletion" | "none";
+type PendingStateType = "edit" | "deletion" | "none";
 
-const ChatLink = ({ chat, isSelected, deleteChat }: ChatLinkProps) => {
+const ChatLink = ({
+	chat,
+	isSelected,
+	editChatTitle,
+	deleteChat,
+}: ChatLinkProps) => {
 	const [pendingState, setPendingState] = useState<PendingStateType>("none");
 	const [isDeleting, setIsDeleting] = useState(false);
+	const titleRef = useRef<HTMLInputElement>(null);
+
+	useEffect(() => {
+		if (pendingState === "edit" && titleRef.current) {
+			titleRef.current.value = chat.title;
+		}
+	}, [pendingState]);
 
 	useEffect(() => {
 		if (!isSelected) {
@@ -23,9 +36,23 @@ const ChatLink = ({ chat, isSelected, deleteChat }: ChatLinkProps) => {
 	}, [isSelected]);
 
 	const confirm = () => {
-		if (pendingState === "deletion") {
-			deleteChat(chat.chatId);
-			setIsDeleting(true);
+		switch (pendingState) {
+			case "edit":
+				if (titleRef.current) {
+					editChatTitle(chat.chatId, titleRef.current.value);
+				}
+				break;
+			case "deletion":
+				deleteChat(chat.chatId);
+				setIsDeleting(true);
+				break;
+		}
+		setPendingState("none");
+	};
+
+	const cancel = () => {
+		if (pendingState === "edit" && titleRef.current) {
+			titleRef.current.value = chat.title;
 		}
 		setPendingState("none");
 	};
@@ -44,9 +71,21 @@ const ChatLink = ({ chat, isSelected, deleteChat }: ChatLinkProps) => {
 				<FiTrash2 className="w-4 h-4 mb-[2px]" />
 			)}
 			<div className="flex-1 text-ellipsis max-h-5 overflow-hidden break-all relative">
-				{isDeleting ? "Deleting ..." : chat.title}
+				{isDeleting ? (
+					"Deleting ..."
+				) : pendingState === "edit" ? (
+					<input
+						ref={titleRef}
+						type="text"
+						className="bg-gray-700 p-0 border-none text-sm"
+						minLength={1}
+						maxLength={30}
+					/>
+				) : (
+					titleRef?.current?.value ?? chat.title
+				)}
 			</div>
-			{isSelected && pendingState === "deletion" && (
+			{isSelected && pendingState !== "none" && (
 				<>
 					<button
 						type="button"
@@ -58,20 +97,29 @@ const ChatLink = ({ chat, isSelected, deleteChat }: ChatLinkProps) => {
 					<button
 						type="button"
 						aria-label={`Cancel ${pendingState}`}
-						onClick={() => setPendingState("none")}
+						onClick={() => cancel()}
 					>
 						<MdClose className="w-4 h-4" />
 					</button>
 				</>
 			)}
 			{isSelected && pendingState === "none" && (
-				<button
-					type="button"
-					aria-label="Delete chat"
-					onClick={() => setPendingState("deletion")}
-				>
-					<FiTrash2 className="w-4 h-4" />
-				</button>
+				<>
+					<button
+						type="button"
+						aria-label="Edit chat title"
+						onClick={() => setPendingState("edit")}
+					>
+						<FiEdit3 className="w-4 h-4" />
+					</button>
+					<button
+						type="button"
+						aria-label="Delete chat"
+						onClick={() => setPendingState("deletion")}
+					>
+						<FiTrash2 className="w-4 h-4" />
+					</button>
+				</>
 			)}
 		</Link>
 	);

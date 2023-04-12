@@ -12,6 +12,13 @@ interface GenerateTitleResponseBody {
 interface HandleMessageResponseBody {
 	message: ChatMessage;
 }
+
+interface PatchChatResponseBody {
+	chatId: string;
+	success: boolean;
+	error?: string;
+}
+
 interface TextToSpeechResponseBody {
 	transcript: string;
 	audioUrl: string;

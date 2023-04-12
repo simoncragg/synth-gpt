@@ -46,6 +46,18 @@ interface DeleteChatResponse {
 	error?: string;
 }
 
+/* Edit Chat Title */
+
+interface EditChatTitleRequest {
+	chatId: string;
+	title: string;
+}
+
+interface EditChatTitleResponse {
+	success: boolean;
+	error?: string;
+}
+
 /* Generate Title */
 
 interface GenerateTitleRequest {

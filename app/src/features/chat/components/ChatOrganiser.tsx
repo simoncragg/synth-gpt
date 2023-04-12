@@ -6,6 +6,7 @@ import { TbLoader } from "react-icons/tb";
 import { newChatText } from "../../../constants";
 import {
 	useDeleteChatMutation,
+	useEditChatTitleMutation,
 	useGenerateTitleMutation,
 	useGetChatsQuery,
 } from "../../../services/chatApi";
@@ -28,6 +29,8 @@ const ChatOrganiser = () => {
 	const [generateTitle, { data: genTitleResponse }] =
 		useGenerateTitleMutation();
 
+	const [editChatTitle, { data: editChatTitleResponse }] =
+		useEditChatTitleMutation();
 	const [deleteChat, { data: deleteChatResponse }] = useDeleteChatMutation();
 
 	useEffect(() => {
@@ -52,6 +55,12 @@ const ChatOrganiser = () => {
 			refetchChats();
 		}
 	}, [genTitleResponse]);
+
+	useEffect(() => {
+		if (editChatTitleResponse?.success) {
+			refetchChats();
+		}
+	}, [editChatTitleResponse]);
 
 	useEffect(() => {
 		if (deleteChatResponse?.isSuccess) {
@@ -88,6 +97,9 @@ const ChatOrganiser = () => {
 									key={`chat-link-${chat.chatId}`}
 									chat={chat}
 									isSelected={chat.chatId === chatId}
+									editChatTitle={(chatId, title) =>
+										editChatTitle({ chatId, title })
+									}
 									deleteChat={(chatId) => deleteChat({ chatId })}
 								/>
 							);

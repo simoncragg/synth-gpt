@@ -21,7 +21,7 @@ const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 		const { content: title } = await generateChatResponseAsync(messages);
 
 		const chatRepository = new ChatRepository();
-		await chatRepository.updateTitleAsync(chatId, title, Date.now());
+		await chatRepository.updateTitleAsync(chatId, title);
 
 		console.timeEnd("generateTitle");
 
