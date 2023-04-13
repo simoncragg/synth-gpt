@@ -8,12 +8,17 @@ const getChats: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async () => 
 	try {
 		const chatRepository = new ChatRepository();
 		const chats = await chatRepository.getByUserIdAsync("user-123");
-		return formatJSONResponse<ChatWithoutMessages[]>(chats);
+		return formatJSONResponse<GetChatsResponseBody>({
+			chats,
+			success: true,
+		});
 	}
 	catch (error) {
 		console.log(error, { level: "error" });
-		return formatJSONResponse<ErrorResponseBody>({
-			error: "An unexpected error occurred whilst processing your request"
+		return formatJSONResponse<BaseResponseBody>({
+			success: false,
+			error:
+				"An unexpected error occurred whilst processing your request"
 		}, 500);
 	}
 };

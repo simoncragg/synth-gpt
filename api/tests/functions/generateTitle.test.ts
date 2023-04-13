@@ -32,7 +32,11 @@ describe("generateTitle handler", () => {
 
 		expect(result).toEqual({
 			statusCode: 200,
-			body: JSON.stringify({ chatId, title: generatedTitle }),
+			body: JSON.stringify({
+				chatId,
+				title: generatedTitle,
+				success: true,
+			}),
 		});
 	});
 
@@ -45,7 +49,10 @@ describe("generateTitle handler", () => {
 
 		expect(result).toEqual({
 			statusCode: 500,
-			body: JSON.stringify({ error: errorMessage }),
+			body: JSON.stringify({
+				success: false,
+				error: errorMessage
+			}),
 		});
 	});
 });

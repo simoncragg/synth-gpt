@@ -22,7 +22,7 @@ const ChatOrganiser = () => {
 
 	const {
 		refetch: refetchChats,
-		data: chats = [],
+		data: getChatsResponse,
 		isLoading,
 	} = useGetChatsQuery();
 
@@ -34,6 +34,7 @@ const ChatOrganiser = () => {
 	const [deleteChat, { data: deleteChatResponse }] = useDeleteChatMutation();
 
 	useEffect(() => {
+		const chats = getChatsResponse?.chats ?? [];
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
 		if (!currentChat) {
 			refetchChats();
@@ -41,6 +42,7 @@ const ChatOrganiser = () => {
 	}, [messages]);
 
 	useEffect(() => {
+		const chats = getChatsResponse?.chats ?? [];
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
 		if (currentChat?.title === newChatText) {
 			generateTitle({
@@ -48,7 +50,7 @@ const ChatOrganiser = () => {
 				message: messages[messages.length - 1].content,
 			});
 		}
-	}, [chats]);
+	}, [getChatsResponse]);
 
 	useEffect(() => {
 		if (genTitleResponse?.title) {
@@ -63,7 +65,7 @@ const ChatOrganiser = () => {
 	}, [editChatTitleResponse]);
 
 	useEffect(() => {
-		if (deleteChatResponse?.isSuccess) {
+		if (deleteChatResponse?.success) {
 			navigate("../", { replace: false });
 		}
 	}, [deleteChatResponse]);
@@ -91,7 +93,7 @@ const ChatOrganiser = () => {
 			) : (
 				<div className="flex-col flex-1 overflow-y-auto">
 					<div className="flex flex-col gap-2 text-gray-100 text-sm">
-						{chats.map((chat: Chat) => {
+						{(getChatsResponse?.chats ?? []).map((chat: Chat) => {
 							return (
 								<ChatLink
 									key={`chat-link-${chat.chatId}`}

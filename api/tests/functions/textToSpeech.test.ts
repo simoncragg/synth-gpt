@@ -42,7 +42,8 @@ describe("textToSpeech", () => {
 
 		expect(result).toEqual(formatJSONResponse({
 			transcript: transcript,
-			audioUrl: signedUrl
+			audioUrl: signedUrl,
+			success: true,
 		}));
 	});
 
@@ -54,6 +55,7 @@ describe("textToSpeech", () => {
 		const result = await main(event, context);
 
 		expect(result).toEqual(formatJSONResponse({
+			success: false,
 			error: errorMessage,
 		}, 500));
 	});
@@ -65,6 +67,7 @@ describe("textToSpeech", () => {
 		const result = await main(event, context);
 
 		expect(result).toEqual(formatJSONResponse({
+			success: false,
 			error: errorMessage,
 		}, 500));
 	});
@@ -76,6 +79,7 @@ describe("textToSpeech", () => {
 		const result = await main(event, context);
 
 		expect(result).toEqual(formatJSONResponse({
+			success: false,
 			error: errorMessage,
 		}, 500));
 	});

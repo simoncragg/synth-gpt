@@ -11,17 +11,16 @@ const patchChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (even
 		const chatRepository = new ChatRepository();
 		await chatRepository.updateTitleAsync(chatId, title);
 
-		return formatJSONResponse<PatchChatResponseBody>({
-			chatId,
+		return formatJSONResponse<BaseResponseBody>({
 			success: true,
 		});
 	}
 	catch (error) {
 		console.log(error, { level: "error" });
-		return formatJSONResponse<PatchChatResponseBody>({
-			chatId,
+		return formatJSONResponse<BaseResponseBody>({
 			success: false,
-			error: "An unexpected error occurred whilst processing your request",
+			error:
+				"An unexpected error occurred whilst processing your request",
 		}, 500);
 	}
 };

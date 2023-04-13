@@ -54,14 +54,17 @@ const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 		console.timeEnd("handleMessage");
 
 		return formatJSONResponse<HandleMessageResponseBody>({
-			message: assistantMessage
+			message: assistantMessage,
+			success: true,
 		});
 	}
 	catch (error) {
 		console.log(error, { level: "error" });
 		console.timeEnd("handleMessage");
-		return formatJSONResponse<ErrorResponseBody>({
-			error: "An unexpected error occurred whilst processing your request"
+		return formatJSONResponse<BaseResponseBody>({
+			success: false,
+			error:
+				"An unexpected error occurred whilst processing your request",
 		}, 500);
 	}
 };

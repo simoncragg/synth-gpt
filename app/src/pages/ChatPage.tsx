@@ -11,7 +11,7 @@ const ChatPage = () => {
 	const location = useLocation();
 	const chatId = useParams().chatId ?? null;
 
-	const { data: chat, isFetching } = useGetChatQuery(chatId ?? "", {
+	const { data: getChatResponse, isFetching } = useGetChatQuery(chatId ?? "", {
 		skip: !chatId,
 		refetchOnMountOrArgChange: true,
 	});
@@ -23,10 +23,11 @@ const ChatPage = () => {
 	}, [location.pathname]);
 
 	useEffect(() => {
-		if (chat) {
+		if (getChatResponse?.chat) {
+			const { chat } = getChatResponse;
 			dispatch(setActiveChat({ chat }));
 		}
-	}, [chat]);
+	}, [getChatResponse]);
 
 	return (
 		<>

@@ -1,31 +1,28 @@
-interface DeleteChatResponse {
-	chatId: string;
-	isSuccess: boolean;
-	error?: string;
-}
-
-interface GenerateTitleResponseBody {
-	chatId: string;
-	title: string;
-}
-
-interface HandleMessageResponseBody {
-	message: ChatMessage;
-}
-
-interface PatchChatResponseBody {
-	chatId: string;
+interface BaseResponseBody {
 	success: boolean;
 	error?: string;
 }
 
-interface TextToSpeechResponseBody {
-	transcript: string;
-	audioUrl: string;
+interface GetChatResponseBody extends BaseResponseBody {
+	chat: Chat;
 }
 
-interface ErrorResponseBody {
-	error: string;
+interface GetChatsResponseBody extends BaseResponseBody {
+	chats: ChatWithoutMessages[];
+}
+
+interface GenerateTitleResponseBody extends BaseResponseBody {
+	chatId: string;
+	title: string;
+}
+
+interface HandleMessageResponseBody extends BaseResponseBody {
+	message: ChatMessage;
+}
+
+interface TextToSpeechResponseBody extends BaseResponseBody {
+	transcript: string;
+	audioUrl: string;
 }
 
 interface Message {

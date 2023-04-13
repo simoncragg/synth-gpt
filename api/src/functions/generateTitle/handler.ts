@@ -27,13 +27,16 @@ const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (
 
 		return formatJSONResponse<GenerateTitleResponseBody>({
 			chatId,
-			title
+			title,
+			success: true,
 		});
 	}
 	catch (error) {
 		console.log(error, { level: "error" });
-		return formatJSONResponse<ErrorResponseBody>({
-			error: "An unexpected error occurred whilst processing your request"
+		return formatJSONResponse<BaseResponseBody>({
+			success: false,
+			error:
+				"An unexpected error occurred whilst processing your request",
 		}, 500);
 	}
 };

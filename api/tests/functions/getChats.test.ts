@@ -13,7 +13,6 @@ describe("getChats", () => {
 	const chatRepositoryMock = mocked(ChatRepository);
 
 	it("should return an array of chats when successful", async () => {
-		// Arrange
 		const chats = [
 			{
 				chatId: uuidv4(),
@@ -26,26 +25,25 @@ describe("getChats", () => {
 
 		chatRepositoryMock.prototype.getByUserIdAsync.mockResolvedValue(chats);
 
-		// Act
 		const event = buildHttpPostEvent(`/${getChats}`, {}, {});
 		const result = await main(event, context);
 
-		// Assert
 		expect(result.statusCode).toEqual(200);
-		expect(JSON.parse(result.body)).toEqual(chats);
+		expect(JSON.parse(result.body)).toEqual({
+			success: true,
+			chats
+		});
 	});
 
 	it("should return error response on failure to get chats", async () => {
-		// Arrange
 		const error = new Error("An unexpected error occurred whilst processing your request");
 		chatRepositoryMock.prototype.getByUserIdAsync.mockRejectedValue(error);
 
-		// Act
 		const event = buildHttpPostEvent(`/${getChats}`, {}, {});
 		const result = await main(event, context);
 
-		// Assert
 		expect(result).toEqual(formatJSONResponse({
+			success: false,
 			error: error.message,
 		}, 500));
 	});

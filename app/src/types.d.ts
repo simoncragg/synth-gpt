@@ -17,33 +17,27 @@ interface ChatMessage {
 	timestamp: number;
 }
 
-/* GetChats */
-
-interface Chat {
-	chatId: string;
-	title: string;
-	userId: string;
-	createdTime: number;
-	updatedTime: number;
-	messages: ChatMessage[];
+interface BaseResponse {
+	success: boolean;
+	error?: string;
 }
 
 /* GetChat */
 
-interface GetChatResponse {
+interface GetChatResponse extends BaseResponse {
 	chat: Chat;
+}
+
+/* GetChats */
+
+interface GetChatsResponse extends BaseResponse {
+	chats: Chat[];
 }
 
 /* Delete Chat */
 
 interface DeleteChatRequest {
 	chatId: string;
-}
-
-interface DeleteChatResponse {
-	chatid: string;
-	isSuccess: boolean;
-	error?: string;
 }
 
 /* Edit Chat Title */
@@ -53,11 +47,6 @@ interface EditChatTitleRequest {
 	title: string;
 }
 
-interface EditChatTitleResponse {
-	success: boolean;
-	error?: string;
-}
-
 /* Generate Title */
 
 interface GenerateTitleRequest {
@@ -65,7 +54,7 @@ interface GenerateTitleRequest {
 	message: string;
 }
 
-interface GenerateTitleResponse {
+interface GenerateTitleResponse extends BaseResponse {
 	chatId: string;
 	title: string;
 }
@@ -77,7 +66,7 @@ interface SendMessageRequest {
 	message: ChatMessage;
 }
 
-interface SendMessageResponse {
+interface SendMessageResponse extends BaseResponse {
 	message: ChatMessage;
 }
 
@@ -87,9 +76,20 @@ interface TextToSpeechRequest {
 	transcript: string;
 }
 
-interface TextToSpeechResponse {
+interface TextToSpeechResponse extends BaseResponse {
 	transcript: string;
 	audioUrl: string;
+}
+
+/* Chat */
+
+interface Chat {
+	chatId: string;
+	title: string;
+	userId: string;
+	createdTime: number;
+	updatedTime: number;
+	messages: ChatMessage[];
 }
 
 /* Message Parts */

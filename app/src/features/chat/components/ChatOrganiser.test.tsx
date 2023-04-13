@@ -22,7 +22,12 @@ describe("ChatOrganiser", () => {
 		server.listen();
 		server.use(
 			rest.get("*/api/v1/chats", (req, res, ctx) => {
-				return res(ctx.json(mockChats));
+				return res(
+					ctx.json({
+						chats: mockChats,
+						success: true,
+					})
+				);
 			})
 		);
 	});
@@ -60,11 +65,22 @@ describe("ChatOrganiser", () => {
 			rest.post(`*/api/v1/chats/${chatId}/generateTitle`, (req, res, ctx) => {
 				const chat = chats.find((chat) => chat.chatId === chatId);
 				chat.title = title;
-				return res(ctx.json({ chatId, title }));
+				return res(
+					ctx.json({
+						chatId,
+						title,
+						success: true,
+					})
+				);
 			}),
 
 			rest.get("*/api/v1/chats", (req, res, ctx) => {
-				return res(ctx.json(chats));
+				return res(
+					ctx.json({
+						chats,
+						success: true,
+					})
+				);
 			})
 		);
 

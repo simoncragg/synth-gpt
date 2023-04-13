@@ -33,13 +33,16 @@ describe("handleMessage handler", () => {
 		const result = await main(event, context);
 
 		expect(result).toHaveProperty("statusCode", 200);
-		expect(JSON.parse(result.body).message).toEqual(
-			expect.objectContaining({
-				id: expect.any(String),
-				role: generatedResponse.role,
-				content: generatedResponse.content,
-				timestamp: expect.any(Number),
-			}));
+		expect(JSON.parse(result.body)).toEqual(
+			{
+				message: {
+					id: expect.any(String),
+					role: generatedResponse.role,
+					content: generatedResponse.content,
+					timestamp: expect.any(Number),
+				},
+				success: true
+			});
 	});
 
 	it("should add new item to chats db table", async () => {
@@ -74,12 +77,12 @@ describe("handleMessage handler", () => {
 			userId,
 			messages: [
 				userMessage,
-				expect.objectContaining({
+				{
 					id: expect.any(String),
 					role: assistantResponse.role,
 					content: assistantResponse.content,
 					timestamp: expect.any(Number),
-				})
+				}
 			],
 			createdTime: expect.any(Number),
 			updatedTime: expect.any(Number),
@@ -144,12 +147,12 @@ describe("handleMessage handler", () => {
 				loadedMessages[0],
 				loadedMessages[1],
 				userMessage,
-				expect.objectContaining({
+				{
 					id: expect.any(String),
 					role: "assistant" as const,
 					content: assistantMessage.content,
 					timestamp: expect.any(Number),
-				}),
+				},
 			],
 			createdTime,
 			updatedTime: expect.any(Number),
@@ -173,6 +176,7 @@ describe("handleMessage handler", () => {
 		const result = await main(event, context);
 
 		expect(result).toEqual(formatJSONResponse({
+			success: false,
 			error,
 		}, 500));
 	});

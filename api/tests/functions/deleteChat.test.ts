@@ -20,7 +20,9 @@ describe("deleteChat handler", () => {
 
 		expect(result).toEqual({
 			statusCode: 200,
-			body: JSON.stringify({ chatId, isSuccess: true }),
+			body: JSON.stringify({
+				success: true
+			}),
 		});
 	});
 
@@ -33,7 +35,10 @@ describe("deleteChat handler", () => {
 
 		expect(result).toEqual({
 			statusCode: 500,
-			body: JSON.stringify({ chatId, isSuccess: false, error: errorMessage }),
+			body: JSON.stringify({
+				success: false,
+				error: errorMessage
+			}),
 		});
 	});
 });

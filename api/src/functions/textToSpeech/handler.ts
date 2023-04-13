@@ -48,13 +48,16 @@ const textToSpeech: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
 
 		return formatJSONResponse<TextToSpeechResponseBody>({
 			transcript,
-			audioUrl
+			audioUrl,
+			success: true,
 		});
 
 	} catch (error) {
 		console.log(error, { level: "error" });
-		return formatJSONResponse<ErrorResponseBody>({
-			error: "An error occurred while generating the audio file"
+		return formatJSONResponse<BaseResponseBody>({
+			success: false,
+			error:
+				"An error occurred while generating the audio file"
 		}, 500);
 	}
 };

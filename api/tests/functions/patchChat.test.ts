@@ -24,7 +24,6 @@ describe("patch chat handler", () => {
 		expect(result).toEqual({
 			statusCode: 200,
 			body: JSON.stringify({
-				chatId,
 				success: true
 			}),
 		});
@@ -40,7 +39,6 @@ describe("patch chat handler", () => {
 		expect(result).toEqual({
 			statusCode: 500,
 			body: JSON.stringify({
-				chatId,
 				success: false,
 				error: errorMessage
 			}),

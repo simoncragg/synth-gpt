@@ -9,16 +9,14 @@ const deleteChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (eve
 	try {
 		const chatRepository = new ChatRepository();
 		await chatRepository.deleteByChatIdAsync(chatId);
-		return formatJSONResponse<DeleteChatResponse>({
-			chatId,
-			isSuccess: true
+		return formatJSONResponse<BaseResponseBody>({
+			success: true
 		});
 	}
 	catch (error) {
 		console.log(error, { level: "error" });
-		return formatJSONResponse<DeleteChatResponse>({
-			chatId,
-			isSuccess: false,
+		return formatJSONResponse<BaseResponseBody>({
+			success: false,
 			error: "An unexpected error occurred whilst processing your request"
 		}, 500);
 	}

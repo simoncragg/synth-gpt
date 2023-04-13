@@ -7,7 +7,7 @@ export const chatApi = createApi({
 		baseUrl: process.env.REACT_APP_CHAT_API_BASE_URL,
 	}),
 	endpoints: (build) => ({
-		getChats: build.query<Chat[], void>({
+		getChats: build.query<GetChatsResponse, void>({
 			query() {
 				return {
 					url: "chats/",
@@ -15,7 +15,7 @@ export const chatApi = createApi({
 				};
 			},
 		}),
-		getChat: build.query<Chat, string>({
+		getChat: build.query<GetChatResponse, string>({
 			query(chatId) {
 				return {
 					url: `chats/${chatId}`,
@@ -23,7 +23,7 @@ export const chatApi = createApi({
 				};
 			},
 		}),
-		deleteChat: build.mutation<DeleteChatResponse, DeleteChatRequest>({
+		deleteChat: build.mutation<BaseResponse, DeleteChatRequest>({
 			query(request) {
 				const { chatId } = request;
 				return {
@@ -33,7 +33,7 @@ export const chatApi = createApi({
 				};
 			},
 		}),
-		editChatTitle: build.mutation<EditChatTitleResponse, EditChatTitleRequest>({
+		editChatTitle: build.mutation<BaseResponse, EditChatTitleRequest>({
 			query(request) {
 				const { chatId, title } = request;
 				return {
