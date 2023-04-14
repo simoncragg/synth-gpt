@@ -1,14 +1,14 @@
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { mocked } from "jest-mock";
-import { performTextToSpeech } from "../../src/proxies/pollyApiProxy";
+import { performTextToSpeech } from "@proxies/pollyApiProxy";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client } from "@aws-sdk/client-s3";
 import { main } from "../../src/functions/textToSpeech/handler";
 
-jest.mock("../../src/proxies/pollyApiProxy");
 jest.mock("@aws-sdk/client-s3");
 jest.mock("@aws-sdk/s3-request-presigner");
+jest.mock("@proxies/pollyApiProxy");
 
 const performTextToSpeechMock = mocked(performTextToSpeech);
 const s3ClientMock = mocked(S3Client);

@@ -2,7 +2,7 @@ import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import { v4 as uuidv4 } from "uuid";
 import { formatJSONResponse } from "@libs/api-gateway";
-import { generateChatResponseAsync } from "../../proxies/openaiApiProxy";
+import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
 import { newChatText } from "../../constants";
 import { prePrompt } from "../../constants";
 import { ChatRepository } from "../../repositories/ChatRepository";

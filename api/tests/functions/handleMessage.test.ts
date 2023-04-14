@@ -2,12 +2,12 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { formatJSONResponse } from "../../src/libs/api-gateway";
-import { generateChatResponseAsync } from "../../src/proxies/openaiApiProxy";
+import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
 import { main } from "@functions/handleMessage/handler";
 import { newChatText } from "../../src/constants";
 import { ChatRepository } from "../../src/repositories/ChatRepository";
 
-jest.mock("../../src/proxies/openaiApiProxy");
+jest.mock("@proxies/openaiApiProxy");
 jest.mock("../../src/repositories/ChatRepository");
 
 const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);

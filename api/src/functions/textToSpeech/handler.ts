@@ -1,7 +1,7 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import { formatJSONResponse } from "@libs/api-gateway";
-import { performTextToSpeech } from "../../proxies/pollyApiProxy";
+import { performTextToSpeech } from "@proxies/pollyApiProxy";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import schema from "./schema";
