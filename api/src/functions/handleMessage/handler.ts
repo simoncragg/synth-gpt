@@ -5,7 +5,7 @@ import { formatJSONResponse } from "@libs/api-gateway";
 import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
 import { newChatText } from "../../constants";
 import { prePrompt } from "../../constants";
-import { ChatRepository } from "../../repositories/ChatRepository";
+import { ChatRepository } from "@repositories/ChatRepository";
 import schema from "./schema";
 
 const handleMessage: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {

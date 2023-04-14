@@ -2,9 +2,9 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { main } from "@functions/patchChat/handler";
-import { ChatRepository } from "../../src/repositories/ChatRepository";
+import { ChatRepository } from "@repositories/ChatRepository";
 
-jest.mock("../../src/repositories/ChatRepository");
+jest.mock("@repositories/ChatRepository");
 
 describe("patch chat handler", () => {
 	const chatId = uuidv4();

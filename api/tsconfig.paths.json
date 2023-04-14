@@ -5,6 +5,7 @@
 			"@functions/*": ["src/functions/*"],
 			"@libs/*": ["src/libs/*"],
 			"@proxies/*": ["src/proxies/*"],
+			"@repositories/*": ["src/repositories/*"],
 		}
 	}
 }

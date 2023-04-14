@@ -3,9 +3,9 @@ import { buildHttpPostEvent, buildContext } from "./builders";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { mocked } from "jest-mock";
 import { main } from "../../src/functions/getChat/handler";
-import { ChatRepository } from "../../src/repositories/ChatRepository";
+import { ChatRepository } from "@repositories/ChatRepository";
 
-jest.mock("../../src/repositories/ChatRepository");
+jest.mock("@repositories/ChatRepository");
 
 describe("getChat", () => {
 	const getChat = "getChat";

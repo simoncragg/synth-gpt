@@ -5,10 +5,10 @@ import { formatJSONResponse } from "../../src/libs/api-gateway";
 import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
 import { main } from "@functions/handleMessage/handler";
 import { newChatText } from "../../src/constants";
-import { ChatRepository } from "../../src/repositories/ChatRepository";
+import { ChatRepository } from "@repositories/ChatRepository";
 
 jest.mock("@proxies/openaiApiProxy");
-jest.mock("../../src/repositories/ChatRepository");
+jest.mock("@repositories/ChatRepository");
 
 const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
 const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync");

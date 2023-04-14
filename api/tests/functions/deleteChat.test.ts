@@ -2,9 +2,9 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { main } from "@functions/deleteChat/handler";
-import { ChatRepository } from "../../src/repositories/ChatRepository";
+import { ChatRepository } from "@repositories/ChatRepository";
 
-jest.mock("../../src/repositories/ChatRepository");
+jest.mock("@repositories/ChatRepository");
 
 describe("deleteChat handler", () => {
 	const context = buildContext("chats");
