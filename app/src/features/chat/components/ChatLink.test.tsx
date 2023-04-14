@@ -90,6 +90,25 @@ describe("ChatLink", () => {
 		expect(getByLabelText("Cancel edit")).toBeInTheDocument();
 	});
 
+	it("should bring text input of title into focus when edit button is clicked", async () => {
+		const { getByLabelText, getByRole } = render(
+			<ChatLink
+				chat={chat}
+				isSelected={true}
+				editChatTitle={editChatTitleMock}
+				deleteChat={deleteChatMock}
+			/>
+		);
+		const editButton = getByLabelText("Edit chat title");
+		await waitFor(() => {
+			userEvent.click(editButton);
+		});
+
+		const titleTextInput = getByRole("textbox");
+		expect(titleTextInput).toBeInTheDocument();
+		expect(document.activeElement).toBe(titleTextInput);
+	});
+
 	it("should call editChatTitle with correct args when the confirm button is clicked", async () => {
 		const newTitle = "New title";
 

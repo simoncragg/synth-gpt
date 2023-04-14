@@ -80,6 +80,7 @@ const ChatLink = ({
 						className="bg-gray-700 p-0 border-none text-sm"
 						minLength={1}
 						maxLength={30}
+						autoFocus
 					/>
 				) : (
 					titleRef?.current?.value ?? chat.title
