@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { formatJSONResponse } from "../../src/libs/api-gateway";
 import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
-import { main } from "@functions/handleMessage/handler";
+import { main } from "@http/handleMessage/handler";
 import { newChatText } from "../../src/constants";
 import { ChatRepository } from "@repositories/ChatRepository";
 

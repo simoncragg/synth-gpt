@@ -1,11 +1,11 @@
 import type { AWS } from "@serverless/typescript";
-import deleteChat from "@functions/deleteChat";
-import generateTitle from "@functions/generateTitle";
-import getChat from "@functions/getChat";
-import getChats from "@functions/getChats";
-import handleMessage from "@functions/handleMessage";
-import patchChat from "@functions/patchChat";
-import textToSpeech from "@functions/textToSpeech";
+import deleteChat from "@http/deleteChat";
+import generateTitle from "@http/generateTitle";
+import getChat from "@http/getChat";
+import getChats from "@http/getChats";
+import handleMessage from "@http/handleMessage";
+import patchChat from "@http/patchChat";
+import textToSpeech from "@http/textToSpeech";
 
 const serverlessConfiguration: AWS = {
 	service: "aws-nodejs-typescript",

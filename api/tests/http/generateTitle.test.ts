@@ -2,7 +2,7 @@ import { buildHttpPostEvent, buildContext } from "./builders";
 import { mocked } from "jest-mock";
 import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
 import { ChatRepository } from "@repositories/ChatRepository";
-import { main } from "@functions/generateTitle/handler";
+import { main } from "@http/generateTitle/handler";
 
 jest.mock("@proxies/openaiApiProxy");
 jest.mock("@repositories/ChatRepository");

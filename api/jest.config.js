@@ -8,7 +8,7 @@ module.exports = {
 		"<rootDir>/(node_modules|dist|.serverless|.build)/",
 	],
 	moduleNameMapper: {
-		"^@functions/(.*)": "<rootDir>/src/functions/$1",
+		"^@http/(.*)": "<rootDir>/src/http/$1",
 		"^@libs/(.*)": "<rootDir>/src/libs/$1",
 		"^@proxies/(.*)": "<rootDir>/src/proxies/$1",
 		"^@repositories/(.*)": "<rootDir>/src/repositories/$1",

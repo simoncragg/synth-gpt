@@ -1,25 +1,22 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 import { buildHttpPostEvent, buildContext } from "./builders";
-import { main } from "@functions/patchChat/handler";
+import { main } from "@http/deleteChat/handler";
 import { ChatRepository } from "@repositories/ChatRepository";
 
 jest.mock("@repositories/ChatRepository");
 
-describe("patch chat handler", () => {
+describe("deleteChat handler", () => {
+	const context = buildContext("chats");
 	const chatId = uuidv4();
-	const title = "New title";
-	const context = buildContext("patchChat");
 	const chatRepositoryMock = mocked(ChatRepository);
 
-	it("should patch the chat in the ChatRepository", async () => {
-		jest.spyOn(chatRepositoryMock.prototype, "updateTitleAsync");
-
-		const event = buildHttpPostEvent(`/chats/${chatId}`, { title }, { chatId });
+	it("should successfully deleted chat for given chatId", async () => {
+		const event = buildHttpPostEvent(`/chats/${chatId}`, {}, { chatId });
 		const result = await main(event, context);
 
-		expect(chatRepositoryMock.prototype.updateTitleAsync)
-			.toHaveBeenCalledWith(chatId, title);
+		expect(ChatRepository.prototype.deleteByChatIdAsync)
+			.toHaveBeenCalledWith(chatId);
 
 		expect(result).toEqual({
 			statusCode: 200,
@@ -31,9 +28,9 @@ describe("patch chat handler", () => {
 
 	it("should return an error response if an unexpected error occurs", async () => {
 		const errorMessage = "An unexpected error occurred whilst processing your request";
-		chatRepositoryMock.prototype.updateTitleAsync.mockRejectedValue(new Error(errorMessage));
+		chatRepositoryMock.prototype.deleteByChatIdAsync.mockRejectedValue(new Error(errorMessage));
 
-		const event = buildHttpPostEvent(`/chats/${chatId}`, { title }, { chatId });
+		const event = buildHttpPostEvent(`/chats/${chatId}`, {}, { chatId });
 		const result = await main(event, context);
 
 		expect(result).toEqual({
