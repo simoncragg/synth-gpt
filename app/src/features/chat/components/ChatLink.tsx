@@ -65,10 +65,10 @@ const ChatLink = ({
 				isSelected ? " bg-gray-700" : " hover:bg-gray-700/50"
 			}`}
 		>
-			{!isSelected || pendingState === "deletion" ? (
-				<FiTrash2 className="w-4 h-4 mb-[2px]" />
-			) : (
+			{pendingState !== "deletion" ? (
 				<BsChatLeft className="w-4 h-4" />
+			) : (
+				<FiTrash2 className="w-4 h-4 mb-[2px]" />
 			)}
 			<div className="flex-1 text-ellipsis max-h-5 overflow-hidden break-all relative">
 				{isDeleting ? (
