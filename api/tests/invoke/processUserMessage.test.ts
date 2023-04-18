@@ -1,26 +1,26 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
-import { buildHttpPostEvent, buildContext } from "./builders";
-import { formatJSONResponse } from "../../src/libs/api-gateway";
 import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
-import { main } from "@http/handleMessage/handler";
+import { main } from "@invoke/processUserMessage/handler";
 import { newChatText } from "../../src/constants";
+import { postToConnectionAsync } from "@proxies/apiGatewayManagementApiClientProxy";
 import { ChatRepository } from "@repositories/ChatRepository";
 
+jest.mock("@proxies/apiGatewayManagementApiClientProxy");
 jest.mock("@proxies/openaiApiProxy");
 jest.mock("@repositories/ChatRepository");
 
 const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
+const postToConnectionAsyncMock = mocked(postToConnectionAsync);
 const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync");
 
-describe("handleMessage handler", () => {
+describe("processUserMessage handler", () => {
+	const connectionId = uuidv4();
 	const chatId = uuidv4();
+	const userId = uuidv4();
 	const title = newChatText;
-	const userId = "user-123";
-	const handleMessage = "handleMessage";
-	const context = buildContext(handleMessage);
 
-	it("should return generated chat response message for new chat", async () => {
+	it("should post generated chat response message for new chat", async () => {
 		const generatedResponse = {
 			role: "assistant" as const,
 			content: "Hello there! How may I assist you today?"
@@ -28,21 +28,32 @@ describe("handleMessage handler", () => {
 
 		generateChatResponseAsyncMock.mockResolvedValue(generatedResponse);
 
-		const body = { message: "hello" };
-		const event = buildHttpPostEvent(`/${handleMessage}`, body, { chatId });
-		const result = await main(event, context);
+		const event = {
+			connectionId,
+			chatId,
+			userId,
+			message: {
+				id: uuidv4(),
+				role: "user" as const,
+				content: "test message content",
+				timestamp: 1234567890,
+			},
+		};
 
-		expect(result).toHaveProperty("statusCode", 200);
-		expect(JSON.parse(result.body)).toEqual(
+		await main(event, undefined, undefined);
+
+		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
+			event.connectionId,
 			{
-				message: {
+				chatId: event.chatId,
+				message: expect.objectContaining({
 					id: expect.any(String),
 					role: generatedResponse.role,
 					content: generatedResponse.content,
 					timestamp: expect.any(Number),
-				},
-				success: true
-			});
+				}),
+			}
+		);
 	});
 
 	it("should add new item to chats db table", async () => {
@@ -68,8 +79,14 @@ describe("handleMessage handler", () => {
 
 		generateChatResponseAsyncMock.mockResolvedValue(assistantResponse);
 
-		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { chatId });
-		await main(event, context);
+		const event = {
+			connectionId,
+			chatId,
+			userId,
+			message: userMessage,
+		};
+
+		await main(event, undefined, undefined);
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
 			chatId,
@@ -136,8 +153,14 @@ describe("handleMessage handler", () => {
 
 		generateChatResponseAsyncMock.mockResolvedValue(assistantMessage);
 
-		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { chatId });
-		await main(event, context);
+		const event = {
+			connectionId,
+			chatId,
+			userId,
+			message: userMessage,
+		};
+
+		await main(event, undefined, undefined);
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
 			chatId,
@@ -157,27 +180,5 @@ describe("handleMessage handler", () => {
 			createdTime,
 			updatedTime: expect.any(Number),
 		});
-	});
-
-	it("should return error response on failure to generate chat response", async () => {
-		const error = "An unexpected error occurred whilst processing your request";
-		generateChatResponseAsyncMock.mockRejectedValue(
-			new Error(error)
-		);
-
-		const userMessage = {
-			id: uuidv4(),
-			role: "user" as const,
-			content: "how are you feeling?",
-			timestamp: Date.now(),
-		};
-
-		const event = buildHttpPostEvent(`/${handleMessage}`, userMessage, { chatId });
-		const result = await main(event, context);
-
-		expect(result).toEqual(formatJSONResponse({
-			success: false,
-			error,
-		}, 500));
 	});
 });

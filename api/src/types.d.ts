@@ -16,6 +16,11 @@ interface GenerateTitleResponseBody extends BaseResponseBody {
 	title: string;
 }
 
+interface HandleUserMessageRequest extends BaseResponseBody {
+	chatId: string;
+	message: ChatMessage;
+}
+
 interface HandleMessageResponseBody extends BaseResponseBody {
 	message: ChatMessage;
 }

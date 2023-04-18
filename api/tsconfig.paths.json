@@ -6,6 +6,8 @@
 			"@libs/*": ["src/libs/*"],
 			"@proxies/*": ["src/proxies/*"],
 			"@repositories/*": ["src/repositories/*"],
+			"@invoke/*": ["src/invoke/*"],
+			"@websocket/*": ["src/websocket/*"],
 		}
 	}
 }

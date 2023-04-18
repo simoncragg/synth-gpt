@@ -1,43 +1,43 @@
-import { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
+import { addMessage } from "../chatSlice";
 import { mapToSpokenTranscript } from "../mappers/contentMapper";
-import {
-	useSendMessageMutation,
-	useTextToSpeechMutation,
-} from "../../../services/chatApi";
-import { RootStateType } from "../../../store";
+import { useTextToSpeechMutation } from "../../../services/chatApi";
 import AddAttachment from "./AddAttachment";
 import ChatLog from "./ChatLog";
+import ChatService from "../services/ChatService";
 import HeroSection from "../../../components/HeroSection";
 import SpeechToText from "./SpeechToText";
+import { RootStateType } from "../../../store";
 
 const Chat = () => {
+	const dispatch = useDispatch();
+	const [isAwaitingChatResponse, setIsAwaitingChatResponse] = useState(false);
+
 	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
 	);
-
-	const [sendMessage, { data: sendMessageResult, isLoading: isLoadingText }] =
-		useSendMessageMutation();
 
 	const [
 		textToSpeech,
 		{ data: textToSpeechResult, isLoading: isLoadingAudio },
 	] = useTextToSpeechMutation();
 
+	const chatService = useRef<ChatService>(new ChatService(chatId));
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
+
+	useEffect(() => {
+		chatService.current = new ChatService(chatId);
+		chatService.current.connect();
+		return () => {
+			chatService.current.disconnect();
+		};
+	}, []);
 
 	useEffect(() => {
 		scrollTo(scrollToTargetRef.current);
 	}, [messages]);
-
-	useEffect(() => {
-		const message = sendMessageResult?.message;
-		if (message) {
-			const transcript = mapToSpokenTranscript(message.content);
-			textToSpeech({ transcript });
-		}
-	}, [sendMessageResult]);
 
 	useEffect(() => {
 		playAudio(textToSpeechResult?.audioUrl);
@@ -45,9 +45,14 @@ const Chat = () => {
 
 	const onTranscriptionEnded = (transcript: string) => {
 		const message = composeMessage(transcript, attachments);
-		sendMessage({
-			chatId,
-			message,
+		setIsAwaitingChatResponse(true);
+		dispatch(addMessage({ message }));
+
+		chatService.current.send(message, (payload: SendMessageResponse) => {
+			dispatch(addMessage({ message: payload.message }));
+			setIsAwaitingChatResponse(false);
+			const transcript = mapToSpokenTranscript(payload.message.content);
+			textToSpeech({ transcript });
 		});
 	};
 
@@ -111,7 +116,7 @@ const Chat = () => {
 
 			<div className="fixed sm:left-[256px] bottom-0 w-full sm:w-[calc(100vw-256px)] overflow-y-hidden">
 				<div className="flex flex-col left-0 items-center mb-4">
-					{isLoadingText || isLoadingAudio ? (
+					{isAwaitingChatResponse || isLoadingAudio ? (
 						<div className="relative bg-slate-900 rounded-full p-2">
 							<div className="loader w-[70px] h-[70px] rounded-full z-50"></div>
 						</div>

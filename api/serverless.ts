@@ -1,10 +1,13 @@
 import type { AWS } from "@serverless/typescript";
+import connect from "@websocket/connect";
 import deleteChat from "@http/deleteChat";
+import disconnect from "@websocket/disconnect";
 import generateTitle from "@http/generateTitle";
 import getChat from "@http/getChat";
 import getChats from "@http/getChats";
-import handleMessage from "@http/handleMessage";
+import handleUserMessage from "@websocket/handleUserMessage";
 import patchChat from "@http/patchChat";
+import processUserMessage from "@invoke/processUserMessage";
 import textToSpeech from "@http/textToSpeech";
 
 const serverlessConfiguration: AWS = {
@@ -25,11 +28,13 @@ const serverlessConfiguration: AWS = {
 			minimumCompressionSize: 1024,
 			shouldStartNameWithService: true,
 		},
+		websocketsApiRouteSelectionExpression: "$request.body.action",
 		environment: {
 			AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
 			NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
-			STAGE: "${opt:stage, 'dev'}",
+			AWS_ACCOUNT_ID: "000000000000",
 			REGION: "${self:provider.region}",
+			STAGE: "${opt:stage, 'dev'}",
 			OPENAI_API_BASE_URL: "https://api.openai.com/v1",
 			OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 			POLLY_ACCESS_KEY_ID: process.env.POLLY_ACCESS_KEY_ID,
@@ -40,7 +45,9 @@ const serverlessConfiguration: AWS = {
 	package: { individually: true },
 	custom: {
 		"serverless-offline": {
-			httpPort: 3001
+			httpPort: 3001,
+			lambdaPort: 3002,
+			websocketPort: 4001,
 		},
 		esbuild: {
 			bundle: true,
@@ -55,7 +62,14 @@ const serverlessConfiguration: AWS = {
 		iamRoleStatements: [
 			{
 				Effect: "Allow",
-				"Action": [
+				Action: [
+					"lambda:InvokeFunction",
+				],
+				Resource: "arn:aws:lambda:::processUserMessage-${opt:stage, 'dev'}",
+			},
+			{
+				Effect: "Allow",
+				Action: [
 					"dynamodb:DescribeTable",
 					"dynamodb:Query",
 					"dynamodb:Scan",
@@ -103,13 +117,19 @@ const serverlessConfiguration: AWS = {
 		},
 	},
 	functions: {
+		// http
 		deleteChat,
 		generateTitle,
 		getChat,
 		getChats,
-		handleMessage,
 		patchChat,
-		textToSpeech
+		textToSpeech,
+		// websocket
+		connect,
+		handleUserMessage,
+		disconnect,
+		// invoke
+		processUserMessage,
 	},
 	resources: {
 		Resources: {
