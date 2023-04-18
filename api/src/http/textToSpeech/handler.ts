@@ -1,32 +1,19 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import { formatJSONResponse } from "@libs/api-gateway";
+import { isDev } from "../../utils";
 import { performTextToSpeech } from "@proxies/pollyApiProxy";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client, PutObjectCommand, GetObjectCommand } from "@aws-sdk/client-s3";
 import schema from "./schema";
 
-const s3CredsForDev = { accessKeyId: "S3RVER", secretAccessKey: "S3RVER" };
-const s3Config = process.env.STAGE == "dev"
-	? {
-		forcePathStyle: true,
-		credentials: s3CredsForDev,
-		endpoint: "http://localhost:4569",
-	}
-	: { forcePathStyle: true };
-
 const textToSpeech: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	const { transcript } = event.body;
 
 	try {
-
 		console.time("textToSpeech");
-
-		console.time("performTextToSpeech");
 		const audioStream = await performTextToSpeech(transcript);
-		console.timeEnd("performTextToSpeech");
-
-		const s3 = new S3Client(s3Config);
+		const s3 = createS3Client();
 		const filename = `${Date.now()}.mpg`;
 
 		await s3.send(
@@ -61,5 +48,19 @@ const textToSpeech: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (e
 		}, 500);
 	}
 };
+
+function createS3Client() {
+	const config = isDev
+		? {
+			forcePathStyle: true,
+			credentials: {
+				accessKeyId: "S3RVER",
+				secretAccessKey: "S3RVER"
+			},
+			endpoint: "http://localhost:4569",
+		}
+		: { forcePathStyle: true };
+	return new S3Client(config);
+}
 
 export const main = middyfy(textToSpeech);
