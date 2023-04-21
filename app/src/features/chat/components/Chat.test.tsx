@@ -35,39 +35,49 @@ describe("Chat", () => {
 	const transcript = "this is a test";
 	const chatServiceMock = mocked(ChatService);
 
+	beforeEach(() => {
+		useTextToSpeechMutation.mockImplementation(() => [
+			jest.fn(),
+			{ isLoading: false },
+		]);
+	});
+
 	it("should establish a connection for chat when mounted", () => {
-		setupMocks(transcript);
+		setupSpeechRecognitionHook(transcript);
 		renderChat(chatId);
-		expect(chatServiceMock).toHaveBeenCalledWith(chatId);
+		expect(chatServiceMock).toHaveBeenCalledWith(chatId, expect.any(Function));
 		expect(chatServiceMock.prototype.connect).toHaveBeenCalled();
 	});
 
 	it("should invoke disconnect when unmounted", () => {
-		setupMocks(transcript);
+		setupSpeechRecognitionHook(transcript);
 		const { unmount } = renderChat(chatId);
 		unmount();
 		expect(chatServiceMock.prototype.disconnect).toHaveBeenCalled();
 	});
 
 	it("should invoke send passing composed message when send button is pressed", () => {
-		setupMocks(transcript);
+		setupSpeechRecognitionHook(transcript);
 
 		const { getByLabelText } = renderChat(chatId);
 		fireEvent.click(getByLabelText("listen-send"));
 
-		expect(chatServiceMock.prototype.send).toHaveBeenCalledWith(
-			{
-				id: expect.any(String),
-				role: "user",
-				content: transcript,
-				timestamp: expect.any(Number),
+		expect(chatServiceMock.prototype.send).toHaveBeenCalledWith({
+			type: "userMessage" as const,
+			payload: {
+				chatId,
+				message: {
+					id: expect.any(String),
+					role: "user" as const,
+					content: transcript,
+					timestamp: expect.any(Number),
+				},
 			},
-			expect.any(Function)
-		);
+		});
 	});
 
 	it("should render user message in chat log and auto-scroll page", () => {
-		setupMocks(transcript);
+		setupSpeechRecognitionHook(transcript);
 
 		const { getByTestId } = renderChat(chatId, {
 			chat: {
@@ -98,7 +108,7 @@ describe("Chat", () => {
 	});
 
 	it("should add code to chat log when attached", () => {
-		setupMocks(transcript);
+		setupSpeechRecognitionHook(transcript);
 
 		const { getByTestId } = renderChatAndAddAttachment(
 			chatId,
@@ -111,7 +121,7 @@ describe("Chat", () => {
 	});
 
 	it("should send the composed message when send button is pressed", () => {
-		setupMocks(transcript);
+		setupSpeechRecognitionHook(transcript);
 
 		const { getByLabelText } = renderChatAndAddAttachment(
 			chatId,
@@ -119,29 +129,21 @@ describe("Chat", () => {
 		);
 		fireEvent.click(getByLabelText("listen-send"));
 
-		expect(chatServiceMock.prototype.send).toHaveBeenCalledWith(
-			{
-				id: expect.any(String),
-				role: "user",
-				content: `${transcript}\n\`\`\`typescript\nconsole.log('Hello World!');\n\`\`\`\n`,
-				timestamp: expect.any(Number),
+		expect(chatServiceMock.prototype.send).toHaveBeenCalledWith({
+			type: "userMessage" as const,
+			payload: {
+				chatId,
+				message: {
+					id: expect.any(String),
+					role: "user",
+					content: `${transcript}\n\`\`\`typescript\nconsole.log('Hello World!');\n\`\`\`\n`,
+					timestamp: expect.any(Number),
+				},
 			},
-			expect.any(Function)
-		);
+		});
 	});
 
-	const setupMocks = (transcript: string, listening = true) => {
-		setupSpeechRecognitionHook(transcript, listening);
-		useTextToSpeechMutation.mockImplementation(() => [
-			jest.fn(),
-			{ isLoading: false },
-		]);
-	};
-
-	const setupSpeechRecognitionHook = (
-		transcript: string,
-		listening: boolean
-	) => {
+	const setupSpeechRecognitionHook = (transcript: string, listening = true) => {
 		useSpeechRecognition.mockReturnValue({
 			transcript,
 			listening,

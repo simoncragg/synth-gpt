@@ -16,19 +16,33 @@ interface GenerateTitleResponseBody extends BaseResponseBody {
 	title: string;
 }
 
-interface HandleUserMessageRequest extends BaseResponseBody {
-	chatId: string;
-	message: ChatMessage;
-}
-
-interface HandleMessageResponseBody extends BaseResponseBody {
-	message: ChatMessage;
+interface TextToSpeechRequest {
+	transcript: string;
 }
 
 interface TextToSpeechResponseBody extends BaseResponseBody {
 	transcript: string;
 	audioUrl: string;
 }
+
+/* websocket messages */
+
+type WebSocketMessageType = "assistantMessage";
+
+interface WebSocketMessage {
+	type: WebSocketMessageType;
+	payload: BasePayload;
+}
+
+interface BaseWebSocketMessagePayload {
+	chatId: string;
+}
+
+interface AssistantMessagePayload extends BaseWebSocketMessagePayload {
+	message: ChatMessage;
+}
+
+/* models */
 
 interface Message {
 	role: "system" | "user" | "assistant",

@@ -1,8 +1,15 @@
 export default class ChatService {
 	private socket: WebSocket | null = null;
+	private readonly chatId: string;
+	private readonly onMessageReceived: (message: WebSocketMessage) => void;
 
-	// eslint-disable-next-line prettier/prettier
-	constructor(private readonly chatId: string) { }
+	constructor(
+		chatId: string,
+		onMessageReceived: (message: WebSocketMessage) => void
+	) {
+		this.chatId = chatId;
+		this.onMessageReceived = onMessageReceived;
+	}
 
 	connect(): void {
 		const socketUrl = "ws://localhost:4001";
@@ -11,37 +18,19 @@ export default class ChatService {
 			console.log("WebSocket connection opened");
 		});
 		this.socket.addEventListener("message", (event) => {
-			const payload = JSON.parse(event.data);
-			this.onMessageReceived(payload);
+			const message = JSON.parse(event.data);
+			this.onMessageReceived(message);
 		});
 	}
 
-	send(
-		message: ChatMessage,
-		callback?: (payload: SendMessageResponse) => void
-	): void {
+	send(message: WebSocketMessage): void {
 		if (!this.socket) {
 			const error = "WebSocket connection not established";
 			console.log(error, { level: "error" });
 			throw new Error(error);
 		}
-		const content = {
-			chatId: this.chatId,
-			message,
-		} as SendMessageRequest;
-
-		const payload = { action: "handleUserMessage", content };
-		console.log("Sending payload", payload);
-		this.socket.send(JSON.stringify(payload));
-
-		if (callback) {
-			this.onMessageReceived = callback;
-		}
-	}
-
-	private onMessageReceived(payload: SendMessageResponse): void {
-		// default callback implementation
-		console.log("Default message received handler:", payload);
+		console.log("Sending message", message);
+		this.socket.send(JSON.stringify(message));
 	}
 
 	disconnect(): void {

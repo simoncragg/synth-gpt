@@ -59,17 +59,6 @@ interface GenerateTitleResponse extends BaseResponse {
 	title: string;
 }
 
-/* SendMessage */
-
-interface SendMessageRequest {
-	chatId: string;
-	message: ChatMessage;
-}
-
-interface SendMessageResponse extends BaseResponse {
-	message: ChatMessage;
-}
-
 /* TextToSpeech */
 
 interface TextToSpeechRequest {
@@ -79,6 +68,23 @@ interface TextToSpeechRequest {
 interface TextToSpeechResponse extends BaseResponse {
 	transcript: string;
 	audioUrl: string;
+}
+
+/* websocket messages */
+
+type WebSocketMessageType = "userMessage" | "assistantMessage";
+
+interface WebSocketMessage {
+	type: MessageType;
+	payload: BasePayload;
+}
+
+interface BasePayload {
+	chatId: string;
+}
+
+interface MessagePayload extends BasePayload {
+	message: ChatMessage;
 }
 
 /* Chat */

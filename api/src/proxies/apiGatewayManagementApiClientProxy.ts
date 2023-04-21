@@ -6,7 +6,7 @@ import { isDev } from "../utils";
 
 export async function postToConnectionAsync(
 	connectionId: string,
-	data: unknown) {
+	data: WebSocketMessage) {
 	const client = createApiGatewayApi();
 	const requestParams = {
 		ConnectionId: connectionId,

@@ -5,7 +5,7 @@ export default {
 	events: [
 		{
 			websocket: {
-				route: "handleUserMessage",
+				route: "userMessage",
 			},
 		},
 	],

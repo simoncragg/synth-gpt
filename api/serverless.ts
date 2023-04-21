@@ -28,7 +28,7 @@ const serverlessConfiguration: AWS = {
 			minimumCompressionSize: 1024,
 			shouldStartNameWithService: true,
 		},
-		websocketsApiRouteSelectionExpression: "$request.body.action",
+		websocketsApiRouteSelectionExpression: "$request.body.type",
 		environment: {
 			AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
 			NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",

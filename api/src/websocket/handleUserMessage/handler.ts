@@ -7,11 +7,11 @@ export const main: APIGatewayProxyEvent = async (event) => {
 		// TODO: set up user auth
 		const userId = "user-123";
 
-		const { content } = JSON.parse(event.body);
-		const { chatId, message } = content;
+		const { payload } = JSON.parse(event.body);
+		const { chatId, message } = payload;
 		const { connectionId } = event.requestContext;
 
-		const payload = {
+		const eventPayload = {
 			chatId,
 			userId,
 			message,
@@ -23,7 +23,7 @@ export const main: APIGatewayProxyEvent = async (event) => {
 			FunctionName:
 				`aws-nodejs-typescript-${process.env.STAGE}-processUserMessage`,
 			InvocationType: "Event",
-			Payload: JSON.stringify(payload)
+			Payload: JSON.stringify(eventPayload)
 		}).promise();
 
 		return formatJSONResponse({

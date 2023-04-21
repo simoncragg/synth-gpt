@@ -1,9 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
+import { Handler } from "aws-lambda";
 import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
 import { newChatText, prePrompt } from "../../constants";
 import { postToConnectionAsync } from "@proxies/apiGatewayManagementApiClientProxy";
 import { ChatRepository } from "@repositories/ChatRepository";
-import { Handler } from "aws-lambda";
 
 export const main: Handler = async (event) => {
 	console.time("processUserMessage");
@@ -47,8 +47,11 @@ export const main: Handler = async (event) => {
 		};
 
 		await postToConnectionAsync(connectionId, {
-			chatId,
-			message: assistantMessage
+			type: "assistantMessage",
+			payload: {
+				chatId,
+				message: assistantMessage,
+			},
 		});
 
 		chat.messages.push(assistantMessage);

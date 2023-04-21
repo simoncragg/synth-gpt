@@ -13,7 +13,7 @@ import { RootStateType } from "../../../store";
 
 const Chat = () => {
 	const dispatch = useDispatch();
-	const [isAwaitingChatResponse, setIsAwaitingChatResponse] = useState(false);
+	const [isAwaitingServerMessage, setIsAwaitingServerMessage] = useState(false);
 
 	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
@@ -24,14 +24,10 @@ const Chat = () => {
 		{ data: textToSpeechResult, isLoading: isLoadingAudio },
 	] = useTextToSpeechMutation();
 
-	const chatService = useRef<ChatService>(new ChatService(chatId));
-	const scrollToTargetRef = useRef<HTMLDivElement>(null);
-
 	useEffect(() => {
-		chatService.current = new ChatService(chatId);
-		chatService.current.connect();
+		chatService.current?.connect();
 		return () => {
-			chatService.current.disconnect();
+			chatService.current?.disconnect();
 		};
 	}, []);
 
@@ -45,15 +41,30 @@ const Chat = () => {
 
 	const onTranscriptionEnded = (transcript: string) => {
 		const message = composeMessage(transcript, attachments);
-		setIsAwaitingChatResponse(true);
+		setIsAwaitingServerMessage(true);
 		dispatch(addMessage({ message }));
 
-		chatService.current.send(message, (payload: SendMessageResponse) => {
-			dispatch(addMessage({ message: payload.message }));
-			setIsAwaitingChatResponse(false);
-			const transcript = mapToSpokenTranscript(payload.message.content);
-			textToSpeech({ transcript });
+		chatService.current?.send({
+			type: "userMessage" as const,
+			payload: {
+				chatId,
+				message,
+			} as MessagePayload,
 		});
+	};
+
+	const onMessageReceived = ({ type, payload }: WebSocketMessage) => {
+		setIsAwaitingServerMessage(false);
+		if (type === "assistantMessage") {
+			const messagePayload = payload as MessagePayload;
+			dispatch(
+				addMessage({
+					message: messagePayload.message,
+				})
+			);
+			const transcript = mapToSpokenTranscript(messagePayload.message.content);
+			textToSpeech({ transcript });
+		}
 	};
 
 	const composeMessage = (
@@ -104,6 +115,11 @@ const Chat = () => {
 		});
 	};
 
+	const chatService = useRef<ChatService>(
+		new ChatService(chatId, onMessageReceived)
+	);
+	const scrollToTargetRef = useRef<HTMLDivElement>(null);
+
 	return (
 		<>
 			{messages.length === 0 && attachments.length === 0 && <HeroSection />}
@@ -116,7 +132,7 @@ const Chat = () => {
 
 			<div className="fixed sm:left-[256px] bottom-0 w-full sm:w-[calc(100vw-256px)] overflow-y-hidden">
 				<div className="flex flex-col left-0 items-center mb-4">
-					{isAwaitingChatResponse || isLoadingAudio ? (
+					{isAwaitingServerMessage || isLoadingAudio ? (
 						<div className="relative bg-slate-900 rounded-full p-2">
 							<div className="loader w-[70px] h-[70px] rounded-full z-50"></div>
 						</div>

@@ -45,13 +45,16 @@ describe("processUserMessage handler", () => {
 		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
 			event.connectionId,
 			{
-				chatId: event.chatId,
-				message: expect.objectContaining({
-					id: expect.any(String),
-					role: generatedResponse.role,
-					content: generatedResponse.content,
-					timestamp: expect.any(Number),
-				}),
+				type: "assistantMessage",
+				payload: {
+					chatId: event.chatId,
+					message: expect.objectContaining({
+						id: expect.any(String),
+						role: generatedResponse.role,
+						content: generatedResponse.content,
+						timestamp: expect.any(Number),
+					}),
+				},
 			}
 		);
 	});
