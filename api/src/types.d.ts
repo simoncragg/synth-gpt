@@ -38,6 +38,15 @@ interface AssistantAudioPayload extends BaseWebSocketMessagePayload {
 	audioUrl: string;
 }
 
+/* Invoke handler payloads */
+
+interface ProcessUserMessagePayload {
+	connectionId: string;
+	chatId: string;
+	userId: string;
+	message: ChatMessage;
+}
+
 /* models */
 
 interface Message {

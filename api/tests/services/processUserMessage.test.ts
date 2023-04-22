@@ -1,11 +1,11 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
-import { main } from "@invoke/processUserMessage/handler";
 import { newChatText } from "../../src/constants";
 import { postToConnectionAsync } from "@proxies/apiGatewayManagementApiClientProxy";
 import { ChatRepository } from "@repositories/ChatRepository";
 import TextToSpeechService from "@services/textToSpeechService";
+import UserMessageProcessor from "@services/UserMessageProcessor";
 
 jest.mock("@proxies/apiGatewayManagementApiClientProxy");
 jest.mock("@proxies/openaiApiProxy");
@@ -17,11 +17,13 @@ const postToConnectionAsyncMock = mocked(postToConnectionAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync");
 
-describe("processUserMessage handler", () => {
+describe("UserMessageProcessor", () => {
 	const connectionId = uuidv4();
 	const chatId = uuidv4();
 	const userId = uuidv4();
 	const title = newChatText;
+
+	const userMessageProcessor = new UserMessageProcessor();
 
 	it("should post assistantMessage and assistantAudio messages to client", async () => {
 		const generatedResponse = {
@@ -43,7 +45,7 @@ describe("processUserMessage handler", () => {
 			.generateSignedAudioUrlAsync
 			.mockResolvedValue(audioUrl);
 
-		const event = {
+		const payload = {
 			connectionId,
 			chatId,
 			userId,
@@ -55,10 +57,10 @@ describe("processUserMessage handler", () => {
 			},
 		};
 
-		await main(event, undefined, undefined);
+		await userMessageProcessor.process(payload);
 
 		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-			event.connectionId,
+			payload.connectionId,
 			{
 				type: "assistantMessage",
 				payload: {
@@ -75,7 +77,7 @@ describe("processUserMessage handler", () => {
 
 		const transcript = generatedResponse.content.replace(/```[\s\S]*?```/g, "");
 		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-			event.connectionId,
+			payload.connectionId,
 			{
 				type: "assistantAudio" as const,
 				payload: {
@@ -110,14 +112,14 @@ describe("processUserMessage handler", () => {
 
 		generateChatResponseAsyncMock.mockResolvedValue(assistantResponse);
 
-		const event = {
+		const payload = {
 			connectionId,
 			chatId,
 			userId,
 			message: userMessage,
 		};
 
-		await main(event, undefined, undefined);
+		await userMessageProcessor.process(payload);
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
 			chatId,
@@ -184,14 +186,14 @@ describe("processUserMessage handler", () => {
 
 		generateChatResponseAsyncMock.mockResolvedValue(assistantMessage);
 
-		const event = {
+		const payload = {
 			connectionId,
 			chatId,
 			userId,
 			message: userMessage,
 		};
 
-		await main(event, undefined, undefined);
+		await userMessageProcessor.process(payload);
 
 		expect(updateItemAsyncSpy).toHaveBeenCalledWith({
 			chatId,
