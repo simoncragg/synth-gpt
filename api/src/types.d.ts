@@ -16,18 +16,9 @@ interface GenerateTitleResponseBody extends BaseResponseBody {
 	title: string;
 }
 
-interface TextToSpeechRequest {
-	transcript: string;
-}
-
-interface TextToSpeechResponseBody extends BaseResponseBody {
-	transcript: string;
-	audioUrl: string;
-}
-
 /* websocket messages */
 
-type WebSocketMessageType = "assistantMessage";
+type WebSocketMessageType = "assistantMessage" | "assistantAudio";
 
 interface WebSocketMessage {
 	type: WebSocketMessageType;
@@ -40,6 +31,11 @@ interface BaseWebSocketMessagePayload {
 
 interface AssistantMessagePayload extends BaseWebSocketMessagePayload {
 	message: ChatMessage;
+}
+
+interface AssistantAudioPayload extends BaseWebSocketMessagePayload {
+	transcript: string;
+	audioUrl: string;
 }
 
 /* models */

@@ -23,7 +23,7 @@ export const main: APIGatewayProxyEvent = async (event) => {
 			FunctionName:
 				`aws-nodejs-typescript-${process.env.STAGE}-processUserMessage`,
 			InvocationType: "Event",
-			Payload: JSON.stringify(eventPayload)
+			Payload: JSON.stringify(eventPayload),
 		}).promise();
 
 		return formatJSONResponse({

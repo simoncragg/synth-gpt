@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import { within } from "@testing-library/dom";
 import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
-import { useTextToSpeechMutation } from "../../../services/chatApi";
 import { useSpeechRecognition } from "react-speech-recognition";
 import Chat from "./Chat";
 import ChatService from "../services/ChatService";
@@ -34,13 +33,6 @@ describe("Chat", () => {
 	const chatId = uuidv4();
 	const transcript = "this is a test";
 	const chatServiceMock = mocked(ChatService);
-
-	beforeEach(() => {
-		useTextToSpeechMutation.mockImplementation(() => [
-			jest.fn(),
-			{ isLoading: false },
-		]);
-	});
 
 	it("should establish a connection for chat when mounted", () => {
 		setupSpeechRecognitionHook(transcript);

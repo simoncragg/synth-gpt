@@ -13,6 +13,7 @@ module.exports = {
 		"^@libs/(.*)": "<rootDir>/src/libs/$1",
 		"^@proxies/(.*)": "<rootDir>/src/proxies/$1",
 		"^@repositories/(.*)": "<rootDir>/src/repositories/$1",
+		"^@services/(.*)": ["<rootDir>/src/services/$1"],
 	},
 	collectCoverageFrom: ["src/**/*.ts"],
 };

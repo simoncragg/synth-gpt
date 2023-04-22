@@ -4,6 +4,7 @@ import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
 import { newChatText, prePrompt } from "../../constants";
 import { postToConnectionAsync } from "@proxies/apiGatewayManagementApiClientProxy";
 import { ChatRepository } from "@repositories/ChatRepository";
+import TextToSpeechService from "@services/TextToSpeechService";
 
 export const main: Handler = async (event) => {
 	console.time("processUserMessage");
@@ -47,12 +48,25 @@ export const main: Handler = async (event) => {
 		};
 
 		await postToConnectionAsync(connectionId, {
-			type: "assistantMessage",
+			type: "assistantMessage" as const,
 			payload: {
 				chatId,
-				message: assistantMessage,
-			},
-		});
+				message: assistantMessage
+			} as AssistantMessagePayload
+		} as WebSocketMessage);
+
+		const textToSpeechService = new TextToSpeechService();
+		const transcript = content.replace(/```[\s\S]*?```/g, "");
+		const audioUrl = await textToSpeechService.generateSignedAudioUrlAsync(transcript);
+
+		await postToConnectionAsync(connectionId, {
+			type: "assistantAudio" as const,
+			payload: {
+				chatId,
+				transcript,
+				audioUrl
+			} as AssistantAudioPayload
+		} as WebSocketMessage);
 
 		chat.messages.push(assistantMessage);
 		chat.updatedTime = Date.now();

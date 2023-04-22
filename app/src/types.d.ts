@@ -8,14 +8,7 @@ interface ChatState {
 	messages: ChatMessage[];
 }
 
-type RoleType = "user" | "assistant";
-
-interface ChatMessage {
-	id: string;
-	role: RoleType;
-	content: string;
-	timestamp: number;
-}
+/* http api models */
 
 interface BaseResponse {
 	success: boolean;
@@ -59,20 +52,12 @@ interface GenerateTitleResponse extends BaseResponse {
 	title: string;
 }
 
-/* TextToSpeech */
-
-interface TextToSpeechRequest {
-	transcript: string;
-}
-
-interface TextToSpeechResponse extends BaseResponse {
-	transcript: string;
-	audioUrl: string;
-}
-
 /* websocket messages */
 
-type WebSocketMessageType = "userMessage" | "assistantMessage";
+type WebSocketMessageType =
+	| "userMessage"
+	| "assistantMessage"
+	| "assistantAudio";
 
 interface WebSocketMessage {
 	type: MessageType;
@@ -87,7 +72,11 @@ interface MessagePayload extends BasePayload {
 	message: ChatMessage;
 }
 
-/* Chat */
+interface AssistantAudio extends BasePayload {
+	audioUrl: string;
+}
+
+/* models */
 
 interface Chat {
 	chatId: string;
@@ -96,6 +85,15 @@ interface Chat {
 	createdTime: number;
 	updatedTime: number;
 	messages: ChatMessage[];
+}
+
+type RoleType = "user" | "assistant";
+
+interface ChatMessage {
+	id: string;
+	role: RoleType;
+	content: string;
+	timestamp: number;
 }
 
 /* Message Parts */

@@ -7,6 +7,7 @@
 			"@proxies/*": ["src/proxies/*"],
 			"@repositories/*": ["src/repositories/*"],
 			"@invoke/*": ["src/invoke/*"],
+			"@services/*": ["src/services/*"],
 			"@websocket/*": ["src/websocket/*"],
 		}
 	}

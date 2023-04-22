@@ -5,13 +5,16 @@ import { main } from "@invoke/processUserMessage/handler";
 import { newChatText } from "../../src/constants";
 import { postToConnectionAsync } from "@proxies/apiGatewayManagementApiClientProxy";
 import { ChatRepository } from "@repositories/ChatRepository";
+import TextToSpeechService from "@services/textToSpeechService";
 
 jest.mock("@proxies/apiGatewayManagementApiClientProxy");
 jest.mock("@proxies/openaiApiProxy");
 jest.mock("@repositories/ChatRepository");
+jest.mock("@services/TextToSpeechService");
 
 const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
 const postToConnectionAsyncMock = mocked(postToConnectionAsync);
+const TextToSpeechServiceMock = mocked(TextToSpeechService);
 const updateItemAsyncSpy = jest.spyOn(ChatRepository.prototype, "updateItemAsync");
 
 describe("processUserMessage handler", () => {
@@ -20,13 +23,25 @@ describe("processUserMessage handler", () => {
 	const userId = uuidv4();
 	const title = newChatText;
 
-	it("should post generated chat response message for new chat", async () => {
+	it("should post assistantMessage and assistantAudio messages to client", async () => {
 		const generatedResponse = {
 			role: "assistant" as const,
-			content: "Hello there! How may I assist you today?"
+			content: [
+				"Sure, here's the JavaScript code to log \"Hello World\" to the console:",
+				"```javascript",
+				"console.log(\"Hello World\");",
+				"```",
+				"When you run this code, it will output \"Hello World\" in the console."
+			].join("\n"),
 		};
 
 		generateChatResponseAsyncMock.mockResolvedValue(generatedResponse);
+
+		const audioUrl = "http://localhost:4569/synth-gpt-audio-dev/1681940407795.mpg";
+		TextToSpeechServiceMock
+			.prototype
+			.generateSignedAudioUrlAsync
+			.mockResolvedValue(audioUrl);
 
 		const event = {
 			connectionId,
@@ -35,7 +50,7 @@ describe("processUserMessage handler", () => {
 			message: {
 				id: uuidv4(),
 				role: "user" as const,
-				content: "test message content",
+				content: "Write JavaScript to log \"Hello World\" to console",
 				timestamp: 1234567890,
 			},
 		};
@@ -47,7 +62,7 @@ describe("processUserMessage handler", () => {
 			{
 				type: "assistantMessage",
 				payload: {
-					chatId: event.chatId,
+					chatId,
 					message: expect.objectContaining({
 						id: expect.any(String),
 						role: generatedResponse.role,
@@ -55,7 +70,20 @@ describe("processUserMessage handler", () => {
 						timestamp: expect.any(Number),
 					}),
 				},
-			}
+			},
+		);
+
+		const transcript = generatedResponse.content.replace(/```[\s\S]*?```/g, "");
+		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
+			event.connectionId,
+			{
+				type: "assistantAudio" as const,
+				payload: {
+					chatId,
+					transcript,
+					audioUrl,
+				},
+			},
 		);
 	});
 

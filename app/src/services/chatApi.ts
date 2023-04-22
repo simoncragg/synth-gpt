@@ -54,16 +54,6 @@ export const chatApi = createApi({
 				};
 			},
 		}),
-		textToSpeech: build.mutation<TextToSpeechResponse, TextToSpeechRequest>({
-			query(request) {
-				const { transcript } = request;
-				return {
-					url: "textToSpeech",
-					method: "POST",
-					body: { transcript },
-				};
-			},
-		}),
 	}),
 });
 
@@ -73,5 +63,4 @@ export const {
 	useGenerateTitleMutation,
 	useDeleteChatMutation,
 	useEditChatTitleMutation,
-	useTextToSpeechMutation,
 } = chatApi;

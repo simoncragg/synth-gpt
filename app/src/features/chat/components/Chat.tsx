@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { addMessage } from "../chatSlice";
-import { mapToSpokenTranscript } from "../mappers/contentMapper";
-import { useTextToSpeechMutation } from "../../../services/chatApi";
 import AddAttachment from "./AddAttachment";
 import ChatLog from "./ChatLog";
 import ChatService from "../services/ChatService";
@@ -19,11 +17,6 @@ const Chat = () => {
 		(state: RootStateType) => state.chat
 	);
 
-	const [
-		textToSpeech,
-		{ data: textToSpeechResult, isLoading: isLoadingAudio },
-	] = useTextToSpeechMutation();
-
 	useEffect(() => {
 		chatService.current?.connect();
 		return () => {
@@ -34,10 +27,6 @@ const Chat = () => {
 	useEffect(() => {
 		scrollTo(scrollToTargetRef.current);
 	}, [messages]);
-
-	useEffect(() => {
-		playAudio(textToSpeechResult?.audioUrl);
-	}, [textToSpeechResult]);
 
 	const onTranscriptionEnded = (transcript: string) => {
 		const message = composeMessage(transcript, attachments);
@@ -51,20 +40,6 @@ const Chat = () => {
 				message,
 			} as MessagePayload,
 		});
-	};
-
-	const onMessageReceived = ({ type, payload }: WebSocketMessage) => {
-		setIsAwaitingServerMessage(false);
-		if (type === "assistantMessage") {
-			const messagePayload = payload as MessagePayload;
-			dispatch(
-				addMessage({
-					message: messagePayload.message,
-				})
-			);
-			const transcript = mapToSpokenTranscript(messagePayload.message.content);
-			textToSpeech({ transcript });
-		}
 	};
 
 	const composeMessage = (
@@ -93,6 +68,23 @@ const Chat = () => {
 			content,
 			timestamp: Date.now(),
 		};
+	};
+
+	const onMessageReceived = ({ type, payload }: WebSocketMessage) => {
+		switch (type) {
+			case "assistantMessage":
+				dispatch(
+					addMessage({
+						message: (payload as MessagePayload).message,
+					})
+				);
+				break;
+
+			case "assistantAudio":
+				setIsAwaitingServerMessage(false);
+				playAudio((payload as AssistantAudio).audioUrl);
+				break;
+		}
 	};
 
 	const playAudio = (audioUrl: string | undefined) => {
@@ -132,7 +124,7 @@ const Chat = () => {
 
 			<div className="fixed sm:left-[256px] bottom-0 w-full sm:w-[calc(100vw-256px)] overflow-y-hidden">
 				<div className="flex flex-col left-0 items-center mb-4">
-					{isAwaitingServerMessage || isLoadingAudio ? (
+					{isAwaitingServerMessage ? (
 						<div className="relative bg-slate-900 rounded-full p-2">
 							<div className="loader w-[70px] h-[70px] rounded-full z-50"></div>
 						</div>

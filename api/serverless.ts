@@ -8,7 +8,6 @@ import getChats from "@http/getChats";
 import handleUserMessage from "@websocket/handleUserMessage";
 import patchChat from "@http/patchChat";
 import processUserMessage from "@invoke/processUserMessage";
-import textToSpeech from "@http/textToSpeech";
 
 const serverlessConfiguration: AWS = {
 	service: "aws-nodejs-typescript",
@@ -123,7 +122,6 @@ const serverlessConfiguration: AWS = {
 		getChat,
 		getChats,
 		patchChat,
-		textToSpeech,
 		// websocket
 		connect,
 		handleUserMessage,
