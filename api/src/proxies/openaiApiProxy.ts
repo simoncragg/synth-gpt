@@ -21,5 +21,12 @@ export async function generateChatResponseAsync(messages: Message[]): Promise<Me
 	});
 
 	const result = await response.json();
+
+	if (result.error) {
+		const { error } = result;
+		console.error({ error });
+		throw new Error("An error occurred consuming the chat completions api");
+	}
+
 	return result.choices[0].message;
 }
