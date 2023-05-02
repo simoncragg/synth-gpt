@@ -3,7 +3,7 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { waitFor } from "@testing-library/react";
 import { BrowserRouter } from "react-router-dom";
-import { addMessage } from "../chatSlice";
+import { addOrUpdateMessage } from "../chatSlice";
 import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
 import userEvent from "@testing-library/user-event";
@@ -94,7 +94,10 @@ describe("ChatOrganiser", () => {
 					{
 						id: uuidv4(),
 						role: "user" as const,
-						content: "Who was the 16th US president",
+						content: {
+							type: "text",
+							value: "Who was the 16th US president",
+						},
 						timestamp: Date.now(),
 					},
 				],
@@ -103,12 +106,15 @@ describe("ChatOrganiser", () => {
 
 		await waitFor(() => {
 			store.dispatch(
-				addMessage({
+				addOrUpdateMessage({
 					message: {
 						id: uuidv4(),
 						role: "assistant" as const,
-						content:
-							"The 16th President of the United States was Abraham Lincoln",
+						content: {
+							type: "text",
+							value:
+								"The 16th President of the United States was Abraham Lincoln",
+						},
 						timestamp: Date.now(),
 					},
 				})

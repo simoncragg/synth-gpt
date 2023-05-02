@@ -10,8 +10,15 @@ const getChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event)
 		const chatRepository = new ChatRepository();
 		const chat = await chatRepository.getByChatIdAsync(chatId);
 
+		const filteredChat = {
+			...chat,
+			messages: chat.messages.filter(msg =>
+				!(msg.content.type === "text" && (msg.content.value as string).startsWith("```json\n{webSearchResults:"))
+			)
+		};
+
 		return formatJSONResponse<GetChatResponseBody>({
-			chat,
+			chat: filteredChat,
 			success: true,
 		});
 	}

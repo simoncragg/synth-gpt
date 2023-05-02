@@ -76,7 +76,7 @@ interface AssistantAudio extends BasePayload {
 	audioUrl: string;
 }
 
-/* models */
+/* Chat */
 
 interface Chat {
 	chatId: string;
@@ -92,8 +92,52 @@ type RoleType = "user" | "assistant";
 interface ChatMessage {
 	id: string;
 	role: RoleType;
-	content: string;
+	content: Content;
 	timestamp: number;
+}
+
+/* Content */
+
+type ContentType = "text" | "webActivity";
+
+interface Content {
+	type: ContentType;
+	value: string | WebActivity;
+}
+
+interface WebActivity {
+	searchTerm: string;
+	currentState: string;
+	actions: BaseWebBrowsingAction[];
+}
+
+type WebBrowsingActionType = "searching" | "readingResults";
+
+interface BaseWebBrowsingAction {
+	type: WebBrowsingActionType;
+}
+
+interface SearchingWebAction extends BaseWebBrowsingAction {
+	type: "searching";
+	searchTerm: string;
+}
+
+interface ReadingWebSearchResultsAction extends BaseWebBrowsingAction {
+	type: "readingResults";
+	searchTerm: string;
+	results: WebSearchResult[];
+}
+
+interface WebSearchResult {
+	id: string;
+	name: string;
+	url: string;
+	isFamilyFriendly: boolean;
+	displayUrl: string;
+	snippet: string;
+	dateLastCrawled: string;
+	language: string;
+	isNavigational: boolean;
 }
 
 /* Message Parts */
@@ -123,6 +167,11 @@ interface CodeSnippet extends MessagePart {
 	type: "CodeSnippet";
 	language: string;
 	code: string;
+}
+
+interface WebSearch extends MessagePart {
+	type: "WebSearch";
+	searchTerm: string;
 }
 
 /* Attachments */

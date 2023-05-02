@@ -11,7 +11,7 @@ const initialState: ChatState = {
 };
 
 type SetActiveChatPayloadType = { chat: Chat };
-type AddMessagePayloadType = { message: ChatMessage };
+type AddOrUpdateMessagePayloadType = { message: ChatMessage };
 type AttachCodeSnippetPayloadType = { codeSnippet: CodeSnippet };
 
 const chatSlice = createSlice({
@@ -49,17 +49,26 @@ const chatSlice = createSlice({
 			} as CodeAttachment);
 		},
 
-		addMessage: (
+		addOrUpdateMessage: (
 			chat: ChatState,
-			action: PayloadAction<AddMessagePayloadType>
+			action: PayloadAction<AddOrUpdateMessagePayloadType>
 		) => {
-			chat.messages.push(action.payload.message);
-			chat.attachments = [];
+			const { message } = action.payload;
+			const matchedMessage = chat.messages.find((msg) => msg.id === message.id);
+			if (matchedMessage) {
+				chat.messages = [
+					...chat.messages.filter((msg) => msg.id !== matchedMessage.id),
+					message,
+				];
+			} else {
+				chat.messages.push(message);
+				chat.attachments = [];
+			}
 		},
 	},
 });
 
-export const { newChat, setActiveChat, attachCodeSnippet, addMessage } =
+export const { newChat, setActiveChat, attachCodeSnippet, addOrUpdateMessage } =
 	chatSlice.actions;
 
 export default chatSlice;

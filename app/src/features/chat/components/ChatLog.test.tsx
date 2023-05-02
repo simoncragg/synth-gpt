@@ -9,13 +9,19 @@ describe("ChatLog", () => {
 				id: uuidv4(),
 				sender: "user",
 				timestamp: Date.now(),
-				content: "Hello",
+				content: {
+					type: "text",
+					value: "Hello",
+				},
 			},
 			{
 				id: uuidv4(),
-				sender: "bot",
+				sender: "assistant",
 				timestamp: Date.now() + 1000,
-				content: "Hi there!",
+				content: {
+					type: "text",
+					value: "Hi there!",
+				},
 			},
 		];
 
@@ -29,7 +35,7 @@ describe("ChatLog", () => {
 		});
 
 		for (const msg of messages) {
-			const messageEl = getByText(msg.content);
+			const messageEl = getByText(msg.content.value);
 			expect(messageEl).toBeInTheDocument();
 		}
 	});
@@ -46,12 +52,23 @@ describe("ChatLog", () => {
 		const fullResponse = `${responseOpener}\n${numberedPoints.join("\n")}`;
 
 		const messages = [
-			{ id: uuidv4(), sender: "user", timestamp: Date.now(), content: "Hello" },
 			{
 				id: uuidv4(),
-				sender: "bot",
+				sender: "user",
+				timestamp: Date.now(),
+				content: {
+					type: "text",
+					value: "Hello",
+				},
+			},
+			{
+				id: uuidv4(),
+				sender: "assistant",
 				timestamp: Date.now() + 1000,
-				content: fullResponse,
+				content: {
+					type: "text",
+					value: fullResponse,
+				},
 			},
 		];
 
@@ -89,13 +106,19 @@ describe("ChatLog", () => {
 				id: uuidv4(),
 				sender: "user",
 				timestamp: Date.now(),
-				content: userCommand,
+				content: {
+					type: "text",
+					value: userCommand,
+				},
 			},
 			{
 				id: uuidv4(),
-				sender: "bot",
+				sender: "assistant",
 				timestamp: Date.now() + 1321,
-				content: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}`,
+				content: {
+					type: "text",
+					value: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}`,
+				},
 			},
 		];
 
@@ -117,5 +140,55 @@ describe("ChatLog", () => {
 		const codeEl = getByTestId("code");
 		expect(codeEl).toBeInTheDocument();
 		expect(codeEl.innerHTML.includes("fibonacci")).toBeTruthy();
+	});
+
+	it("renders web activity", () => {
+		const userText = "When does Wimbledon start this year?";
+		const searchTerm = "Wimbledown 2023 start date";
+
+		const messages = [
+			{
+				id: uuidv4(),
+				sender: "user",
+				timestamp: Date.now(),
+				content: {
+					type: "text",
+					value: userText,
+				},
+			},
+			{
+				id: uuidv4(),
+				sender: "assistant",
+				timestamp: Date.now() + 1321,
+				content: {
+					type: "webActivity",
+					value: {
+						currentState: "searching",
+						searchTerm,
+						actions: [
+							{
+								type: "searching",
+								searchTerm,
+							},
+						],
+					},
+				},
+			},
+		];
+
+		const { getByText } = renderWithProviders(<ChatLog />, {
+			preloadedState: {
+				chat: {
+					attachments: [],
+					messages,
+				},
+			},
+		});
+
+		const textToFind = [userText, "Browsing the web ..."];
+		for (const text of textToFind) {
+			const el = getByText(text);
+			expect(el).toBeInTheDocument();
+		}
 	});
 });

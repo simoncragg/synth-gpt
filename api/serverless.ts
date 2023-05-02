@@ -39,6 +39,8 @@ const serverlessConfiguration: AWS = {
 			POLLY_ACCESS_KEY_ID: process.env.POLLY_ACCESS_KEY_ID,
 			POLLY_SECRET_ACCESS_KEY: process.env.POLLY_SECRET_ACCESS_KEY,
 			S3_AUDIO_BUCKET_NAME: "synth-gpt-audio-${opt:stage, 'dev'}",
+			BING_SEARCH_API_ENDPOINT: "https://api.bing.microsoft.com/v7.0/search",
+			BING_SEARCH_API_KEY: process.env.BING_SEARCH_API_KEY,
 		},
 	},
 	package: { individually: true },
@@ -47,6 +49,7 @@ const serverlessConfiguration: AWS = {
 			httpPort: 3001,
 			lambdaPort: 3002,
 			websocketPort: 4001,
+			host: "localhost",
 		},
 		esbuild: {
 			bundle: true,
@@ -111,7 +114,8 @@ const serverlessConfiguration: AWS = {
 			},
 		},
 		s3: {
-			host: "localhost",
+			address: "localhost",
+			post: 4569,
 			directory: `${__dirname}/s3`,
 		},
 	},

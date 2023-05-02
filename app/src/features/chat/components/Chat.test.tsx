@@ -61,7 +61,10 @@ describe("Chat", () => {
 				message: {
 					id: expect.any(String),
 					role: "user" as const,
-					content: transcript,
+					content: {
+						type: "text",
+						value: transcript,
+					},
 					timestamp: expect.any(Number),
 				},
 			},
@@ -81,7 +84,10 @@ describe("Chat", () => {
 					{
 						id: uuidv4(),
 						role: "user" as const,
-						content: transcript,
+						content: {
+							type: "text",
+							value: transcript,
+						},
 						timestamp: Date.now(),
 					},
 				],
@@ -128,7 +134,10 @@ describe("Chat", () => {
 				message: {
 					id: expect.any(String),
 					role: "user",
-					content: `${transcript}\n\`\`\`typescript\nconsole.log('Hello World!');\n\`\`\`\n`,
+					content: {
+						type: "text",
+						value: `${transcript}\n\`\`\`typescript\nconsole.log('Hello World!');\n\`\`\`\n`,
+					},
 					timestamp: expect.any(Number),
 				},
 			},

@@ -38,18 +38,15 @@ const ChatOrganiser = () => {
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
 		if (!currentChat) {
 			refetchChats();
+		} else {
+			updateTitleIfNeeded(currentChat);
 		}
 	}, [messages]);
 
 	useEffect(() => {
 		const chats = getChatsResponse?.chats ?? [];
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
-		if (currentChat?.title === newChatText) {
-			generateTitle({
-				chatId,
-				message: messages[messages.length - 1].content,
-			});
-		}
+		updateTitleIfNeeded(currentChat);
 	}, [getChatsResponse]);
 
 	useEffect(() => {
@@ -69,6 +66,18 @@ const ChatOrganiser = () => {
 			navigate("../", { replace: false });
 		}
 	}, [deleteChatResponse]);
+
+	const updateTitleIfNeeded = (chat: Chat | undefined) => {
+		if (chat?.title === newChatText) {
+			const lastMessage = messages[messages.length - 1];
+			if (lastMessage.content.type === "text") {
+				generateTitle({
+					chatId,
+					message: lastMessage.content.value as string,
+				});
+			}
+		}
+	};
 
 	return (
 		<>

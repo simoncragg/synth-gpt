@@ -4,9 +4,7 @@ import {
 } from "@aws-sdk/client-apigatewaymanagementapi";
 import { isDev } from "../utils";
 
-export async function postToConnectionAsync(
-	connectionId: string,
-	data: WebSocketMessage) {
+export async function postToConnectionAsync(connectionId: string, data: WebSocketMessage) {
 	const client = createApiGatewayApi();
 	const requestParams = {
 		ConnectionId: connectionId,

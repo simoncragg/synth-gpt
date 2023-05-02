@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import { addMessage } from "../chatSlice";
+import { addOrUpdateMessage } from "../chatSlice";
 import AddAttachment from "./AddAttachment";
 import ChatLog from "./ChatLog";
 import ChatService from "../services/ChatService";
@@ -31,7 +31,7 @@ const Chat = () => {
 	const onTranscriptionEnded = (transcript: string) => {
 		const message = composeMessage(transcript, attachments);
 		setIsAwaitingServerMessage(true);
-		dispatch(addMessage({ message }));
+		dispatch(addOrUpdateMessage({ message }));
 
 		chatService.current?.send({
 			type: "userMessage" as const,
@@ -57,7 +57,7 @@ const Chat = () => {
 			);
 		};
 
-		const content =
+		const text =
 			codeAttachments.length > 0
 				? `${transcript}\n${flatMap(codeAttachments).join("\n")}`
 				: transcript;
@@ -65,7 +65,10 @@ const Chat = () => {
 		return {
 			id: uuidv4(),
 			role: "user",
-			content,
+			content: {
+				type: "text",
+				value: text,
+			},
 			timestamp: Date.now(),
 		};
 	};
@@ -74,7 +77,7 @@ const Chat = () => {
 		switch (type) {
 			case "assistantMessage":
 				dispatch(
-					addMessage({
+					addOrUpdateMessage({
 						message: (payload as MessagePayload).message,
 					})
 				);
