@@ -88,6 +88,11 @@ const serverlessConfiguration: AWS = {
 				],
 				Resource: "arn:aws:s3:::synth-gpt-audio-${opt:stage, 'dev'}/*",
 			},
+			{
+				Effect: "Allow",
+				Action: "polly:SynthesizeSpeech",
+				Resource: "*"
+			},
 		],
 		dynamodb: {
 			stages: [
