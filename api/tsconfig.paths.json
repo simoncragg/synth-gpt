@@ -3,10 +3,9 @@
 		"baseUrl": ".",
 		"paths": {
 			"@clients/*": ["src/clients/*"],
-			"@http/*": ["src/http/*"],
+			"@handlers/*": ["src/handlers/*"],
 			"@libs/*": ["src/libs/*"],
 			"@repositories/*": ["src/repositories/*"],
-			"@invoke/*": ["src/invoke/*"],
 			"@services/*": ["src/services/*"],
 			"@websocket/*": ["src/websocket/*"],
 		}

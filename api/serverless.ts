@@ -1,13 +1,13 @@
 import type { AWS } from "@serverless/typescript";
 import connect from "@websocket/connect";
-import deleteChat from "@http/deleteChat";
+import deleteChat from "@handlers/http/deleteChat";
 import disconnect from "@websocket/disconnect";
-import generateTitle from "@http/generateTitle";
-import getChat from "@http/getChat";
-import getChats from "@http/getChats";
+import generateTitle from "@handlers/http/generateTitle";
+import getChat from "@handlers/http/getChat";
+import getChats from "@handlers/http/getChats";
 import handleUserMessage from "@websocket/handleUserMessage";
-import patchChat from "@http/patchChat";
-import processUserMessage from "@invoke/processUserMessage";
+import patchChat from "@handlers/http/patchChat";
+import processUserMessage from "@handlers/invoke/processUserMessage";
 
 const serverlessConfiguration: AWS = {
 	service: "aws-nodejs-typescript",

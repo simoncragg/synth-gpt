@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { mocked } from "jest-mock";
-import { main } from "@http/getChat/handler";
+import { main } from "@handlers/http/getChat/handler";
 import { ChatRepository } from "@repositories/ChatRepository";
 
 jest.mock("@repositories/ChatRepository");

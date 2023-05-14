@@ -9,8 +9,7 @@ module.exports = {
 	],
 	moduleNameMapper: {
 		"^@clients/(.*)": "<rootDir>/src/clients/$1",
-		"^@http/(.*)": "<rootDir>/src/http/$1",
-		"^@invoke/(.*)": "<rootDir>/src/invoke/$1",
+		"^@handlers/(.*)": "<rootDir>/src/handlers/$1",
 		"^@libs/(.*)": "<rootDir>/src/libs/$1",
 		"^@repositories/(.*)": "<rootDir>/src/repositories/$1",
 		"^@services/(.*)": ["<rootDir>/src/services/$1"],
