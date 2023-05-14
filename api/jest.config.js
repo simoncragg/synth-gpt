@@ -8,10 +8,10 @@ module.exports = {
 		"<rootDir>/(node_modules|dist|.serverless|.build)/",
 	],
 	moduleNameMapper: {
+		"^@clients/(.*)": "<rootDir>/src/clients/$1",
 		"^@http/(.*)": "<rootDir>/src/http/$1",
 		"^@invoke/(.*)": "<rootDir>/src/invoke/$1",
 		"^@libs/(.*)": "<rootDir>/src/libs/$1",
-		"^@proxies/(.*)": "<rootDir>/src/proxies/$1",
 		"^@repositories/(.*)": "<rootDir>/src/repositories/$1",
 		"^@services/(.*)": ["<rootDir>/src/services/$1"],
 	},

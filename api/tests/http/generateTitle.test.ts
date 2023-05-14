@@ -1,10 +1,10 @@
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { mocked } from "jest-mock";
-import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
+import { generateChatResponseAsync } from "@clients/openaiApiClient";
 import { ChatRepository } from "@repositories/ChatRepository";
 import { main } from "@http/generateTitle/handler";
 
-jest.mock("@proxies/openaiApiProxy");
+jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");
 
 describe("generateTitle handler", () => {

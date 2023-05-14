@@ -1,16 +1,16 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
-import { performWebSearchAsync } from "@proxies/bingSearchApiProxy";
-import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
+import { performWebSearchAsync } from "@clients/bingSearchApiClient";
+import { generateChatResponseAsync } from "@clients/openaiApiClient";
 import { newChatText } from "../../src/constants";
-import { postToConnectionAsync } from "@proxies/apiGatewayManagementApiClientProxy";
+import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 import { ChatRepository } from "@repositories/ChatRepository";
 import TextToSpeechService from "@services/textToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 
-jest.mock("@proxies/apiGatewayManagementApiClientProxy");
-jest.mock("@proxies/bingSearchApiProxy");
-jest.mock("@proxies/openaiApiProxy");
+jest.mock("@clients/apiGatewayManagementApiClient");
+jest.mock("@clients/bingSearchApiClient");
+jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
 

@@ -5,7 +5,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { isDev } from "../utils";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { performTextToSpeech } from "@proxies/pollyApiProxy";
+import { performTextToSpeech } from "@clients/pollyApiClient";
 
 export default class TextToSpeechService {
 	private readonly s3Client: S3Client;

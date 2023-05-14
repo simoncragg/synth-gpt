@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { generateChatResponseAsync } from "@proxies/openaiApiProxy";
+import { generateChatResponseAsync } from "@clients/openaiApiClient";
 import { prePrompt } from "../constants";
 
 export default class ChatCompletionService {

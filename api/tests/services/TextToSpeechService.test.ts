@@ -1,12 +1,12 @@
 import { mocked } from "jest-mock";
-import { performTextToSpeech } from "@proxies/pollyApiProxy";
+import { performTextToSpeech } from "@clients/pollyApiClient";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { S3Client } from "@aws-sdk/client-s3";
 import TextToSpeechService from "@services/TextToSpeechService";
 
 jest.mock("@aws-sdk/client-s3");
 jest.mock("@aws-sdk/s3-request-presigner");
-jest.mock("@proxies/pollyApiProxy");
+jest.mock("@clients/pollyApiClient");
 
 const performTextToSpeechMock = mocked(performTextToSpeech);
 const s3ClientMock = mocked(S3Client);

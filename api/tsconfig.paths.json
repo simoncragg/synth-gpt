@@ -2,9 +2,9 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"paths": {
+			"@clients/*": ["src/clients/*"],
 			"@http/*": ["src/http/*"],
 			"@libs/*": ["src/libs/*"],
-			"@proxies/*": ["src/proxies/*"],
 			"@repositories/*": ["src/repositories/*"],
 			"@invoke/*": ["src/invoke/*"],
 			"@services/*": ["src/services/*"],
