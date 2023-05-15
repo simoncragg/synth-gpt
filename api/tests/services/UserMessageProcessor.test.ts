@@ -534,7 +534,7 @@ describe("UserMessageProcessor", () => {
 		) => {
 			generateChatResponseAsyncMock.mockResolvedValueOnce({
 				role: "assistant",
-				content: `SEARCH: "${searchTerm}"`,
+				content: `SEARCH("${searchTerm}")`,
 			});
 
 			generateChatResponseAsyncMock.mockResolvedValueOnce({
