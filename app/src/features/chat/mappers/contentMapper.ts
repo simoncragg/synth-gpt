@@ -11,13 +11,12 @@ export function mapToContentParts(content: string): MessagePart[] {
 	const parts: MessagePart[] = [];
 	let index = 0;
 	while (isInBounds(content, index)) {
-		const char = content[index];
 		const type = getPartType(content, index);
 		const mapToPart = getMapToPartFunction(type);
 		const [part, offset] = mapToPart(content, index);
 		index += offset;
 
-		while (isInBounds(content, index) && isSpaceOrNewLine(content[index])) {
+		while (isInBounds(content, index) && isNewLine(content[index])) {
 			index++;
 		}
 
@@ -150,7 +149,7 @@ function mapCodeSnippet(
 
 	while (
 		isInBounds(content, startIndex + offset) &&
-		isSpaceOrNewLine(content[startIndex + offset])
+		isNewLine(content[startIndex + offset])
 	) {
 		offset++;
 	}
@@ -208,22 +207,15 @@ function isInBounds(content: string, index: number): boolean {
 }
 
 function isCodeSnippetMarker(content: string, index: number): boolean {
-	return (
-		index + 2 < content.length &&
-		content.substring(index, index + 3) === CODE_SNIPPET_MARKER
-	);
+	return content.substring(index, index + 3) === CODE_SNIPPET_MARKER;
 }
 
 function isListItemNumber(content: string, index: number): boolean {
 	return (
-		index + 2 < content.length &&
+		(index === 0 || content[index - 1] === "\n") &&
 		!isNaN(Number(content[index])) &&
 		content.substring(index + 1, index + 3) === ". "
 	);
-}
-
-function isSpaceOrNewLine(char: string): boolean {
-	return isSpace(char) || isNewLine(char);
 }
 
 function isNewLine(char: string): boolean {
