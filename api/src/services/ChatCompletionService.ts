@@ -1,5 +1,8 @@
 import { v4 as uuidv4 } from "uuid";
-import { generateChatResponseAsync } from "@clients/openaiApiClient";
+import {
+	generateChatResponseAsync,
+	generateChatResponseDeltasAsync
+} from "@clients/openaiApiClient";
 import { prePrompt } from "../constants";
 
 export default class ChatCompletionService {
@@ -21,14 +24,43 @@ export default class ChatCompletionService {
 		];
 
 		const { content } = await generateChatResponseAsync(messages);
-		return this.mapToChatMessage(content);
+		return this.buildChatMessage(uuidv4(), content);
 	}
 
-	private mapToChatMessage(content: string): ChatMessage {
+	async generateAssistantMessageDeltasAsync(
+		chatMessages: ChatMessage[],
+		onDeltaReceived: (ChatMessage) => Promise<{ abort: boolean }>
+	): Promise<void> {
+		const messages = [
+			{
+				role: "system" as const,
+				content: prePrompt,
+			},
+			...chatMessages.map(msg => {
+				return {
+					role: msg.role,
+					content: this.mapContent(msg.content)
+				};
+			})
+		];
+		let content = "";
+		const id = uuidv4();
+		await generateChatResponseDeltasAsync(messages, async (delta: string, done: boolean): Promise<{ abort: boolean }> => {
+			content += delta ?? "";
+			if (done || delta?.indexOf("\n") > 0) {
+				const message = this.buildChatMessage(id, content);
+				content = "";
+				return await onDeltaReceived(message);
+			}
+			return { abort: false };
+		});
+	}
+
+	private buildChatMessage(id: string, content: string): ChatMessage {
 		if (this.isSearchPrompt(content)) {
 			const searchTerm = this.extractSearchTerm(content);
 			return {
-				id: uuidv4(),
+				id,
 				role: "assistant",
 				content: {
 					type: "webActivity",
@@ -43,7 +75,7 @@ export default class ChatCompletionService {
 		}
 
 		return {
-			id: uuidv4(),
+			id,
 			role: "assistant",
 			content: {
 				type: "text",

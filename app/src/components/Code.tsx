@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { FiClipboard } from "react-icons/fi";
 import { MdDone } from "react-icons/md";
 import Prism from "prismjs";
@@ -9,11 +9,14 @@ interface CodeProps {
 }
 
 const Code = ({ code, language }: CodeProps) => {
-	useEffect(() => {
-		Prism.highlightAll();
-	}, []);
-
 	const [isCopied, setIsCopied] = useState(false);
+	const codeElementRef = useRef<HTMLElement | null>(null);
+
+	useEffect(() => {
+		if (codeElementRef.current) {
+			Prism.highlightElement(codeElementRef.current);
+		}
+	}, [code]);
 
 	const copyToClipboard = () => {
 		if (!isCopied) {
@@ -45,7 +48,11 @@ const Code = ({ code, language }: CodeProps) => {
 			</div>
 			<div className="Code">
 				<pre className="line-numbers">
-					<code data-testid="code" className={`language-${language}`}>
+					<code
+						ref={codeElementRef}
+						data-testid="code"
+						className={`language-${language}`}
+					>
 						{code}
 					</code>
 				</pre>

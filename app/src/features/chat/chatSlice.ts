@@ -54,11 +54,24 @@ const chatSlice = createSlice({
 			action: PayloadAction<AddOrUpdateMessagePayloadType>
 		) => {
 			const { message } = action.payload;
+
 			const matchedMessage = chat.messages.find((msg) => msg.id === message.id);
 			if (matchedMessage) {
+				let updatedMessage: ChatMessage;
+				if (message.content.type === "text") {
+					updatedMessage = {
+						...matchedMessage,
+						content: {
+							type: "text",
+							value: `${matchedMessage.content.value}${message.content.value}`,
+						},
+					};
+				} else {
+					updatedMessage = message;
+				}
 				chat.messages = [
 					...chat.messages.filter((msg) => msg.id !== matchedMessage.id),
-					message,
+					updatedMessage,
 				];
 			} else {
 				chat.messages.push(message);

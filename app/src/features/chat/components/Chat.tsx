@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 import { addOrUpdateMessage } from "../chatSlice";
+import useAudioPlayer from "../hooks/useAudioPlayer";
 import AddAttachment from "./AddAttachment";
 import ChatLog from "./ChatLog";
 import ChatService from "../services/ChatService";
@@ -16,6 +17,8 @@ const Chat = () => {
 	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
 	);
+
+	const { queueAudio } = useAudioPlayer();
 
 	useEffect(() => {
 		chatService.current?.connect();
@@ -85,20 +88,8 @@ const Chat = () => {
 
 			case "assistantAudio":
 				setIsAwaitingServerMessage(false);
-				playAudio((payload as AssistantAudio).audioUrl);
+				queueAudio((payload as AssistantAudio).audioSegment);
 				break;
-		}
-	};
-
-	const playAudio = (audioUrl: string | undefined) => {
-		if (audioUrl) {
-			const audio = new Audio(audioUrl);
-			audio.addEventListener("canplay", () => {
-				audio.play();
-			});
-			audio.addEventListener("error", () => {
-				console.error(`Error loading ${audioUrl}`);
-			});
 		}
 	};
 

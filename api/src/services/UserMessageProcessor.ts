@@ -27,29 +27,10 @@ export default class UserMessageProcessor {
 		const chat = await this.getChatAsync(chatId, userId);
 		chat.messages.push(message);
 
-		const [, assistantMessage] = await Promise.all([
+		await Promise.all([
 			this.persistChatIfNewAsync(chat),
-			this.chatCompletionService.generateAssistantMessageAsync(chat.messages)
+			this.generateAndProcessAssistantMessageAsync(connectionId, chat),
 		]);
-
-		if (assistantMessage.content.type === "webActivity") {
-			await this.processWebActivityMessage(
-				connectionId,
-				assistantMessage,
-				chat
-			);
-		}
-		else if (assistantMessage.content.type === "text") {
-			await this.processTextMessage(
-				connectionId, {
-					chatId,
-					message: assistantMessage,
-				} as AssistantMessagePayload,
-				chat
-			);
-		}
-
-		await this.updateChatAsync(chat);
 	}
 
 	private async getChatAsync(
@@ -70,6 +51,78 @@ export default class UserMessageProcessor {
 		if (chat.messages.length === 1) {
 			await this.chatRepository.updateItemAsync(chat);
 		}
+	}
+
+	private async generateAndProcessAssistantMessageAsync(connectionId: string, chat: Chat) {
+		const assistantMessage = await this.generateAssistantMessageDeltasAsync(chat, connectionId);
+		if (assistantMessage.content.type === "webActivity") {
+			await this.processWebActivityMessage(
+				connectionId,
+				assistantMessage,
+				chat
+			);
+		} else {
+			chat.messages = [
+				...chat.messages,
+				assistantMessage
+			];
+		}
+
+		await this.updateChatAsync(chat);
+	}
+
+	private async generateAssistantMessageDeltasAsync(chat: Chat, connectionId: string): Promise<ChatMessage> {
+		let assistantMessage: ChatMessage | null;
+		let isInCodeBlock = false;
+
+		await this.chatCompletionService.generateAssistantMessageDeltasAsync(chat.messages, async (delta: ChatMessage): Promise<{ abort: boolean }> => {
+
+			if (delta.content.type === "webActivity") {
+				assistantMessage = {
+					...delta,
+					content: {
+						...delta.content
+					}
+				};
+				return { abort: true };
+			}
+
+			await postToConnectionAsync(connectionId, {
+				type: "assistantMessage",
+				payload: {
+					chatId: chat.chatId,
+					message: delta
+				},
+			});
+
+			const value = delta.content.value as string;
+
+			if (value.indexOf("```") > -1) {
+				isInCodeBlock = !isInCodeBlock;
+			}
+			else if (!isInCodeBlock) {
+				await this.processAssistantVoiceAsync(connectionId, {
+					chatId: chat.chatId,
+					message: delta
+				});
+			}
+
+			if (!assistantMessage) {
+				assistantMessage = {
+					...delta,
+					content: {
+						...delta.content
+					},
+				};
+			}
+			else {
+				assistantMessage.content.value += value;
+			}
+
+			return { abort: false };
+		});
+
+		return assistantMessage;
 	}
 
 	private async processWebActivityMessage(
@@ -101,6 +154,10 @@ export default class UserMessageProcessor {
 			},
 		});
 
+		console.log("///////////////////////////////////////////////////////////////////");
+		console.log(searchTerm);
+		console.log("///////////////////////////////////////////////////////////////////");
+
 		const { webPages } = await performWebSearchAsync(
 			searchTerm
 		);
@@ -111,6 +168,8 @@ export default class UserMessageProcessor {
 			isFamilyFriendly,
 			snippet
 		} as WebSearchResult));
+
+		console.log(results);
 
 		await postToConnectionAsync(connectionId, {
 			type: "assistantMessage",
@@ -174,38 +233,29 @@ export default class UserMessageProcessor {
 		const finalAssistantMessage = await this.chatCompletionService
 			.generateAssistantMessageAsync(chat.messages);
 
-		Promise.all([
-			await postToConnectionAsync(connectionId, {
+		await postToConnectionAsync(connectionId, {
+			type: "assistantMessage",
+			payload: {
+				chatId: chat.chatId,
+				message: updatedAssistantMessage,
+			},
+		});
+
+		await Promise.all([
+			postToConnectionAsync(connectionId, {
 				type: "assistantMessage",
 				payload: {
 					chatId: chat.chatId,
-					message: updatedAssistantMessage,
-				},
-			}),
-			await this.processTextMessage(connectionId,
-				{
-					chatId: chat.chatId,
 					message: finalAssistantMessage,
 				},
-				chat
-			)]);
-	}
+			}),
+			this.processAssistantVoiceAsync(connectionId, {
+				chatId: chat.chatId,
+				message: finalAssistantMessage
+			})
+		]);
 
-	private async processTextMessage(
-		connectionId: string,
-		assistantMessagePayload: AssistantMessagePayload,
-		chat: Chat) {
-
-		chat.messages.push(assistantMessagePayload.message);
-		await postToConnectionAsync(connectionId, {
-			type: "assistantMessage",
-			payload: assistantMessagePayload,
-		});
-
-		await this.processAssistantVoiceAsync(
-			connectionId,
-			assistantMessagePayload
-		);
+		chat.messages.push(finalAssistantMessage);
 	}
 
 	private async processAssistantVoiceAsync(
@@ -224,17 +274,24 @@ export default class UserMessageProcessor {
 			return;
 		}
 
-		const audioUrl = await this.textToSpeechService
-			.generateSignedAudioUrlAsync(transcript);
+		const audioSegment = await this.generateAudioSegmentAsync(transcript);
 
 		await postToConnectionAsync(connectionId, {
 			type: "assistantAudio" as const,
 			payload: {
 				chatId,
-				transcript,
-				audioUrl
+				audioSegment,
 			} as AssistantAudioPayload
 		} as WebSocketMessage);
+	}
+
+	private async generateAudioSegmentAsync(transcript: string): Promise<AudioSegment> {
+		const timestamp = Date.now();
+		const audioUrl = await this.textToSpeechService.generateSignedAudioUrlAsync(transcript);
+		return {
+			audioUrl,
+			timestamp,
+		};
 	}
 
 	private async updateChatAsync(chat: Chat) {

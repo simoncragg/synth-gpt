@@ -34,8 +34,12 @@ interface AssistantMessagePayload extends BaseWebSocketMessagePayload {
 }
 
 interface AssistantAudioPayload extends BaseWebSocketMessagePayload {
-	transcript: string;
+	audioSegment: AudioSegment;
+}
+
+interface AudioSegment {
 	audioUrl: string;
+	timestamp: number;
 }
 
 /* Invoke handler payloads */
@@ -65,6 +69,16 @@ type RoleType = "system" | "user" | "assistant";
 interface Message {
 	role: RoleType
 	content: string
+}
+
+interface MessageDeltaData {
+	delta: DeltaContent;
+	index: number;
+	finish_reason: string?;
+}
+
+interface DeltaContent {
+	content?: string;
 }
 
 interface ChatMessage {

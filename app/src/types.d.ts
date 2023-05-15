@@ -73,7 +73,12 @@ interface MessagePayload extends BasePayload {
 }
 
 interface AssistantAudio extends BasePayload {
+	audioSegment: AudioSegment;
+}
+
+interface AudioSegment {
 	audioUrl: string;
+	timestamp: number;
 }
 
 /* Chat */
