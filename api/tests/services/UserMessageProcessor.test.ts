@@ -46,14 +46,14 @@ describe("UserMessageProcessor", () => {
 		let userMessagePayload: ProcessUserMessagePayload;
 
 		beforeEach(() => {
-			arrangeOpenaiApiClientMock(generatedLines);
+			arrangeGenerateChatResponseDeltasAsyncMock(generatedLines);
 			arrangeTextToSpeechServiceMock();
 
 			userMessage = {
 				id: uuidv4(),
-				role: "user" as const,
+				role: "user",
 				content: {
-					type: "text" as const,
+					type: "text",
 					value: "Write JavaScript to log \"Hello World\" to console",
 				},
 				timestamp: 1234567890,
@@ -77,23 +77,12 @@ describe("UserMessageProcessor", () => {
 			await userMessageProcessor.process(userMessagePayload);
 
 			for (const line of generatedLines) {
-				expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-					userMessagePayload.connectionId,
+				expectAssistantMessageToBePostedToClient(
 					{
-						type: "assistantMessage" as const,
-						payload: {
-							chatId,
-							message: {
-								id: expect.any(String),
-								role: "assistant" as const,
-								content: {
-									type: "text" as const,
-									value: line,
-								},
-								timestamp: expect.any(Number),
-							},
-						},
+						type: "text",
+						value: line,
 					},
+					userMessagePayload
 				);
 			}
 		});
@@ -107,20 +96,7 @@ describe("UserMessageProcessor", () => {
 			];
 
 			for (const transcript of spokenLines) {
-				const expectedAudioUrl = baseAudioUrl + encodeURIComponent(transcript) + ".mpg";
-				expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-					userMessagePayload.connectionId,
-					{
-						type: "assistantAudio",
-						payload: {
-							chatId,
-							audioSegment: {
-								audioUrl: expectedAudioUrl,
-								timestamp: expect.any(Number),
-							},
-						},
-					},
-				);
+				expectAudioMessageToBePostedToClient(transcript, userMessagePayload);
 			}
 		});
 
@@ -150,7 +126,6 @@ describe("UserMessageProcessor", () => {
 		});
 
 		describe("Process a user message using a web search", () => {
-
 			const searchTerm = "Wimbledon 2023 start date";
 			const assistantAnswer = "According to my search results, Wimbledon 2023 will start on Monday, July 3rd, 2023 and will end on Sunday, July 16th, 2023.";
 
@@ -164,9 +139,9 @@ describe("UserMessageProcessor", () => {
 					userId,
 					message: {
 						id: uuidv4(),
-						role: "user" as const,
+						role: "user",
 						content: {
-							type: "text" as const,
+							type: "text",
 							value: "When does Wimbledon start this year?",
 						},
 						timestamp: Date.now(),
@@ -175,6 +150,11 @@ describe("UserMessageProcessor", () => {
 
 				webSearchResponse = buildWebSearchResponse();
 				userMessageProcessor = new UserMessageProcessor();
+
+				arrangeGenerateChatResponseDeltasAsyncMock([`SEARCH("${searchTerm}")`]);
+				arrangeGenerateChatResponseAsyncMock(assistantAnswer);
+				arrangePerformWebSearchAsyncMock(webSearchResponse);
+				arrangeTextToSpeechServiceMock();
 			});
 
 			afterEach(() => {
@@ -182,12 +162,6 @@ describe("UserMessageProcessor", () => {
 			});
 
 			it("should post web activity messages to client", async () => {
-				arrangeMocksForWebSearch(
-					searchTerm,
-					webSearchResponse,
-					assistantAnswer
-				);
-
 				await userMessageProcessor.process(userMessagePayload);
 
 				const webActivity = {
@@ -199,23 +173,12 @@ describe("UserMessageProcessor", () => {
 					} as SearchingWebAction],
 				} as WebActivity;
 
-				expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-					userMessagePayload.connectionId,
+				expectAssistantMessageToBePostedToClient(
 					{
-						type: "assistantMessage",
-						payload: {
-							chatId,
-							message: expect.objectContaining({
-								id: expect.any(String),
-								role: "assistant",
-								content: {
-									type: "webActivity",
-									value: webActivity,
-								},
-								timestamp: expect.any(Number),
-							}),
-						},
+						type: "webActivity",
+						value: webActivity,
 					},
+					userMessagePayload
 				);
 
 				const { webPages } = webSearchResponse;
@@ -231,111 +194,43 @@ describe("UserMessageProcessor", () => {
 					results,
 				} as ReadingWebSearchResultsAction;
 
-				expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-					userMessagePayload.connectionId,
+				expectAssistantMessageToBePostedToClient(
 					{
-						type: "assistantMessage",
-						payload: {
-							chatId,
-							message: expect.objectContaining({
-								id: expect.any(String),
-								role: "assistant",
-								content: {
-									type: "webActivity",
-									value: {
-										...webActivity,
-										currentState: "readingResults",
-										actions: expect.arrayContaining([
-											...webActivity.actions,
-											readingResultsAction
-										]),
-									},
-								},
-								timestamp: expect.any(Number),
-							}),
+						type: "webActivity",
+						value: {
+							...webActivity,
+							currentState: "readingResults",
+							actions: expect.arrayContaining([
+								...webActivity.actions,
+								readingResultsAction
+							]),
 						},
 					},
+					userMessagePayload
 				);
 
-				expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-					userMessagePayload.connectionId,
+				expectAssistantMessageToBePostedToClient(
 					{
-						type: "assistantMessage",
-						payload: {
-							chatId,
-							message: expect.objectContaining({
-								id: expect.any(String),
-								role: "assistant",
-								content: {
-									type: "webActivity",
-									value: {
-										...webActivity,
-										currentState: "finished",
-										actions: [
-											...webActivity.actions,
-											readingResultsAction
-										],
-									},
-								},
-								timestamp: expect.any(Number),
-							}),
+						type: "webActivity",
+						value: {
+							...webActivity,
+							currentState: "finished",
+							actions: [
+								...webActivity.actions,
+								readingResultsAction
+							],
 						},
 					},
+					userMessagePayload
 				);
 			});
 
-			it("should post assistant text response and audio to client", async () => {
-				arrangeMocksForWebSearch(
-					searchTerm,
-					webSearchResponse,
-					assistantAnswer
-				);
-
-				arrangeTextToSpeechServiceMock();
-
+			it("should post assistant text responses and audio to client", async () => {
 				await userMessageProcessor.process(userMessagePayload);
-
-				expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-					userMessagePayload.connectionId,
-					{
-						type: "assistantMessage",
-						payload: {
-							chatId,
-							message: expect.objectContaining({
-								id: expect.any(String),
-								role: "assistant",
-								content: {
-									type: "text",
-									value: assistantAnswer,
-								},
-								timestamp: expect.any(Number),
-							}),
-						},
-					},
-				);
-
-				expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
-					userMessagePayload.connectionId,
-					{
-						type: "assistantAudio",
-						payload: {
-							chatId,
-							audioSegment: {
-								audioUrl: baseAudioUrl + encodeURIComponent(assistantAnswer) + ".mpg",
-								timestamp: expect.any(Number),
-							},
-						},
-					},
-				);
+				expectAudioMessageToBePostedToClient(assistantAnswer, userMessagePayload);
 			});
 
 			it("should update chat database", async () => {
-				arrangeMocksForWebSearch(
-					searchTerm,
-					webSearchResponse,
-					assistantAnswer
-				);
-
 				await userMessageProcessor.process(userMessagePayload);
 
 				expect(updateItemAsyncMock).toHaveBeenCalledWith(
@@ -370,16 +265,16 @@ describe("UserMessageProcessor", () => {
 				} as WebSearchResult));
 
 				expect(updateItemAsyncMock).toHaveBeenCalledWith(
-					expect.objectContaining({
+					{
 						chatId,
 						title,
 						userId,
-						messages: expect.arrayContaining([
-							expect.objectContaining({
+						messages: [
+							{
 								...userMessagePayload.message,
 								timestamp: expect.any(Number),
-							}),
-							expect.objectContaining({
+							},
+							{
 								id: expect.any(String),
 								role: "assistant",
 								content: {
@@ -397,8 +292,8 @@ describe("UserMessageProcessor", () => {
 									},
 								},
 								timestamp: expect.any(Number),
-							}),
-							expect.objectContaining({
+							},
+							{
 								id: expect.any(String),
 								role: "user",
 								content: {
@@ -406,8 +301,8 @@ describe("UserMessageProcessor", () => {
 									value: `\`\`\`json\n{webSearchResults: ${JSON.stringify(results)}}\n\`\`\``
 								},
 								timestamp: expect.any(Number),
-							}),
-							expect.objectContaining({
+							},
+							{
 								id: expect.any(String),
 								role: "assistant",
 								content: {
@@ -415,11 +310,11 @@ describe("UserMessageProcessor", () => {
 									value: assistantAnswer
 								},
 								timestamp: expect.any(Number),
-							})
-						]),
+							}
+						],
 						createdTime: expect.any(Number),
 						updatedTime: expect.any(Number),
-					})
+					}
 				);
 			});
 
@@ -447,44 +342,41 @@ describe("UserMessageProcessor", () => {
 					} as WebPages
 				} as WebSearchResponse;
 			};
-
-			const arrangeMocksForWebSearch = (
-				searchTerm: string,
-				webSearchResponse: WebSearchResponse,
-				assistantAnswer: string
-			) => {
-
-				arrangeOpenaiApiClientMock([`SEARCH("${searchTerm}")`]);
-
-				generateChatResponseAsyncMock.mockResolvedValueOnce({
-					role: "assistant",
-					content: assistantAnswer,
-				});
-
-				performWebSearchAsyncMock.mockResolvedValue(webSearchResponse);
-
-				arrangeTextToSpeechServiceMock();
-			};
 		});
 	});
 
-	const arrangeOpenaiApiClientMock = (lines: string[]) => {
+	const arrangeGenerateChatResponseDeltasAsyncMock = (lines: string[]) => {
 		generateChatResponseDeltasAsyncMock.mockImplementation(async (
 			_,
 			onDeltaReceived: (delta: string, done: boolean) => Promise<{ abort: boolean }>
 		): Promise<void> => {
 			for (const line of lines) {
-				const tokens = line.split(" ").map(token =>
-					token.indexOf("\n") > -1
-						? token
-						: token + " "
-				);
+				const tokens = tokenize(line);
 				for (const token of tokens) {
 					await onDeltaReceived(token, false);
 				}
 				await onDeltaReceived("", true);
 			}
 		});
+	};
+
+	const arrangeGenerateChatResponseAsyncMock = (content: string) => {
+		generateChatResponseAsyncMock.mockResolvedValueOnce({
+			role: "assistant",
+			content,
+		});
+	};
+
+	const arrangePerformWebSearchAsyncMock = (webSearchResponse: WebSearchResponse) => {
+		performWebSearchAsyncMock.mockResolvedValue(webSearchResponse);
+	};
+
+	const tokenize = (str: string): string[] => {
+		return str.split(" ").map(token =>
+			token.indexOf("\n") > -1
+				? token
+				: token + " "
+		);
 	};
 
 	const arrangeTextToSpeechServiceMock = () => {
@@ -494,5 +386,46 @@ describe("UserMessageProcessor", () => {
 			.mockImplementation((transcript) =>
 				Promise.resolve(baseAudioUrl + encodeURIComponent(transcript) + ".mpg")
 			);
+	};
+
+	const expectAssistantMessageToBePostedToClient = (
+		content: Content,
+		userMessagePayload: ProcessUserMessagePayload
+	) => {
+		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
+			userMessagePayload.connectionId,
+			{
+				type: "assistantMessage",
+				payload: {
+					chatId: userMessagePayload.chatId,
+					message: {
+						id: expect.any(String),
+						role: "assistant",
+						content: content,
+						timestamp: expect.any(Number),
+					},
+				},
+			},
+		);
+	};
+
+	const expectAudioMessageToBePostedToClient = (
+		transcript: string,
+		userMessagePayload: ProcessUserMessagePayload
+	) => {
+		const { connectionId, chatId } = userMessagePayload;
+		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
+			connectionId,
+			{
+				type: "assistantAudio",
+				payload: {
+					chatId,
+					audioSegment: {
+						audioUrl: baseAudioUrl + encodeURIComponent(transcript) + ".mpg",
+						timestamp: expect.any(Number),
+					},
+				},
+			},
+		);
 	};
 });
