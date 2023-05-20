@@ -152,7 +152,7 @@ describe("UserMessageProcessor", () => {
 				webSearchResponse = buildWebSearchResponse();
 				userMessageProcessor = new UserMessageProcessor();
 
-				arrangeGenerateChatResponseDeltasAsyncMock([searchExplanation, `SEARCH("${searchTerm}")`]);
+				arrangeGenerateChatResponseDeltasAsyncMock([searchExplanation, `SEARCH[${searchTerm}]`]);
 				arrangeGenerateChatResponseAsyncMock(assistantAnswer);
 				arrangePerformWebSearchAsyncMock(webSearchResponse);
 				arrangeTextToSpeechServiceMock();

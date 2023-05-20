@@ -87,16 +87,16 @@ export default class ChatCompletionService {
 
 	private mapContent(content: Content): string {
 		return content.type === "webActivity"
-			? `SEARCH("${(content.value as WebActivity).searchTerm}")`
+			? `SEARCH[${(content.value as WebActivity).searchTerm}]`
 			: content.value as string;
 	}
 
 	private isSearchPrompt(line: string): boolean {
-		return /SEARCH\(".+?"\)/.test(line);
+		return /SEARCH\[.+?\]/.test(line);
 	}
 
 	private extractSearchTerm(input: string): string | null {
-		const match = input.match(/SEARCH\("(.+?)"\)/);
+		const match = input.match(/SEARCH\[(.+?)\]/);
 		return match ? match[1] : null;
 	}
 }
