@@ -29,8 +29,13 @@ export default class UserMessageProcessor {
 
 		await Promise.all([
 			this.persistChatIfNewAsync(chat),
-			this.generateAndProcessAssistantMessageAsync(connectionId, chat),
+			await this.generateAssistantMessageDeltasAsync(
+				chat,
+				connectionId
+			)
 		]);
+
+		await this.updateChatAsync(chat);
 	}
 
 	private async getChatAsync(
@@ -53,82 +58,92 @@ export default class UserMessageProcessor {
 		}
 	}
 
-	private async generateAndProcessAssistantMessageAsync(connectionId: string, chat: Chat) {
-		const assistantMessage = await this.generateAssistantMessageDeltasAsync(chat, connectionId);
-		if (assistantMessage.content.type === "webActivity") {
-			await this.processWebActivityMessage(
-				connectionId,
-				assistantMessage,
-				chat
-			);
-		} else {
+	private async generateAssistantMessageDeltasAsync(
+		chat: Chat,
+		connectionId: string)
+		: Promise<void> {
+
+		let assistantMessage: ChatMessage | null;
+		let webActivityMessage: ChatMessage | null;
+		let isInCodeBlock = false;
+
+		await this.chatCompletionService.generateAssistantMessageDeltasAsync(
+			chat.messages,
+			async (delta: ChatMessage): Promise<{ abort: boolean }> => {
+
+				if (delta.content.type === "webActivity") {
+					webActivityMessage = {
+						...delta,
+						id: uuidv4(),
+						content: {
+							...delta.content
+						}
+					};
+					console.log(webActivityMessage);
+					return { abort: true };
+				}
+
+				console.log({
+					chatId: chat.chatId,
+					message: delta
+				});
+
+				await postToConnectionAsync(connectionId, {
+					type: "assistantMessage",
+					payload: {
+						chatId: chat.chatId,
+						message: delta
+					},
+				});
+
+				const value = delta.content.value as string;
+
+				if (value.indexOf("```") > -1) {
+					isInCodeBlock = !isInCodeBlock;
+				}
+				else if (!isInCodeBlock) {
+					await this.processAssistantVoiceAsync(connectionId, {
+						chatId: chat.chatId,
+						message: delta
+					});
+				}
+
+				if (!assistantMessage) {
+					assistantMessage = {
+						...delta,
+						content: {
+							...delta.content
+						},
+					};
+				}
+				else {
+					assistantMessage.content.value += value;
+				}
+
+				return { abort: false };
+			});
+
+		if (assistantMessage) {
 			chat.messages = [
 				...chat.messages,
 				assistantMessage
 			];
 		}
 
-		await this.updateChatAsync(chat);
-	}
-
-	private async generateAssistantMessageDeltasAsync(chat: Chat, connectionId: string): Promise<ChatMessage> {
-		let assistantMessage: ChatMessage | null;
-		let isInCodeBlock = false;
-
-		await this.chatCompletionService.generateAssistantMessageDeltasAsync(chat.messages, async (delta: ChatMessage): Promise<{ abort: boolean }> => {
-
-			if (delta.content.type === "webActivity") {
-				assistantMessage = {
-					...delta,
-					content: {
-						...delta.content
-					}
-				};
-				return { abort: true };
-			}
-
-			await postToConnectionAsync(connectionId, {
-				type: "assistantMessage",
-				payload: {
-					chatId: chat.chatId,
-					message: delta
-				},
-			});
-
-			const value = delta.content.value as string;
-
-			if (value.indexOf("```") > -1) {
-				isInCodeBlock = !isInCodeBlock;
-			}
-			else if (!isInCodeBlock) {
-				await this.processAssistantVoiceAsync(connectionId, {
-					chatId: chat.chatId,
-					message: delta
-				});
-			}
-
-			if (!assistantMessage) {
-				assistantMessage = {
-					...delta,
-					content: {
-						...delta.content
-					},
-				};
-			}
-			else {
-				assistantMessage.content.value += value;
-			}
-
-			return { abort: false };
-		});
-
-		return assistantMessage;
+		if (webActivityMessage) {
+			await this.processWebActivityMessage(
+				connectionId,
+				webActivityMessage,
+				chat
+			);
+		}
 	}
 
 	private async processWebActivityMessage(
 		connectionId: string,
 		assistantMessage: ChatMessage,
-		chat: Chat) {
+		chat: Chat
+	): Promise<void> {
 
 		const { searchTerm } = (assistantMessage.content.value as WebActivity);
 

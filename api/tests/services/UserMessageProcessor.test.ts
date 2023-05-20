@@ -126,6 +126,7 @@ describe("UserMessageProcessor", () => {
 		});
 
 		describe("Process a user message using a web search", () => {
+			const searchExplanation = "I will have to perform a web search for that.\n";
 			const searchTerm = "Wimbledon 2023 start date";
 			const assistantAnswer = "According to my search results, Wimbledon 2023 will start on Monday, July 3rd, 2023 and will end on Sunday, July 16th, 2023.";
 
@@ -151,7 +152,7 @@ describe("UserMessageProcessor", () => {
 				webSearchResponse = buildWebSearchResponse();
 				userMessageProcessor = new UserMessageProcessor();
 
-				arrangeGenerateChatResponseDeltasAsyncMock([`SEARCH("${searchTerm}")`]);
+				arrangeGenerateChatResponseDeltasAsyncMock([searchExplanation, `SEARCH("${searchTerm}")`]);
 				arrangeGenerateChatResponseAsyncMock(assistantAnswer);
 				arrangePerformWebSearchAsyncMock(webSearchResponse);
 				arrangeTextToSpeechServiceMock();
@@ -227,6 +228,7 @@ describe("UserMessageProcessor", () => {
 
 			it("should post assistant text responses and audio to client", async () => {
 				await userMessageProcessor.process(userMessagePayload);
+				expectAudioMessageToBePostedToClient(searchExplanation, userMessagePayload);
 				expectAudioMessageToBePostedToClient(assistantAnswer, userMessagePayload);
 			});
 
@@ -272,6 +274,15 @@ describe("UserMessageProcessor", () => {
 						messages: [
 							{
 								...userMessagePayload.message,
+								timestamp: expect.any(Number),
+							},
+							{
+								id: expect.any(String),
+								role: "assistant",
+								content: {
+									type: "text",
+									value: searchExplanation
+								},
 								timestamp: expect.any(Number),
 							},
 							{
