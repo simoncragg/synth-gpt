@@ -11,7 +11,7 @@
 		"target": "ES2020",
 		"outDir": "lib"
 	},
-	"include": ["src/**/*.ts", "api/serverless.ts"],
+	"include": ["src/**/*.ts", "serverless.ts"],
 	"exclude": [
 		"node_modules/**/*",
 		".serverless/**/*",
