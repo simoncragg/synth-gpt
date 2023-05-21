@@ -3,7 +3,7 @@ import { AbortSignal } from "node-fetch/externals";
 
 const data = {
 	model: "gpt-3.5-turbo",
-	temperature: 1,
+	temperature: 0.0,
 };
 
 export async function generateChatResponseAsync(messages: Message[]): Promise<Message> {
