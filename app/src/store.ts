@@ -15,7 +15,9 @@ const rootReducer = combineReducers({
 export const setupStore = (preloadedState?: PreloadedState<RootStateType>) => {
 	return configureStore({
 		reducer: rootReducer,
-		middleware: getDefaultMiddleware().concat(chatApi.middleware),
+		middleware: getDefaultMiddleware({
+			serializableCheck: false,
+		}).concat(chatApi.middleware),
 		preloadedState,
 	});
 };
