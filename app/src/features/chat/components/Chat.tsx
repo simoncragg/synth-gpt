@@ -8,12 +8,16 @@ import ChatLog from "./ChatLog";
 import ChatService from "../services/ChatService";
 import HeroSection from "../../../components/HeroSection";
 import SpeechToText from "./SpeechToText";
+import TypingIndicator from "../../../components/TypingIndicator";
 import { RootStateType } from "../../../store";
 
 const Chat = () => {
 	const dispatch = useDispatch();
 
 	const [isAwaitingFirstAudioSegment, setIsAwaitingFirstAudioSegment] =
+		useState(false);
+
+	const [isShowingTypingIndicator, setIsShowingTypingIndicator] =
 		useState(false);
 
 	const { chatId, attachments, messages } = useSelector(
@@ -91,7 +95,18 @@ const Chat = () => {
 	};
 
 	const processMessageSegmentPayload = (payload: MessageSegmentPayload) => {
-		const { message } = payload;
+		const { message, isLastSegment } = payload;
+
+		setIsShowingTypingIndicator(false);
+		if (typingIndicatorTimerRef.current) {
+			clearTimeout(typingIndicatorTimerRef.current);
+		}
+
+		if (!isLastSegment) {
+			typingIndicatorTimerRef.current = setTimeout(() => {
+				setIsShowingTypingIndicator(true);
+			}, 1500);
+		}
 		dispatch(
 			addOrUpdateMessage({
 				message,
@@ -115,15 +130,20 @@ const Chat = () => {
 	const chatService = useRef<ChatService>(
 		new ChatService(chatId, onMessageReceived)
 	);
-
+	const typingIndicatorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+		null
+	);
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
 
 	return (
 		<>
 			{messages.length === 0 && attachments.length === 0 && <HeroSection />}
 
-			<div className="flex w-full mb-[100px]">
+			<div className="flex flex-col w-full mb-[100px]">
 				<ChatLog />
+				{isShowingTypingIndicator && (
+					<TypingIndicator className="flex ml-6 -mt-8" />
+				)}
 			</div>
 
 			<div ref={scrollToTargetRef} data-testid="scroll-target"></div>
