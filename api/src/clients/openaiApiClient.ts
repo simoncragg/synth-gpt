@@ -86,7 +86,8 @@ async function processResponse(
 			if (done) {
 				await onDeltaReceived("", done);
 				return;
-			} else if (content !== null) {
+			}
+			if (content !== null) {
 				const { abort } = await onDeltaReceived(content, done);
 				if (abort) {
 					abortController.abort();
