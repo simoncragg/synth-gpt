@@ -12,7 +12,9 @@ import { RootStateType } from "../../../store";
 
 const Chat = () => {
 	const dispatch = useDispatch();
-	const [isAwaitingServerMessage, setIsAwaitingServerMessage] = useState(false);
+
+	const [isAwaitingFirstAudioSegment, setIsAwaitingFirstAudioSegment] =
+		useState(false);
 
 	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
@@ -33,7 +35,7 @@ const Chat = () => {
 
 	const onTranscriptionEnded = (transcript: string) => {
 		const message = composeMessage(transcript, attachments);
-		setIsAwaitingServerMessage(true);
+		setIsAwaitingFirstAudioSegment(true);
 		dispatch(addOrUpdateMessage({ message }));
 
 		chatService.current?.send({
@@ -78,19 +80,28 @@ const Chat = () => {
 
 	const onMessageReceived = ({ type, payload }: WebSocketMessage) => {
 		switch (type) {
-			case "assistantMessage":
-				dispatch(
-					addOrUpdateMessage({
-						message: (payload as MessagePayload).message,
-					})
-				);
+			case "assistantMessageSegment":
+				processMessageSegmentPayload(payload as MessageSegmentPayload);
 				break;
 
-			case "assistantAudio":
-				setIsAwaitingServerMessage(false);
-				queueAudio((payload as AssistantAudio).audioSegment);
+			case "assistantAudioSegment":
+				processAudioSegmentPayload(payload as AudioSegmentPayload);
 				break;
 		}
+	};
+
+	const processMessageSegmentPayload = (payload: MessageSegmentPayload) => {
+		const { message } = payload;
+		dispatch(
+			addOrUpdateMessage({
+				message,
+			})
+		);
+	};
+
+	const processAudioSegmentPayload = (payload: AudioSegmentPayload) => {
+		setIsAwaitingFirstAudioSegment(false);
+		queueAudio(payload.audioSegment);
 	};
 
 	const scrollTo = (target: HTMLDivElement | null) => {
@@ -104,6 +115,7 @@ const Chat = () => {
 	const chatService = useRef<ChatService>(
 		new ChatService(chatId, onMessageReceived)
 	);
+
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
 
 	return (
@@ -118,7 +130,7 @@ const Chat = () => {
 
 			<div className="fixed sm:left-[256px] bottom-0 w-full sm:w-[calc(100vw-256px)] overflow-y-hidden">
 				<div className="flex flex-col left-0 items-center mb-4">
-					{isAwaitingServerMessage ? (
+					{isAwaitingFirstAudioSegment ? (
 						<div className="relative bg-slate-900 rounded-full p-2">
 							<div className="loader w-[70px] h-[70px] rounded-full z-50"></div>
 						</div>

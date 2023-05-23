@@ -67,52 +67,51 @@ export default class UserMessageProcessor {
 		let webActivityMessage: ChatMessage | null;
 		let isInCodeBlock = false;
 
-		await this.chatCompletionService.generateAssistantMessageDeltasAsync(
+		await this.chatCompletionService.generateAssistantMessageSegmentsAsync(
 			chat.messages,
-			async (delta: ChatMessage): Promise<{ abort: boolean }> => {
+			async (segment: MessageSegment): Promise<{ abort: boolean }> => {
 
-				if (delta.content.type === "webActivity") {
+				const { message, isLastSegment } = segment;
+
+				if (message.content.type === "webActivity") {
 					webActivityMessage = {
-						...delta,
+						...message,
 						id: uuidv4(),
 						content: {
-							...delta.content
+							...message.content
 						}
 					};
-					console.log(webActivityMessage);
+
 					return { abort: true };
 				}
 
-				console.log({
-					chatId: chat.chatId,
-					message: delta
-				});
-
 				await postToConnectionAsync(connectionId, {
-					type: "assistantMessage",
+					type: "assistantMessageSegment",
 					payload: {
 						chatId: chat.chatId,
-						message: delta
+						message,
+						isLastSegment,
 					},
 				});
 
-				const value = delta.content.value as string;
+				const value = message.content.value as string;
 
 				if (value.indexOf("```") > -1) {
 					isInCodeBlock = !isInCodeBlock;
 				}
 				else if (!isInCodeBlock) {
-					await this.processAssistantVoiceAsync(connectionId, {
-						chatId: chat.chatId,
-						message: delta
-					});
+					await this.processAssistantVoiceAsync(
+						connectionId,
+						chat,
+						message,
+					);
 				}
 
 				if (!assistantMessage) {
 					assistantMessage = {
-						...delta,
+						...message,
 						content: {
-							...delta.content
+							...message.content
 						},
 					};
 				}
@@ -156,7 +155,7 @@ export default class UserMessageProcessor {
 		};
 
 		await postToConnectionAsync(connectionId, {
-			type: "assistantMessage",
+			type: "assistantMessageSegment",
 			payload: {
 				chatId: chat.chatId,
 				message: {
@@ -166,6 +165,7 @@ export default class UserMessageProcessor {
 						value: webActivity,
 					},
 				},
+				isLastSegment: false,
 			},
 		});
 
@@ -187,7 +187,7 @@ export default class UserMessageProcessor {
 		console.log(results);
 
 		await postToConnectionAsync(connectionId, {
-			type: "assistantMessage",
+			type: "assistantMessageSegment",
 			payload: {
 				chatId: chat.chatId,
 				message: {
@@ -207,6 +207,7 @@ export default class UserMessageProcessor {
 						}
 					},
 				},
+				isLastSegment: false,
 			},
 		});
 
@@ -249,25 +250,26 @@ export default class UserMessageProcessor {
 			.generateAssistantMessageAsync(chat.messages);
 
 		await postToConnectionAsync(connectionId, {
-			type: "assistantMessage",
+			type: "assistantMessageSegment",
 			payload: {
 				chatId: chat.chatId,
 				message: updatedAssistantMessage,
+				isLastSegment: false,
 			},
 		});
 
 		await Promise.all([
 			postToConnectionAsync(connectionId, {
-				type: "assistantMessage",
+				type: "assistantMessageSegment",
 				payload: {
 					chatId: chat.chatId,
 					message: finalAssistantMessage,
+					isLastSegment: true,
 				},
 			}),
-			this.processAssistantVoiceAsync(connectionId, {
-				chatId: chat.chatId,
-				message: finalAssistantMessage
-			})
+			this.processAssistantVoiceAsync(
+				connectionId, chat, finalAssistantMessage
+			),
 		]);
 
 		chat.messages.push(finalAssistantMessage);
@@ -275,14 +277,12 @@ export default class UserMessageProcessor {
 
 	private async processAssistantVoiceAsync(
 		connectionId: string,
-		{
-			chatId,
-			message,
-		}: AssistantMessagePayload
+		chat: Chat,
+		message: ChatMessage,
 	) {
-		const transcript = message
+		const transcript = (message
 			.content
-			.value
+			.value as string)
 			.replace(/```[\s\S]*?```/g, "");
 
 		if (transcript.length === 0) {
@@ -292,11 +292,11 @@ export default class UserMessageProcessor {
 		const audioSegment = await this.generateAudioSegmentAsync(transcript);
 
 		await postToConnectionAsync(connectionId, {
-			type: "assistantAudio" as const,
+			type: "assistantAudioSegment" as const,
 			payload: {
-				chatId,
+				chatId: chat.chatId,
 				audioSegment,
-			} as AssistantAudioPayload
+			} as AssistantAudioSegmentPayload
 		} as WebSocketMessage);
 	}
 

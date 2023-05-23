@@ -56,8 +56,8 @@ interface GenerateTitleResponse extends BaseResponse {
 
 type WebSocketMessageType =
 	| "userMessage"
-	| "assistantMessage"
-	| "assistantAudio";
+	| "assistantMessageSegment"
+	| "assistantAudioSegment";
 
 interface WebSocketMessage {
 	type: MessageType;
@@ -72,7 +72,11 @@ interface MessagePayload extends BasePayload {
 	message: ChatMessage;
 }
 
-interface AssistantAudio extends BasePayload {
+interface MessageSegmentPayload extends MessagePayload {
+	isLastSegment: boolean;
+}
+
+interface AudioSegmentPayload extends BasePayload {
 	audioSegment: AudioSegment;
 }
 

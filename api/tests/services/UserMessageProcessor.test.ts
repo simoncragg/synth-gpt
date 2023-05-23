@@ -77,7 +77,7 @@ describe("UserMessageProcessor", () => {
 			await userMessageProcessor.process(userMessagePayload);
 
 			for (const line of generatedLines) {
-				expectAssistantMessageToBePostedToClient(
+				expectAssistantMessageSegmentToBePostedToClient(
 					{
 						type: "text",
 						value: line,
@@ -96,7 +96,7 @@ describe("UserMessageProcessor", () => {
 			];
 
 			for (const transcript of spokenLines) {
-				expectAudioMessageToBePostedToClient(transcript, userMessagePayload);
+				expectAudioMessageSegmentToBePostedToClient(transcript, userMessagePayload);
 			}
 		});
 
@@ -174,7 +174,7 @@ describe("UserMessageProcessor", () => {
 					} as SearchingWebAction],
 				} as WebActivity;
 
-				expectAssistantMessageToBePostedToClient(
+				expectAssistantMessageSegmentToBePostedToClient(
 					{
 						type: "webActivity",
 						value: webActivity,
@@ -195,7 +195,7 @@ describe("UserMessageProcessor", () => {
 					results,
 				} as ReadingWebSearchResultsAction;
 
-				expectAssistantMessageToBePostedToClient(
+				expectAssistantMessageSegmentToBePostedToClient(
 					{
 						type: "webActivity",
 						value: {
@@ -210,7 +210,7 @@ describe("UserMessageProcessor", () => {
 					userMessagePayload
 				);
 
-				expectAssistantMessageToBePostedToClient(
+				expectAssistantMessageSegmentToBePostedToClient(
 					{
 						type: "webActivity",
 						value: {
@@ -226,10 +226,38 @@ describe("UserMessageProcessor", () => {
 				);
 			});
 
-			it("should post assistant text responses and audio to client", async () => {
+			it("should post assistant messages to client", async () => {
 				await userMessageProcessor.process(userMessagePayload);
-				expectAudioMessageToBePostedToClient(searchExplanation, userMessagePayload);
-				expectAudioMessageToBePostedToClient(assistantAnswer, userMessagePayload);
+				expectAssistantMessageSegmentToBePostedToClient(
+					{
+						type: "text",
+						value: searchExplanation,
+					},
+					userMessagePayload,
+				);
+
+				expectAssistantMessageSegmentToBePostedToClient(
+					{
+						type: "text",
+						value: searchExplanation,
+					},
+					userMessagePayload,
+				);
+
+				expectAssistantMessageSegmentToBePostedToClient(
+					{
+						type: "text",
+						value: "",
+					},
+					userMessagePayload,
+					true
+				);
+			});
+
+			it("should post audio to client", async () => {
+				await userMessageProcessor.process(userMessagePayload);
+				expectAudioMessageSegmentToBePostedToClient(searchExplanation, userMessagePayload);
+				expectAudioMessageSegmentToBePostedToClient(assistantAnswer, userMessagePayload);
 			});
 
 			it("should update chat database", async () => {
@@ -399,14 +427,15 @@ describe("UserMessageProcessor", () => {
 			);
 	};
 
-	const expectAssistantMessageToBePostedToClient = (
+	const expectAssistantMessageSegmentToBePostedToClient = (
 		content: Content,
-		userMessagePayload: ProcessUserMessagePayload
+		userMessagePayload: ProcessUserMessagePayload,
+		isLastSegment = false
 	) => {
 		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
 			userMessagePayload.connectionId,
 			{
-				type: "assistantMessage",
+				type: "assistantMessageSegment",
 				payload: {
 					chatId: userMessagePayload.chatId,
 					message: {
@@ -415,12 +444,13 @@ describe("UserMessageProcessor", () => {
 						content: content,
 						timestamp: expect.any(Number),
 					},
+					isLastSegment,
 				},
 			},
 		);
 	};
 
-	const expectAudioMessageToBePostedToClient = (
+	const expectAudioMessageSegmentToBePostedToClient = (
 		transcript: string,
 		userMessagePayload: ProcessUserMessagePayload
 	) => {
@@ -428,7 +458,7 @@ describe("UserMessageProcessor", () => {
 		expect(postToConnectionAsyncMock).toHaveBeenCalledWith(
 			connectionId,
 			{
-				type: "assistantAudio",
+				type: "assistantAudioSegment",
 				payload: {
 					chatId,
 					audioSegment: {

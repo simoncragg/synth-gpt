@@ -27,9 +27,9 @@ export default class ChatCompletionService {
 		return this.buildChatMessage(uuidv4(), content);
 	}
 
-	async generateAssistantMessageDeltasAsync(
+	async generateAssistantMessageSegmentsAsync(
 		chatMessages: ChatMessage[],
-		onDeltaReceived: (ChatMessage) => Promise<{ abort: boolean }>
+		onSegmentReceived: (segment: MessageSegment) => Promise<{ abort: boolean }>
 	): Promise<void> {
 		const messages = [
 			{
@@ -48,9 +48,12 @@ export default class ChatCompletionService {
 		await generateChatResponseDeltasAsync(messages, async (delta: string, done: boolean): Promise<{ abort: boolean }> => {
 			content += delta ?? "";
 			if (done || delta?.indexOf("\n") > 0) {
-				const message = this.buildChatMessage(id, content);
+				const segment = {
+					message: this.buildChatMessage(id, content),
+					isLastSegment: done,
+				};
 				content = "";
-				return await onDeltaReceived(message);
+				return await onSegmentReceived(segment);
 			}
 			return { abort: false };
 		});

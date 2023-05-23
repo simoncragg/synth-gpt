@@ -18,7 +18,7 @@ interface GenerateTitleResponseBody extends BaseResponseBody {
 
 /* websocket messages */
 
-type WebSocketMessageType = "assistantMessage" | "assistantAudio";
+type WebSocketMessageType = "assistantMessageSegment" | "assistantAudioSegment";
 
 interface WebSocketMessage {
 	type: WebSocketMessageType;
@@ -29,11 +29,14 @@ interface BaseWebSocketMessagePayload {
 	chatId: string;
 }
 
-interface AssistantMessagePayload extends BaseWebSocketMessagePayload {
+interface MessageSegment {
 	message: BaseMessage;
+	isLastSegment: boolean;
 }
 
-interface AssistantAudioPayload extends BaseWebSocketMessagePayload {
+interface AssistantMessageSegmentPayload extends BaseWebSocketMessagePayload, MessageSegment { }
+
+interface AssistantAudioSegmentPayload extends BaseWebSocketMessagePayload {
 	audioSegment: AudioSegment;
 }
 
