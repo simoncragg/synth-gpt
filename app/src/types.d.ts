@@ -60,7 +60,7 @@ type WebSocketMessageType =
 	| "assistantAudioSegment";
 
 interface WebSocketMessage {
-	type: MessageType;
+	type: WebSocketMessageType;
 	payload: BasePayload;
 }
 
