@@ -9,11 +9,18 @@ import { renderWithProviders } from "../../../utils/test-utils";
 import userEvent from "@testing-library/user-event";
 import ChatOrganiser from "./ChatOrganiser";
 
+const userId = "user-123";
+
+jest.mock("../../auth/hooks/useAuth", () => ({
+	__esModule: true,
+	default: () => ({ userId }),
+}));
+
 describe("ChatOrganiser", () => {
 	const mockChats = [
-		{ chatId: uuidv4(), title: "Chat 1" },
-		{ chatId: uuidv4(), title: "Chat 2" },
-		{ chatId: uuidv4(), title: "Chat 3" },
+		{ chatId: uuidv4(), userId, title: "Chat 1" },
+		{ chatId: uuidv4(), userId, title: "Chat 2" },
+		{ chatId: uuidv4(), userId, title: "Chat 3" },
 	];
 
 	const server = setupServer();
@@ -58,7 +65,10 @@ describe("ChatOrganiser", () => {
 
 	it("auto-generates title for new chat when the assistant response is received.", async () => {
 		const title = "16th US President";
-		const chats = [{ chatId: uuidv4(), title: newChatText }, ...mockChats];
+		const chats = [
+			{ chatId: uuidv4(), userId, title: newChatText },
+			...mockChats,
+		];
 		const chatId = chats.find((chat) => chat.title === newChatText).chatId;
 
 		server.use(

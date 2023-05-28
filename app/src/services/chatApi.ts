@@ -6,10 +6,10 @@ export const chatApi = createApi({
 		baseUrl: process.env.REACT_APP_CHAT_API_BASE_URL,
 	}),
 	endpoints: (build) => ({
-		getChats: build.query<GetChatsResponse, void>({
-			query() {
+		getChats: build.query<GetChatsResponse, string>({
+			query(userId) {
 				return {
-					url: "chats/",
+					url: `chats/?userId=${userId}`,
 					method: "GET",
 				};
 			},

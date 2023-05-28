@@ -11,6 +11,7 @@ import {
 	useGetChatsQuery,
 } from "../../../services/chatApi";
 import { RootStateType } from "../../../store";
+import useAuth from "../../auth/hooks/useAuth";
 import ChatLink from "./ChatLink";
 
 const ChatOrganiser = () => {
@@ -20,20 +21,27 @@ const ChatOrganiser = () => {
 		(state: RootStateType) => state.chat
 	);
 
+	const { userId } = useAuth();
+
 	const {
 		refetch: refetchChats,
 		data: getChatsResponse,
 		isLoading,
-	} = useGetChatsQuery();
+	} = useGetChatsQuery(userId ?? "", {
+		skip: !userId,
+		refetchOnMountOrArgChange: true,
+	});
 
 	const [generateTitle, { data: genTitleResponse }] =
 		useGenerateTitleMutation();
 
 	const [editChatTitle, { data: editChatTitleResponse }] =
 		useEditChatTitleMutation();
+
 	const [deleteChat, { data: deleteChatResponse }] = useDeleteChatMutation();
 
 	useEffect(() => {
+		if (!userId) return;
 		const chats = getChatsResponse?.chats ?? [];
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
 		if (!currentChat) {
@@ -41,7 +49,7 @@ const ChatOrganiser = () => {
 		} else {
 			updateTitleIfNeeded(currentChat);
 		}
-	}, [messages]);
+	}, [userId, messages]);
 
 	useEffect(() => {
 		const chats = getChatsResponse?.chats ?? [];

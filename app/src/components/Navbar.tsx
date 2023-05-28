@@ -1,8 +1,10 @@
+import { useAuth0 } from "@auth0/auth0-react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { AiFillGithub } from "react-icons/ai";
 import { HiOutlineMenuAlt2 } from "react-icons/hi";
+import { MdOutlineLogout } from "react-icons/md";
 import { RiAddFill, RiCloseFill, RiVoiceprintFill } from "react-icons/ri";
 import { RootStateType } from "../store";
 import { newChatText } from "../constants";
@@ -12,6 +14,15 @@ const Navbar = () => {
 	const navigate = useNavigate();
 	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const { title, messages } = useSelector((state: RootStateType) => state.chat);
+	const { isAuthenticated, logout } = useAuth0();
+
+	const handleLogout = async () => {
+		await logout({
+			logoutParams: {
+				returnTo: window.location.origin + "/login",
+			},
+		});
+	};
 
 	return (
 		<>
@@ -71,8 +82,20 @@ const Navbar = () => {
 					</a>
 				</div>
 				<div className="px-4 pb-4 overflow-y-auto bg-gray-800 h-full">
-					<ChatOrganiser />
+					{isAuthenticated && <ChatOrganiser />}
 					<ul className="fixed bottom-0 w-[220px] py-4 mt-4 space-y-2 border-t border-white/20 z-10">
+						<li>
+							{isAuthenticated && (
+								<a
+									href="#"
+									onClick={handleLogout}
+									className="flex items-center p-2 text-base font-normal rounded-lg text-white bg-gray-800 hover:bg-gray-700"
+								>
+									<MdOutlineLogout className="w-6 h-6 text-gray-500" />
+									<span className="flex-1 ml-3 whitespace-nowrap">Log out</span>
+								</a>
+							)}
+						</li>
 						<li>
 							<a
 								href="https://github.com/simoncragg/synth-gpt"

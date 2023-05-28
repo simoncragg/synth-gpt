@@ -66,6 +66,7 @@ interface WebSocketMessage {
 
 interface BasePayload {
 	chatId: string;
+	userId: string;
 }
 
 interface MessagePayload extends BasePayload {

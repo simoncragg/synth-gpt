@@ -4,10 +4,11 @@ import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import schema from "./schema";
 
-const getChats: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async () => {
+const getChats: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	try {
+		const userId = event.queryStringParameters["userId"];
 		const chatRepository = new ChatRepository();
-		const chats = await chatRepository.getByUserIdAsync("user-123");
+		const chats = await chatRepository.getByUserIdAsync(userId);
 		return formatJSONResponse<GetChatsResponseBody>({
 			chats,
 			success: true,

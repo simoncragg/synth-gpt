@@ -25,7 +25,7 @@ describe("getChats", () => {
 
 		chatRepositoryMock.prototype.getByUserIdAsync.mockResolvedValue(chats);
 
-		const event = buildHttpPostEvent(`/${getChats}`, {}, {});
+		const event = buildEvent(`/${getChats}`);
 		const result = await main(event, context);
 
 		expect(result.statusCode).toEqual(200);
@@ -39,7 +39,7 @@ describe("getChats", () => {
 		const error = new Error("An unexpected error occurred whilst processing your request");
 		chatRepositoryMock.prototype.getByUserIdAsync.mockRejectedValue(error);
 
-		const event = buildHttpPostEvent(`/${getChats}`, {}, {});
+		const event = buildEvent(`/${getChats}`);
 		const result = await main(event, context);
 
 		expect(result).toEqual(formatJSONResponse({
@@ -47,4 +47,11 @@ describe("getChats", () => {
 			error: error.message,
 		}, 500));
 	});
+
+	const buildEvent = (path: string) => {
+		return {
+			...buildHttpPostEvent(path, {}, {}),
+			queryStringParameters: { "userId": "user-123" }
+		};
+	};
 });

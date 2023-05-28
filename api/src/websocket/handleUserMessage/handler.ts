@@ -4,11 +4,8 @@ import { isDev } from "../../utils.ts";
 
 export const main: APIGatewayProxyEvent = async (event) => {
 	try {
-		// TODO: set up user auth
-		const userId = "user-123";
-
 		const { payload } = JSON.parse(event.body);
-		const { chatId, message } = payload;
+		const { chatId, message, userId } = payload;
 		const { connectionId } = event.requestContext;
 
 		const eventPayload = {

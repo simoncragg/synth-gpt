@@ -10,6 +10,13 @@ import ChatService from "../services/ChatService";
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
+const userId = "user-123";
+
+jest.mock("../../auth/hooks/useAuth", () => ({
+	__esModule: true,
+	default: () => ({ userId }),
+}));
+
 jest.mock("../../../services/chatApi", () => ({
 	useTextToSpeechMutation: jest.fn(),
 	chatApi: {
@@ -58,6 +65,7 @@ describe("Chat", () => {
 			type: "userMessage" as const,
 			payload: {
 				chatId,
+				userId,
 				message: {
 					id: expect.any(String),
 					role: "user" as const,
@@ -131,6 +139,7 @@ describe("Chat", () => {
 			type: "userMessage" as const,
 			payload: {
 				chatId,
+				userId,
 				message: {
 					id: expect.any(String),
 					role: "user",
