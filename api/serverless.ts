@@ -102,7 +102,7 @@ const serverlessConfiguration: AWS = {
 				domain: {
 					sources: {
 						table: "chats-${opt:stage, 'dev'}",
-						sources: ["./seed/chats.json"]
+						sources: ["./seed/chats.js"]
 					}
 				}
 			},
