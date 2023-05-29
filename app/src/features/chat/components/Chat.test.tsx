@@ -17,7 +17,7 @@ jest.mock("../../auth/hooks/useAuth", () => ({
 	default: () => ({ userId }),
 }));
 
-jest.mock("../../../services/chatApi", () => ({
+jest.mock("../chatApi", () => ({
 	useTextToSpeechMutation: jest.fn(),
 	chatApi: {
 		reducer: {},

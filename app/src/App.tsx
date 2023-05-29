@@ -1,7 +1,7 @@
 import { Navigate, Route, Routes } from "react-router-dom";
 import AuthenticationGuard from "./features/auth/components/AuthenticationGuard";
 import CallbackPage from "./features/auth/pages/CallbackPage";
-import ChatPage from "./pages/ChatPage";
+import ChatPage from "./features/chat/pages/ChatPage";
 import LoginPage from "./features/auth/pages/LoginPage";
 
 const App = () => {

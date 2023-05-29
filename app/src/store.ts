@@ -4,7 +4,7 @@ import {
 	getDefaultMiddleware,
 	PreloadedState,
 } from "@reduxjs/toolkit";
-import { chatApi } from "./services/chatApi";
+import { chatApi } from "./features/chat/chatApi";
 import chatSlice from "./features/chat/chatSlice";
 
 const rootReducer = combineReducers({

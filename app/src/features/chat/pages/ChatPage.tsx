@@ -1,10 +1,10 @@
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { newChat, setActiveChat } from "../features/chat/chatSlice";
-import { useGetChatQuery } from "../services/chatApi";
-import Chat from "../features/chat/components/Chat";
-import Navbar from "../components/Navbar";
+import { newChat, setActiveChat } from "../chatSlice";
+import { useGetChatQuery } from "../chatApi";
+import Chat from "../components/Chat";
+import Navbar from "../../../components/Navbar";
 
 const ChatPage = () => {
 	const dispatch = useDispatch();

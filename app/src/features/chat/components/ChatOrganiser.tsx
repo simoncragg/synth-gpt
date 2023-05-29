@@ -9,7 +9,7 @@ import {
 	useEditChatTitleMutation,
 	useGenerateTitleMutation,
 	useGetChatsQuery,
-} from "../../../services/chatApi";
+} from "../chatApi";
 import { RootStateType } from "../../../store";
 import useAuth from "../../auth/hooks/useAuth";
 import ChatLink from "./ChatLink";
