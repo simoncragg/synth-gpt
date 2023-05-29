@@ -1,8 +1,8 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
-import { ChatRepository } from "@repositories/ChatRepository";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { generateChatResponseAsync } from "@clients/openaiApiClient";
 import { middyfy } from "@libs/lambda";
+import ChatRepository from "@repositories/ChatRepository";
 import schema from "./schema";
 
 const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {

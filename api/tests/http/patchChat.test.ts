@@ -2,7 +2,7 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { main } from "@handlers/http/patchChat/handler";
-import { ChatRepository } from "@repositories/ChatRepository";
+import ChatRepository from "@repositories/ChatRepository";
 
 jest.mock("@repositories/ChatRepository");
 

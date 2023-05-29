@@ -1,8 +1,8 @@
 import { buildHttpPostEvent, buildContext } from "./builders";
 import { mocked } from "jest-mock";
 import { generateChatResponseAsync } from "@clients/openaiApiClient";
-import { ChatRepository } from "@repositories/ChatRepository";
 import { main } from "@handlers/http/generateTitle/handler";
+import ChatRepository from "@repositories/ChatRepository";
 
 jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");

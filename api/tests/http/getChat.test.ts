@@ -3,7 +3,7 @@ import { buildHttpPostEvent, buildContext } from "./builders";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { mocked } from "jest-mock";
 import { main } from "@handlers/http/getChat/handler";
-import { ChatRepository } from "@repositories/ChatRepository";
+import ChatRepository from "@repositories/ChatRepository";
 
 jest.mock("@repositories/ChatRepository");
 

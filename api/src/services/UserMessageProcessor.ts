@@ -2,8 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 import { newChatText } from "../constants";
 import { performWebSearchAsync } from "@clients/bingSearchApiClient";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
-import { ChatRepository } from "@repositories/ChatRepository";
 import ChatCompletionService from "@services/ChatCompletionService";
+import ChatRepository from "@repositories/ChatRepository";
 import TextToSpeechService from "@services/TextToSpeechService";
 
 export default class UserMessageProcessor {

@@ -1,7 +1,7 @@
 import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
-import { ChatRepository } from "@repositories/ChatRepository";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
+import ChatRepository from "@repositories/ChatRepository";
 import schema from "./schema";
 
 const getChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {

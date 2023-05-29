@@ -2,7 +2,7 @@ import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
 const chatsTableName = `chats-${process.env.STAGE}`;
 
-export class ChatRepository {
+export default class ChatRepository {
 	private readonly documentClient: DocumentClient;
 
 	constructor() {
