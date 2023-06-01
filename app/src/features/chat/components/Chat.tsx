@@ -14,20 +14,13 @@ import { RootStateType } from "../../../store";
 
 const Chat = () => {
 	const dispatch = useDispatch();
-
 	const { userId } = useAuth();
-
-	const [isAwaitingFirstAudioSegment, setIsAwaitingFirstAudioSegment] =
-		useState(false);
-
-	const [isShowingTypingIndicator, setIsShowingTypingIndicator] =
-		useState(false);
-
+	const { queueAudio } = useAudioPlayer();
 	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
 	);
-
-	const { queueAudio } = useAudioPlayer();
+	const [isAwaitingAudio, setIsAwaitingAudio] = useState(false);
+	const [isTyping, setIsTyping] = useState(false);
 
 	useEffect(() => {
 		chatService.current?.connect();
@@ -42,7 +35,7 @@ const Chat = () => {
 
 	const onTranscriptionEnded = (transcript: string) => {
 		const message = composeMessage(transcript, attachments);
-		setIsAwaitingFirstAudioSegment(true);
+		setIsAwaitingAudio(true);
 		dispatch(addOrUpdateMessage({ message }));
 
 		chatService.current?.send({
@@ -101,14 +94,14 @@ const Chat = () => {
 	const processMessageSegmentPayload = (payload: MessageSegmentPayload) => {
 		const { message, isLastSegment } = payload;
 
-		setIsShowingTypingIndicator(false);
+		setIsTyping(false);
 		if (typingIndicatorTimerRef.current) {
 			clearTimeout(typingIndicatorTimerRef.current);
 		}
 
 		if (!isLastSegment) {
 			typingIndicatorTimerRef.current = setTimeout(() => {
-				setIsShowingTypingIndicator(true);
+				setIsTyping(true);
 			}, 1500);
 		}
 		dispatch(
@@ -119,7 +112,7 @@ const Chat = () => {
 	};
 
 	const processAudioSegmentPayload = (payload: AudioSegmentPayload) => {
-		setIsAwaitingFirstAudioSegment(false);
+		setIsAwaitingAudio(false);
 		queueAudio(payload.audioSegment);
 	};
 
@@ -145,16 +138,14 @@ const Chat = () => {
 
 			<div className="flex flex-col w-full mb-[100px]">
 				<ChatLog />
-				{isShowingTypingIndicator && (
-					<TypingIndicator className="flex ml-6 -mt-8" />
-				)}
+				{isTyping && <TypingIndicator className="flex ml-6 -mt-8" />}
 			</div>
 
 			<div ref={scrollToTargetRef} data-testid="scroll-target"></div>
 
 			<div className="fixed sm:left-[256px] bottom-0 w-full sm:w-[calc(100vw-256px)] overflow-y-hidden">
 				<div className="flex flex-col left-0 items-center mb-4">
-					{isAwaitingFirstAudioSegment ? (
+					{isAwaitingAudio ? (
 						<div className="relative bg-slate-900 rounded-full p-2">
 							<div className="loader w-[70px] h-[70px] rounded-full z-50"></div>
 						</div>
