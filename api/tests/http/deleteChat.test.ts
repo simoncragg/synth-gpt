@@ -1,19 +1,20 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
-import { buildHttpPostEvent, buildContext } from "./builders";
-import { main } from "@handlers/http/deleteChat/handler";
+
 import ChatRepository from "@repositories/ChatRepository";
+import { buildContext, buildHttpDeleteEvent } from "./builders";
+import { deleteChat } from "@handlers/http/deleteChat/handler";
 
 jest.mock("@repositories/ChatRepository");
 
 describe("deleteChat handler", () => {
-	const context = buildContext("chats");
+	const context = buildContext("deleteChat");
 	const chatId = uuidv4();
 	const chatRepositoryMock = mocked(ChatRepository);
 
 	it("should successfully deleted chat for given chatId", async () => {
-		const event = buildHttpPostEvent(`/chats/${chatId}`, {}, { chatId });
-		const result = await main(event, context);
+		const event = buildHttpDeleteEvent(`/chats/${chatId}`, {}, { chatId });
+		const result = await deleteChat(event, context, null);
 
 		expect(ChatRepository.prototype.deleteByChatIdAsync)
 			.toHaveBeenCalledWith(chatId);
@@ -30,8 +31,8 @@ describe("deleteChat handler", () => {
 		const errorMessage = "An unexpected error occurred whilst processing your request";
 		chatRepositoryMock.prototype.deleteByChatIdAsync.mockRejectedValue(new Error(errorMessage));
 
-		const event = buildHttpPostEvent(`/chats/${chatId}`, {}, { chatId });
-		const result = await main(event, context);
+		const event = buildHttpDeleteEvent(`/chats/${chatId}`, {}, { chatId });
+		const result = await deleteChat(event, context, null);
 
 		expect(result).toEqual({
 			statusCode: 500,

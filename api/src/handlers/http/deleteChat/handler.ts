@@ -4,7 +4,7 @@ import { middyfy } from "@libs/lambda";
 import ChatRepository from "@repositories/ChatRepository";
 import schema from "./schema";
 
-const deleteChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
+export const deleteChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	const { chatId } = event.pathParameters;
 	try {
 		const chatRepository = new ChatRepository();

@@ -5,7 +5,7 @@ import { middyfy } from "@libs/lambda";
 import ChatRepository from "@repositories/ChatRepository";
 import schema from "./schema";
 
-const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
+export const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	try {
 		console.time("generateTitle");
 

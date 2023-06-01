@@ -1,15 +1,14 @@
-import { v4 as uuidv4 } from "uuid";
-import { buildHttpPostEvent, buildContext } from "./builders";
-import { formatJSONResponse } from "@libs/api-gateway";
 import { mocked } from "jest-mock";
-import { main } from "@handlers/http/getChats/handler";
+import { v4 as uuidv4 } from "uuid";
+
 import ChatRepository from "@repositories/ChatRepository";
+import { buildContext, buildHttpGetEvent } from "./builders";
+import { getChats } from "@handlers/http/getChats/handler";
 
 jest.mock("@repositories/ChatRepository");
 
 describe("getChats", () => {
-	const getChats = "getChats";
-	const context = buildContext(getChats);
+	const context = buildContext("getChats");
 	const chatRepositoryMock = mocked(ChatRepository);
 
 	it("should return an array of chats when successful", async () => {
@@ -21,17 +20,19 @@ describe("getChats", () => {
 				createdTime: Date.now(),
 				updatedTime: Date.now(),
 			}
-		] as ChatWithoutMessages[];
+		];
 
 		chatRepositoryMock.prototype.getByUserIdAsync.mockResolvedValue(chats);
 
-		const event = buildEvent(`/${getChats}`);
-		const result = await main(event, context);
+		const event = buildHttpGetEvent("/chats", {}, { "userId": "user-123" });
+		const result = await getChats(event, context, null);
 
-		expect(result.statusCode).toEqual(200);
-		expect(JSON.parse(result.body)).toEqual({
-			success: true,
-			chats
+		expect(result).toEqual({
+			statusCode: 200,
+			body: JSON.stringify({
+				chats,
+				success: true,
+			})
 		});
 	});
 
@@ -39,19 +40,15 @@ describe("getChats", () => {
 		const error = new Error("An unexpected error occurred whilst processing your request");
 		chatRepositoryMock.prototype.getByUserIdAsync.mockRejectedValue(error);
 
-		const event = buildEvent(`/${getChats}`);
-		const result = await main(event, context);
+		const event = buildHttpGetEvent("/chats", {}, { "userId": "user-123" });
+		const result = await getChats(event, context, null);
 
-		expect(result).toEqual(formatJSONResponse({
-			success: false,
-			error: error.message,
-		}, 500));
+		expect(result).toEqual({
+			statusCode: 500,
+			body: JSON.stringify({
+				success: false,
+				error: error.message,
+			})
+		});
 	});
-
-	const buildEvent = (path: string) => {
-		return {
-			...buildHttpPostEvent(path, {}, {}),
-			queryStringParameters: { "userId": "user-123" }
-		};
-	};
 });

@@ -1,9 +1,55 @@
-import { JsonValue } from "type-fest";
+//import { JsonValue } from "type-fest";
 
-export function buildHttpPostEvent(path: string, body: JsonValue, pathParameters: { [key: string]: string } = null) {
+export function buildHttpGetEvent(
+	path: string,
+	pathParameters: { [key: string]: string },
+	queryStringParameters: { [key: string]: string } = null,
+) {
+	return {
+		body: null,
+		httpMethod: "GET",
+		headers: {},
+		multiValueHeaders: {},
+		isBase64Encoded: false,
+		path,
+		pathParameters,
+		queryStringParameters,
+		multiValueQueryStringParameters: null,
+		stageVariables: null,
+		requestContext: null,
+		resource: null,
+	};
+}
+
+export function buildHttpPatchEvent<T>(
+	path: string,
+	body: T,
+	pathParameters: { [key: string]: string } = null
+) {
+	return {
+		...buildHttpPostEvent<T>(path, body, pathParameters),
+		httpMethod: "PATCH",
+	};
+}
+
+export function buildHttpDeleteEvent<T>(
+	path: string,
+	body: T,
+	pathParameters: { [key: string]: string } = null
+) {
+	return {
+		...buildHttpPostEvent<T>(path, body, pathParameters),
+		httpMethod: "DELETE",
+	};
+}
+
+export function buildHttpPostEvent<T>(
+	path: string,
+	body: T,
+	pathParameters: { [key: string]: string } = null
+) {
 	return {
 		body,
-		rawBody: JSON.stringify(body),
 		httpMethod: "POST",
 		headers: {},
 		multiValueHeaders: {},

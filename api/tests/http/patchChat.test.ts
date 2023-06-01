@@ -1,10 +1,15 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
-import { buildHttpPostEvent, buildContext } from "./builders";
-import { main } from "@handlers/http/patchChat/handler";
+
 import ChatRepository from "@repositories/ChatRepository";
+import { buildContext, buildHttpPatchEvent } from "./builders";
+import { patchChat } from "@handlers/http/patchChat/handler";
 
 jest.mock("@repositories/ChatRepository");
+
+type PatchChatRequestBodyType = {
+	title: string;
+};
 
 describe("patch chat handler", () => {
 	const chatId = uuidv4();
@@ -15,8 +20,10 @@ describe("patch chat handler", () => {
 	it("should patch the chat in the ChatRepository", async () => {
 		jest.spyOn(chatRepositoryMock.prototype, "updateTitleAsync");
 
-		const event = buildHttpPostEvent(`/chats/${chatId}`, { title }, { chatId });
-		const result = await main(event, context);
+		const event = buildHttpPatchEvent<PatchChatRequestBodyType>(
+			`/chats/${chatId}`, { title }, { chatId }
+		);
+		const result = await patchChat(event, context, null);
 
 		expect(chatRepositoryMock.prototype.updateTitleAsync)
 			.toHaveBeenCalledWith(chatId, title);
@@ -33,8 +40,10 @@ describe("patch chat handler", () => {
 		const errorMessage = "An unexpected error occurred whilst processing your request";
 		chatRepositoryMock.prototype.updateTitleAsync.mockRejectedValue(new Error(errorMessage));
 
-		const event = buildHttpPostEvent(`/chats/${chatId}`, { title }, { chatId });
-		const result = await main(event, context);
+		const event = buildHttpPatchEvent<PatchChatRequestBodyType>(
+			`/chats/${chatId}`, { title }, { chatId }
+		);
+		const result = await patchChat(event, context, null);
 
 		expect(result).toEqual({
 			statusCode: 500,

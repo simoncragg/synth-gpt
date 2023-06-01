@@ -1,20 +1,20 @@
-import { v4 as uuidv4 } from "uuid";
-import { buildHttpPostEvent, buildContext } from "./builders";
-import { formatJSONResponse } from "@libs/api-gateway";
 import { mocked } from "jest-mock";
-import { main } from "@handlers/http/getChat/handler";
+import { v4 as uuidv4 } from "uuid";
+
 import ChatRepository from "@repositories/ChatRepository";
+import { buildContext, buildHttpGetEvent } from "./builders";
+import { getChat } from "@handlers/http/getChat/handler";
 
 jest.mock("@repositories/ChatRepository");
 
 describe("getChat", () => {
-	const getChat = "getChat";
-	const context = buildContext(getChat);
+	const chatId = uuidv4();
+	const context = buildContext("getChat");
 	const chatRepositoryMock = mocked(ChatRepository);
 
 	it("should return chat when successful", async () => {
 		const chat = {
-			chatId: uuidv4(),
+			chatId,
 			title: "Chat 1",
 			userId: "user-123",
 			messages: [],
@@ -24,13 +24,15 @@ describe("getChat", () => {
 
 		chatRepositoryMock.prototype.getByChatIdAsync.mockResolvedValue(chat);
 
-		const event = buildHttpPostEvent(`/${getChat}`, {}, {});
-		const result = await main(event, context);
+		const event = buildHttpGetEvent("/chat/", { chatId });
+		const result = await getChat(event, context, null);
 
-		expect(result.statusCode).toEqual(200);
-		expect(JSON.parse(result.body)).toEqual({
-			success: true,
-			chat,
+		expect(result).toEqual({
+			statusCode: 200,
+			body: JSON.stringify({
+				chat,
+				success: true,
+			})
 		});
 	});
 
@@ -38,12 +40,15 @@ describe("getChat", () => {
 		const error = new Error("An unexpected error occurred whilst processing your request");
 		chatRepositoryMock.prototype.getByChatIdAsync.mockRejectedValue(error);
 
-		const event = buildHttpPostEvent(`/${getChat}`, {}, {});
-		const result = await main(event, context);
+		const event = buildHttpGetEvent("/chat", { chatId }, {});
+		const result = await getChat(event, context, null);
 
-		expect(result).toEqual(formatJSONResponse({
-			success: false,
-			error: error.message,
-		}, 500));
+		expect(result).toEqual({
+			statusCode: 500,
+			body: JSON.stringify({
+				success: false,
+				error: error.message,
+			})
+		});
 	});
 });
