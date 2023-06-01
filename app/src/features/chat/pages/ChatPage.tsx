@@ -1,20 +1,28 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { useDispatch } from "react-redux";
 import { useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { newChat, setActiveChat } from "../chatSlice";
-import { useGetChatQuery } from "../chatApi";
+
 import Chat from "../components/Chat";
 import Navbar from "../../../components/Navbar";
+import useAuth from "../../auth/hooks/useAuth";
+import { newChat, setActiveChat } from "../chatSlice";
+import { useLazyGetChatQuery } from "../chatApi";
 
 const ChatPage = () => {
 	const dispatch = useDispatch();
 	const location = useLocation();
-	const chatId = useParams().chatId ?? null;
+	const chatId = useParams().chatId;
+	const { accessToken } = useAuth();
 
-	const { data: getChatResponse, isFetching } = useGetChatQuery(chatId ?? "", {
-		skip: !chatId,
-		refetchOnMountOrArgChange: true,
-	});
+	const [getChat, { data: getChatResponse, isFetching }] =
+		useLazyGetChatQuery();
+
+	useEffect(() => {
+		if (chatId && accessToken) {
+			getChat({ chatId, accessToken });
+		}
+	}, [chatId, accessToken]);
 
 	useEffect(() => {
 		if (location.pathname === "/chat") {

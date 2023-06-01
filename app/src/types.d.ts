@@ -1,3 +1,5 @@
+/* slice states */
+
 /* Chat State */
 
 interface ChatState {
@@ -6,6 +8,11 @@ interface ChatState {
 	transcript: string;
 	attachments: CodeAttachment[];
 	messages: ChatMessage[];
+}
+
+/* Auth State */
+interface AuthState {
+	accessToken: string | null;
 }
 
 /* http api models */
@@ -17,20 +24,24 @@ interface BaseResponse {
 
 /* GetChat */
 
+interface GetChatRequest {
+	chatId: string;
+	accessToken: string;
+}
+
 interface GetChatResponse extends BaseResponse {
 	chat: Chat;
 }
 
 /* GetChats */
 
-interface GetChatsResponse extends BaseResponse {
-	chats: Chat[];
+interface GetChatsRequest {
+	userId: string;
+	accessToken: string;
 }
 
-/* Delete Chat */
-
-interface DeleteChatRequest {
-	chatId: string;
+interface GetChatsResponse extends BaseResponse {
+	chats: Chat[];
 }
 
 /* Edit Chat Title */
@@ -38,6 +49,14 @@ interface DeleteChatRequest {
 interface EditChatTitleRequest {
 	chatId: string;
 	title: string;
+	accessToken: string;
+}
+
+/* Delete Chat */
+
+interface DeleteChatRequest {
+	chatId: string;
+	accessToken: string;
 }
 
 /* Generate Title */
@@ -45,6 +64,7 @@ interface EditChatTitleRequest {
 interface GenerateTitleRequest {
 	chatId: string;
 	message: string;
+	accessToken: string;
 }
 
 interface GenerateTitleResponse extends BaseResponse {

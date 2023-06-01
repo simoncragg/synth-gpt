@@ -10,10 +10,11 @@ import userEvent from "@testing-library/user-event";
 import ChatOrganiser from "./ChatOrganiser";
 
 const userId = "user-123";
+const accessToken = "dummy-access-token";
 
 jest.mock("../../auth/hooks/useAuth", () => ({
 	__esModule: true,
-	default: () => ({ userId }),
+	default: () => ({ userId, accessToken }),
 }));
 
 describe("ChatOrganiser", () => {

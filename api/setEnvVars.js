@@ -4,3 +4,7 @@ process.env.STAGE = "dev";
 process.env.S3_AUDIO_BUCKET_NAME = "synth-audio";
 process.env.CHAT_QUEUE_NAME = "chat-queue-dev.fifo";
 process.env.SQS_OFFLINE_ENDPOINT = "http://0.0.0.0:9324";
+process.env.JWT_ISSUER_DOMAIN = "https://some-domain.uk.auth0.com/";
+process.env.JWT_AUDIENCE = "some-audience";
+process.env.JWT_JWKS_URI =
+	"https://some-domain.uk.auth0.com/.well-known/jwks.json";

@@ -1,18 +1,20 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import { BsPlus } from "react-icons/bs";
+import { TbLoader } from "react-icons/tb";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { BsPlus } from "react-icons/bs";
-import { TbLoader } from "react-icons/tb";
+
+import ChatLink from "./ChatLink";
+import useAuth from "../../auth/hooks/useAuth";
 import { newChatText } from "../../../constants";
 import {
 	useDeleteChatMutation,
 	useEditChatTitleMutation,
 	useGenerateTitleMutation,
-	useGetChatsQuery,
+	useLazyGetChatsQuery,
 } from "../chatApi";
 import { RootStateType } from "../../../store";
-import useAuth from "../../auth/hooks/useAuth";
-import ChatLink from "./ChatLink";
 
 const ChatOrganiser = () => {
 	const navigate = useNavigate();
@@ -21,16 +23,10 @@ const ChatOrganiser = () => {
 		(state: RootStateType) => state.chat
 	);
 
-	const { userId } = useAuth();
+	const { userId, accessToken } = useAuth();
 
-	const {
-		refetch: refetchChats,
-		data: getChatsResponse,
-		isLoading,
-	} = useGetChatsQuery(userId ?? "", {
-		skip: !userId,
-		refetchOnMountOrArgChange: true,
-	});
+	const [getChats, { data: getChatsResponse, isFetching }] =
+		useLazyGetChatsQuery();
 
 	const [generateTitle, { data: genTitleResponse }] =
 		useGenerateTitleMutation();
@@ -41,15 +37,20 @@ const ChatOrganiser = () => {
 	const [deleteChat, { data: deleteChatResponse }] = useDeleteChatMutation();
 
 	useEffect(() => {
-		if (!userId) return;
+		if (userId && accessToken) {
+			getChats({ userId, accessToken });
+		}
+	}, [userId, accessToken]);
+
+	useEffect(() => {
 		const chats = getChatsResponse?.chats ?? [];
 		const currentChat = chats.find((chat) => chat.chatId === chatId);
-		if (!currentChat) {
-			refetchChats();
+		if (!currentChat && userId && accessToken) {
+			getChats({ userId, accessToken });
 		} else {
 			updateTitleIfNeeded(currentChat);
 		}
-	}, [userId, messages]);
+	}, [messages, userId, accessToken]);
 
 	useEffect(() => {
 		const chats = getChatsResponse?.chats ?? [];
@@ -58,16 +59,16 @@ const ChatOrganiser = () => {
 	}, [getChatsResponse]);
 
 	useEffect(() => {
-		if (genTitleResponse?.title) {
-			refetchChats();
+		if (genTitleResponse?.title && userId && accessToken) {
+			getChats({ userId, accessToken });
 		}
-	}, [genTitleResponse]);
+	}, [genTitleResponse, userId, accessToken]);
 
 	useEffect(() => {
-		if (editChatTitleResponse?.success) {
-			refetchChats();
+		if (editChatTitleResponse?.success && userId && accessToken) {
+			getChats({ userId, accessToken });
 		}
-	}, [editChatTitleResponse]);
+	}, [editChatTitleResponse, userId, accessToken]);
 
 	useEffect(() => {
 		if (deleteChatResponse?.success) {
@@ -78,10 +79,11 @@ const ChatOrganiser = () => {
 	const updateTitleIfNeeded = (chat: Chat | undefined) => {
 		if (chat?.title === newChatText) {
 			const lastMessage = messages[messages.length - 1];
-			if (lastMessage.content.type === "text") {
+			if (lastMessage.content.type === "text" && accessToken) {
 				generateTitle({
 					chatId,
 					message: lastMessage.content.value as string,
+					accessToken,
 				});
 			}
 		}
@@ -100,7 +102,7 @@ const ChatOrganiser = () => {
 				{newChatText}
 			</button>
 
-			{isLoading ? (
+			{isFetching ? (
 				<div className="flex justify-center items-center h-[75%]">
 					<TbLoader
 						data-testid="chat-org-spinner"
@@ -116,10 +118,16 @@ const ChatOrganiser = () => {
 									key={`chat-link-${chat.chatId}`}
 									chat={chat}
 									isSelected={chat.chatId === chatId}
-									editChatTitle={(chatId, title) =>
-										editChatTitle({ chatId, title })
-									}
-									deleteChat={(chatId) => deleteChat({ chatId })}
+									editChatTitle={(chatId, title) => {
+										if (accessToken) {
+											editChatTitle({ chatId, title, accessToken });
+										}
+									}}
+									deleteChat={(chatId) => {
+										if (accessToken) {
+											deleteChat({ chatId, accessToken });
+										}
+									}}
 								/>
 							);
 						})}
