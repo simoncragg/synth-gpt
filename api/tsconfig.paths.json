@@ -7,7 +7,7 @@
 			"@libs/*": ["src/libs/*"],
 			"@repositories/*": ["src/repositories/*"],
 			"@services/*": ["src/services/*"],
-			"@websocket/*": ["src/websocket/*"],
+			"@websocket/*": ["src/handlers/websocket/*"],
 		}
 	}
 }

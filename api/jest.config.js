@@ -13,6 +13,7 @@ module.exports = {
 		"^@libs/(.*)": "<rootDir>/src/libs/$1",
 		"^@repositories/(.*)": "<rootDir>/src/repositories/$1",
 		"^@services/(.*)": ["<rootDir>/src/services/$1"],
+		"^@websocket/(.*)": "<rootDir>/src/handlers/websocket/$1",
 	},
 	collectCoverageFrom: ["src/**/*.ts"],
 };

@@ -1,6 +1,6 @@
 import { Lambda } from "aws-sdk";
 import { formatJSONResponse } from "@libs/api-gateway";
-import { isDev } from "../../utils.ts";
+import { isDev } from "../../../utils.ts";
 
 export const main: APIGatewayProxyEvent = async (event) => {
 	try {
