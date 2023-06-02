@@ -1,3 +1,4 @@
+import type { APIGatewayProxyEvent } from "aws-lambda";
 import { formatJSONResponse } from "@libs/api-gateway";
 
 const connect = async (event: APIGatewayProxyEvent) => {

@@ -1,4 +1,6 @@
+import type { APIGatewayProxyEvent } from "aws-lambda";
 import { Lambda } from "aws-sdk";
+
 import { formatJSONResponse } from "@libs/api-gateway";
 import { isDev } from "../../../utils.ts";
 
