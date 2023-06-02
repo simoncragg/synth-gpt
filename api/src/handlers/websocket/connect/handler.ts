@@ -1,5 +1,4 @@
 import { formatJSONResponse } from "@libs/api-gateway";
-import { middyfy } from "@libs/lambda";
 
 const connect = async (event: APIGatewayProxyEvent) => {
 	const { connectionId } = event.requestContext;
@@ -21,4 +20,4 @@ const connect = async (event: APIGatewayProxyEvent) => {
 	}
 };
 
-export const main = middyfy(connect);
+export const main = connect;

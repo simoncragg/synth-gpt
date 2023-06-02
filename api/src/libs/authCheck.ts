@@ -14,10 +14,6 @@ const authCheck = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyR
 	const before: middy.MiddlewareFn<APIGatewayProxyEvent, APIGatewayProxyResult> = async (
 		request
 	): Promise<APIGatewayProxyResult> => {
-		const { routeKey } = request.event.requestContext;
-		if (routeKey === "$connect" || routeKey === "$userMessage" || routeKey === "$disconnect")
-			return;
-
 		const authorization = request.event.headers["authorization"];
 		const jwt = authorization.replace("Bearer ", "");
 		try {

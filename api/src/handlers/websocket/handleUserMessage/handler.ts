@@ -2,7 +2,7 @@ import { Lambda } from "aws-sdk";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { isDev } from "../../../utils.ts";
 
-export const main = async (event: APIGatewayProxyEvent) => {
+const handleUserMessage = async (event: APIGatewayProxyEvent) => {
 	try {
 		const { payload } = JSON.parse(event.body);
 		const { chatId, message, userId } = payload;
@@ -47,3 +47,5 @@ function createLambda() {
 		})
 		: new Lambda();
 }
+
+export const main = handleUserMessage;

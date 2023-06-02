@@ -1,5 +1,4 @@
 import { formatJSONResponse } from "@libs/api-gateway";
-import { middyfy } from "@libs/lambda";
 
 const disconnect = async (event: APIGatewayProxyEvent) => {
 	const { connectionId } = event.requestContext;
@@ -18,4 +17,4 @@ const disconnect = async (event: APIGatewayProxyEvent) => {
 	}
 };
 
-export const main = middyfy(disconnect);
+export const main = disconnect;
