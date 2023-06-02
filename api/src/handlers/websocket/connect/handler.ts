@@ -1,7 +1,7 @@
 import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 
-const connect: APIGatewayProxyEvent = async (event) => {
+const connect = async (event: APIGatewayProxyEvent) => {
 	const { connectionId } = event.requestContext;
 	try {
 		console.log("Connection established: ", connectionId);
