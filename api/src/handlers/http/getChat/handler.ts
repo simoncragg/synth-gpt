@@ -24,7 +24,7 @@ export const getChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async 
 		});
 	}
 	catch (error) {
-		console.log(error, { level: "error" });
+		console.error(error);
 		return formatJSONResponse<BaseResponseBody>({
 			success: false,
 			error:

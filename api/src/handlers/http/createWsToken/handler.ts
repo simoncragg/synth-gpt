@@ -32,7 +32,7 @@ export const createWsToken: ValidatedEventAPIGatewayProxyEvent<typeof schema> = 
 		});
 	}
 	catch (error) {
-		console.log(error, { level: "error" });
+		console.error(error);
 		return formatJSONResponse<BaseResponseBody>({
 			success: false,
 			error:

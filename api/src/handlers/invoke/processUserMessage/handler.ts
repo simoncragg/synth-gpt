@@ -9,7 +9,7 @@ export const main: Handler = async (event) => {
 		await userMessageProcessor.process(event);
 
 	} catch (error) {
-		console.log(error, { level: "error" });
+		console.error(error);
 	}
 	finally {
 		console.timeEnd("processUserMessage");

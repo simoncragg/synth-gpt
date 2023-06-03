@@ -10,7 +10,7 @@ const disconnect = async (event: APIGatewayProxyEvent) => {
 		});
 	}
 	catch (error) {
-		console.log(error, { level: "error" });
+		console.error(error);
 		return formatJSONResponse<BaseResponseBody>({
 			success: false,
 			error: "An unexpected error occurred whilst attempting to disconnect"

@@ -27,7 +27,7 @@ export default class ChatService {
 	send(message: WebSocketMessage): void {
 		if (!this.socket) {
 			const error = "WebSocket connection not established";
-			console.log(error, { level: "error" });
+			console.error(error);
 			throw new Error(error);
 		}
 		console.log("Sending message", message);

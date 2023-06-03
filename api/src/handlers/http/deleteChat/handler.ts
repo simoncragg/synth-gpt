@@ -14,7 +14,7 @@ export const deleteChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = asy
 		});
 	}
 	catch (error) {
-		console.log(error, { level: "error" });
+		console.error(error);
 		return formatJSONResponse<BaseResponseBody>({
 			success: false,
 			error: "An unexpected error occurred whilst processing your request"
