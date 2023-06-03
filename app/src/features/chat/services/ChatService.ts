@@ -11,8 +11,9 @@ export default class ChatService {
 		this.onMessageReceived = onMessageReceived;
 	}
 
-	connect(): void {
-		const socketUrl = "ws://localhost:4001";
+	connect(tokenId: string): void {
+		const baseSocketUrl = process.env.SOCKET_URL ?? "ws://localhost:4001/";
+		const socketUrl = `${baseSocketUrl}?tokenId=${tokenId}`;
 		this.socket = new WebSocket(socketUrl);
 		this.socket.addEventListener("open", () => {
 			console.log("WebSocket connection opened");

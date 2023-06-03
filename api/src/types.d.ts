@@ -16,6 +16,11 @@ interface GenerateTitleResponseBody extends BaseResponseBody {
 	title: string;
 }
 
+interface WebSocketTokenResponseBody extends BaseResponseBody {
+	tokenId: string;
+	expiryTime: number;
+}
+
 /* websocket messages */
 
 type WebSocketMessageType = "assistantMessageSegment" | "assistantAudioSegment";
@@ -55,6 +60,16 @@ interface ProcessUserMessagePayload {
 }
 
 /* models */
+
+interface WebSocketToken {
+	tokenId: string;
+	userId: string;
+	connectionId?: string;
+	createdTime: number;
+	expiryTime: number;
+	claimedTime?: number;
+	timeToLive: number;
+}
 
 interface Chat {
 	chatId: string;

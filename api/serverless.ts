@@ -5,6 +5,7 @@ import disconnect from "@websocket/disconnect";
 import generateTitle from "@handlers/http/generateTitle";
 import getChat from "@handlers/http/getChat";
 import getChats from "@handlers/http/getChats";
+import createWsToken from "@handlers/http/createWsToken";
 import handleUserMessage from "@websocket/handleUserMessage";
 import patchChat from "@handlers/http/patchChat";
 import processUserMessage from "@handlers/invoke/processUserMessage";
@@ -134,6 +135,7 @@ const serverlessConfiguration: AWS = {
 		getChat,
 		getChats,
 		patchChat,
+		createWsToken,
 		// websocket
 		connect,
 		handleUserMessage,
@@ -174,6 +176,30 @@ const serverlessConfiguration: AWS = {
 					BillingMode: "PAY_PER_REQUEST",
 					StreamSpecification: {
 						StreamViewType: "NEW_AND_OLD_IMAGES"
+					},
+				},
+			},
+			wsTokenTable: {
+				Type: "AWS::DynamoDB::Table",
+				Properties: {
+					TableName: "ws-token-${opt:stage, 'dev'}",
+					AttributeDefinitions: [
+						{ AttributeName: "tokenId", AttributeType: "S" },
+					],
+					KeySchema: [
+						{ AttributeName: "tokenId", KeyType: "HASH" },
+					],
+					ProvisionedThroughput: {
+						ReadCapacityUnits: 1,
+						WriteCapacityUnits: 1,
+					},
+					BillingMode: "PAY_PER_REQUEST",
+					StreamSpecification: {
+						StreamViewType: "NEW_AND_OLD_IMAGES"
+					},
+					TimeToLiveSpecification: {
+						AttributeName: "timeToLive",
+						Enabled: true,
 					},
 				},
 			},

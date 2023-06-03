@@ -72,6 +72,18 @@ interface GenerateTitleResponse extends BaseResponse {
 	title: string;
 }
 
+/* CreateWsToken */
+
+interface CreateWsTokenRequest {
+	userId: string;
+	accessToken: string;
+}
+
+interface CreateWsTokenResponse {
+	tokenId: string;
+	expiryTime: number;
+}
+
 /* websocket messages */
 
 type WebSocketMessageType =

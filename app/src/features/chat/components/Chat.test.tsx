@@ -1,28 +1,25 @@
 import { fireEvent } from "@testing-library/react";
 import { mocked } from "jest-mock";
+import { rest } from "msw";
+import { setupServer } from "msw/node";
 import { v4 as uuidv4 } from "uuid";
+import { waitFor } from "@testing-library/react";
 import { within } from "@testing-library/dom";
+
+import Chat from "./Chat";
+import ChatService from "../services/ChatService";
 import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
 import { useSpeechRecognition } from "react-speech-recognition";
-import Chat from "./Chat";
-import ChatService from "../services/ChatService";
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
-const userId = "user-123";
-
 jest.mock("../../auth/hooks/useAuth", () => ({
 	__esModule: true,
-	default: () => ({ userId }),
-}));
-
-jest.mock("../chatApi", () => ({
-	useTextToSpeechMutation: jest.fn(),
-	chatApi: {
-		reducer: {},
-		middleware: [],
-	},
+	default: () => ({
+		userId: "user-123",
+		accessToken: "access-token-123",
+	}),
 }));
 
 jest.mock("react-speech-recognition", () => ({
@@ -36,16 +33,39 @@ jest.mock("react-speech-recognition", () => ({
 
 jest.mock("../services/ChatService");
 
+const server = setupServer(
+	rest.post("*/auth/createWsToken", (req, res, ctx) => {
+		return res(
+			ctx.json({
+				tokenId: "token-123",
+				expiryTime: Date.now() + 30000,
+				success: true,
+			})
+		);
+	})
+);
+
 describe("Chat", () => {
+	const tokenId = "token-123";
+	const userId = "user-123";
 	const chatId = uuidv4();
 	const transcript = "this is a test";
 	const chatServiceMock = mocked(ChatService);
 
-	it("should establish a connection for chat when mounted", () => {
+	beforeAll(() => {
+		server.listen();
+	});
+
+	afterAll(() => {
+		server.close();
+	});
+
+	it("should establish a connection for chat when mounted", async () => {
 		setupSpeechRecognitionHook(transcript);
 		renderChat(chatId);
-		expect(chatServiceMock).toHaveBeenCalledWith(chatId, expect.any(Function));
-		expect(chatServiceMock.prototype.connect).toHaveBeenCalled();
+		await waitFor(() => {
+			expect(chatServiceMock.prototype.connect).toHaveBeenCalledWith(tokenId);
+		});
 	});
 
 	it("should invoke disconnect when unmounted", () => {

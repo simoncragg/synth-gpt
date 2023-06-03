@@ -4,12 +4,15 @@ import {
 	getDefaultMiddleware,
 	PreloadedState,
 } from "@reduxjs/toolkit";
-import { chatApi } from "./features/chat/chatApi";
+
 import chatSlice from "./features/chat/chatSlice";
+import { authApi } from "./features/auth/authApi";
+import { chatApi } from "./features/chat/chatApi";
 
 const rootReducer = combineReducers({
 	chat: chatSlice.reducer,
 	chatApi: chatApi.reducer,
+	authApi: authApi.reducer,
 });
 
 export const setupStore = (preloadedState?: PreloadedState<RootStateType>) => {
@@ -17,7 +20,7 @@ export const setupStore = (preloadedState?: PreloadedState<RootStateType>) => {
 		reducer: rootReducer,
 		middleware: getDefaultMiddleware({
 			serializableCheck: false,
-		}).concat(chatApi.middleware),
+		}).concat(chatApi.middleware, authApi.middleware),
 		preloadedState,
 	});
 };

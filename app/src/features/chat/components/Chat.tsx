@@ -1,20 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import { addOrUpdateMessage } from "../chatSlice";
-import useAudioPlayer from "../hooks/useAudioPlayer";
-import useAuth from "../../auth/hooks/useAuth";
+
 import AddAttachment from "./AddAttachment";
 import ChatLog from "./ChatLog";
 import ChatService from "../services/ChatService";
 import HeroSection from "../../../components/HeroSection";
 import SpeechToText from "./SpeechToText";
 import TypingIndicator from "../../../components/TypingIndicator";
+import useAudioPlayer from "../hooks/useAudioPlayer";
+import useAuth from "../../auth/hooks/useAuth";
+import { addOrUpdateMessage } from "../chatSlice";
+import { useCreateWsTokenMutation } from "../../auth/authApi";
 import { RootStateType } from "../../../store";
 
 const Chat = () => {
 	const dispatch = useDispatch();
-	const { userId } = useAuth();
+	const { userId, accessToken } = useAuth();
 	const { queueAudio } = useAudioPlayer();
 	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
@@ -22,12 +24,24 @@ const Chat = () => {
 	const [isAwaitingAudio, setIsAwaitingAudio] = useState(false);
 	const [isTyping, setIsTyping] = useState(false);
 
+	const [createWsToken, { data: createWsTokenResponse }] =
+		useCreateWsTokenMutation();
+
 	useEffect(() => {
-		chatService.current?.connect();
+		if (userId && accessToken) {
+			createWsToken({ userId, accessToken });
+		}
+	}, [userId, accessToken]);
+
+	useEffect(() => {
+		const tokenId = createWsTokenResponse?.tokenId;
+		if (tokenId) {
+			chatService.current?.connect(tokenId);
+		}
 		return () => {
 			chatService.current?.disconnect();
 		};
-	}, [userId]);
+	}, [createWsTokenResponse]);
 
 	useEffect(() => {
 		scrollTo(scrollToTargetRef.current);
