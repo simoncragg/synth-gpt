@@ -1,0 +1,19 @@
+version: 0.2
+
+env:
+  shell: bash
+  variables:
+    REGION: "eu-west-1"
+    STAGE: "live"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 16
+  build:
+    on-failure: ABORT
+    commands:
+      - cd api
+      - npm i
+      - npm t
+      - npx serverless deploy --stage live --verbose
