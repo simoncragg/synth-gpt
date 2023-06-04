@@ -18,8 +18,6 @@ describe("patch chat handler", () => {
 	const chatRepositoryMock = mocked(ChatRepository);
 
 	it("should patch the chat in the ChatRepository", async () => {
-		jest.spyOn(chatRepositoryMock.prototype, "updateTitleAsync");
-
 		const event = buildHttpPatchEvent<PatchChatRequestBodyType>(
 			`/chats/${chatId}`, { title }, { chatId }
 		);

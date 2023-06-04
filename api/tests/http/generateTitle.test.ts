@@ -24,7 +24,6 @@ describe("generateTitle handler", () => {
 			role: "assistant" as const,
 			content: generatedTitle,
 		});
-		jest.spyOn(ChatRepository.prototype, "updateTitleAsync");
 
 		const event = buildHttpPostEvent<GenerateTitleRequestBody>(`/chats/${chatId}/generateTitle`, { message }, { chatId });
 		const result = await generateTitle(event, context, null);
