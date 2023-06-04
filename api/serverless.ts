@@ -32,7 +32,6 @@ const serverlessConfiguration: AWS = {
 		environment: {
 			AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
 			NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
-			AWS_ACCOUNT_ID: "000000000000",
 			REGION: "${self:provider.region}",
 			STAGE: "${opt:stage, 'dev'}",
 			OPENAI_API_BASE_URL: "https://api.openai.com/v1",
