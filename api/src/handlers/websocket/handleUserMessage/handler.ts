@@ -20,7 +20,7 @@ const handleUserMessage = async (event: APIGatewayProxyEvent) => {
 		const lambda = createLambda();
 		await lambda.invoke({
 			FunctionName:
-				`aws-nodejs-typescript-${process.env.STAGE}-processUserMessage`,
+				`synth-gpt-${process.env.STAGE}-processUserMessage`,
 			InvocationType: "Event",
 			Payload: JSON.stringify(eventPayload),
 		}).promise();

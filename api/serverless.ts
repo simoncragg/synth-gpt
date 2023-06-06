@@ -11,7 +11,7 @@ import patchChat from "@handlers/http/patchChat";
 import processUserMessage from "@handlers/invoke/processUserMessage";
 
 const serverlessConfiguration: AWS = {
-	service: "aws-nodejs-typescript",
+	service: "synth-gpt",
 	frameworkVersion: "3",
 	plugins: [
 		"serverless-esbuild",
