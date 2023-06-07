@@ -155,10 +155,6 @@ const serverlessConfiguration: AWS = {
 					KeySchema: [
 						{ AttributeName: "chatId", KeyType: "HASH" },
 					],
-					ProvisionedThroughput: {
-						ReadCapacityUnits: 1,
-						WriteCapacityUnits: 1,
-					},
 					GlobalSecondaryIndexes: [
 						{
 							IndexName: "userId-index",
@@ -166,10 +162,6 @@ const serverlessConfiguration: AWS = {
 								{ AttributeName: "userId", KeyType: "HASH" },
 							],
 							Projection: { ProjectionType: "ALL" },
-							ProvisionedThroughput: {
-								ReadCapacityUnits: 1,
-								WriteCapacityUnits: 1,
-							},
 						},
 					],
 					BillingMode: "PAY_PER_REQUEST",
@@ -188,10 +180,6 @@ const serverlessConfiguration: AWS = {
 					KeySchema: [
 						{ AttributeName: "tokenId", KeyType: "HASH" },
 					],
-					ProvisionedThroughput: {
-						ReadCapacityUnits: 1,
-						WriteCapacityUnits: 1,
-					},
 					BillingMode: "PAY_PER_REQUEST",
 					StreamSpecification: {
 						StreamViewType: "NEW_AND_OLD_IMAGES"
