@@ -1,10 +1,8 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import ChatRepository from "@repositories/ChatRepository";
-import schema from "./schema";
 
-export const getChats: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
+export const getChats = async (event) => {
 	try {
 		const userId = event.queryStringParameters["userId"];
 		const chatRepository = new ChatRepository();
