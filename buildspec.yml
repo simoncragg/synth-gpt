@@ -15,5 +15,6 @@ phases:
     commands:
       - cd api
       - npm i
+      - npm update
       - npm t
       - npx serverless deploy --stage live --verbose
