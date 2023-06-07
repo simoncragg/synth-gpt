@@ -211,7 +211,7 @@ const serverlessConfiguration: AWS = {
 							{
 								Id: "DeleteOldObjects",
 								Status: "Enabled",
-								ExpirationInDays: 0.02
+								ExpirationInDays: 1
 							}
 						]
 					}
