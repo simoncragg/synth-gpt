@@ -8,7 +8,7 @@ import {
 import { newChatText } from "../../src/constants";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 import ChatRepository from "@repositories/ChatRepository";
-import TextToSpeechService from "@services/textToSpeechService";
+import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 
 jest.mock("@clients/apiGatewayManagementApiClient");
