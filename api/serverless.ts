@@ -33,6 +33,16 @@ const serverlessConfiguration: AWS = {
 				value: "${self:provider.environment.CHAT_API_KEY}",
 				enabled: true,
 			}],
+			usagePlan: {
+				quota: {
+					limit: 5000,
+					period: "MONTH",
+				},
+				throttle: {
+					burstLimit: 2,
+					rateLimit: 1,
+				},
+			},
 		},
 		websocketsApiRouteSelectionExpression: "$request.body.type",
 		environment: {
