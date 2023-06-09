@@ -8,6 +8,7 @@ export default {
 			http: {
 				method: "post",
 				path: "api/v1/auth/createWsToken",
+				private: true,
 				request: {
 					schemas: {
 						"application/json": schema,

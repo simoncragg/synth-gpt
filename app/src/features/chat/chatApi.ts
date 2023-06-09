@@ -4,6 +4,10 @@ export const chatApi = createApi({
 	reducerPath: "chatApi",
 	baseQuery: fetchBaseQuery({
 		baseUrl: process.env.REACT_APP_CHAT_API_BASE_URL,
+		prepareHeaders: (headers) => {
+			headers.set("x-api-key", process.env.REACT_APP_CHAT_API_KEY as string);
+			return headers;
+		},
 	}),
 	endpoints: (build) => ({
 		getChats: build.query<GetChatsResponse, GetChatsRequest>({
@@ -13,7 +17,6 @@ export const chatApi = createApi({
 					url: `chats/?userId=${userId}`,
 					method: "GET",
 					headers: {
-						"content-type": "application/json",
 						authorization: `Bearer ${accessToken}`,
 					},
 				};
@@ -26,7 +29,6 @@ export const chatApi = createApi({
 					url: `chats/${chatId}`,
 					method: "GET",
 					headers: {
-						"content-type": "application/json",
 						authorization: `Bearer ${accessToken}`,
 					},
 				};
@@ -42,7 +44,6 @@ export const chatApi = createApi({
 						title,
 					},
 					headers: {
-						"content-type": "application/json",
 						authorization: `Bearer ${accessToken}`,
 					},
 				};
@@ -55,7 +56,6 @@ export const chatApi = createApi({
 					url: `chats/${chatId}`,
 					method: "DELETE",
 					headers: {
-						"content-type": "application/json",
 						authorization: `Bearer ${accessToken}`,
 					},
 					body: {},
@@ -69,7 +69,6 @@ export const chatApi = createApi({
 					url: `chats/${chatId}/generateTitle`,
 					method: "POST",
 					headers: {
-						"content-type": "application/json",
 						authorization: `Bearer ${accessToken}`,
 					},
 					body: { message },

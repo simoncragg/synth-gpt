@@ -8,6 +8,7 @@ export default {
 			http: {
 				method: "patch",
 				path: "api/v1/chats/{chatId}",
+				private: true,
 				request: {
 					schemas: {
 						"application/json": schema,

@@ -7,6 +7,7 @@ export default {
 			http: {
 				method: "delete",
 				path: "api/v1/chats/{chatId}",
+				private: true,
 			},
 		},
 	],

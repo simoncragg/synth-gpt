@@ -8,6 +8,7 @@ export default {
 			http: {
 				method: "post",
 				path: "api/v1/chats/{chatId}/generateTitle",
+				private: true,
 				request: {
 					schemas: {
 						"application/json": schema,

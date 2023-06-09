@@ -7,6 +7,7 @@ export default {
 			http: {
 				method: "get",
 				path: "api/v1/chats",
+				private: true,
 			},
 		},
 	],

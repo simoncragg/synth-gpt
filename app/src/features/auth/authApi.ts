@@ -4,6 +4,10 @@ export const authApi = createApi({
 	reducerPath: "authApi",
 	baseQuery: fetchBaseQuery({
 		baseUrl: process.env.REACT_APP_CHAT_API_BASE_URL,
+		prepareHeaders: (headers) => {
+			headers.set("x-api-key", process.env.REACT_APP_CHAT_API_KEY as string);
+			return headers;
+		},
 	}),
 	endpoints: (build) => ({
 		createWsToken: build.mutation<CreateWsTokenResponse, CreateWsTokenRequest>({
@@ -13,7 +17,6 @@ export const authApi = createApi({
 					url: "auth/createWsToken",
 					method: "POST",
 					headers: {
-						"content-type": "application/json",
 						authorization: `Bearer ${accessToken}`,
 					},
 					body: { userId },

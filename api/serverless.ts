@@ -27,6 +27,12 @@ const serverlessConfiguration: AWS = {
 		apiGateway: {
 			minimumCompressionSize: 1024,
 			shouldStartNameWithService: true,
+			apiKeySourceType: "HEADER",
+			apiKeys: [{
+				name: "${opt:stage, 'dev'}-api-key",
+				value: "${self:provider.environment.CHAT_API_KEY}",
+				enabled: true,
+			}],
 		},
 		websocketsApiRouteSelectionExpression: "$request.body.type",
 		environment: {
@@ -34,6 +40,7 @@ const serverlessConfiguration: AWS = {
 			NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
 			REGION: "${self:provider.region}",
 			STAGE: "${opt:stage, 'dev'}",
+			CHAT_API_KEY: process.env.CHAT_API_KEY,
 			OPENAI_API_BASE_URL: "https://api.openai.com/v1",
 			OPENAI_API_KEY: process.env.OPENAI_API_KEY,
 			POLLY_ACCESS_KEY_ID: process.env.POLLY_ACCESS_KEY_ID,
