@@ -1,5 +1,7 @@
-import fetch, { Response } from "node-fetch";
 import { AbortSignal } from "node-fetch/externals";
+import fetch, { Response } from "node-fetch";
+
+import { AsyncEventSourceParser, EventSourceParseCallbackAsync } from "../services/AsyncEventSourceParser";
 
 const data = {
 	model: "gpt-3.5-turbo",
@@ -60,55 +62,28 @@ export async function generateChatResponseDeltasAsync(
 		}),
 	});
 
-	try {
-		await processResponse(response, onDeltaReceived, abortController);
-	}
-	catch (error) {
-		if (error.name !== "AbortError") {
-			throw error;
-		}
-	}
-}
-
-async function processResponse(
-	response: Response,
-	onDeltaReceived: (string, boolean) => Promise<{ abort: boolean }>,
-	abortController: AbortController): Promise<void> {
-
-	const decoder = new TextDecoder();
-	for await (const chunk of response.body) {
-		const decodedChunk = decoder.decode(chunk as BufferSource);
-		const dataArray = mapToDataArray(decodedChunk);
-		for (const jsonData of dataArray) {
-			const data = JSON.parse(jsonData).choices[0] as MessageDeltaData;
-			const done = data?.finish_reason !== null;
-			const content = data?.delta?.content ?? null;
-			if (done) {
-				await onDeltaReceived("", done);
-				return;
-			}
-			if (content !== null) {
-				const { abort } = await onDeltaReceived(content, done);
+	const onParseAsync: EventSourceParseCallbackAsync = async (event) => {
+		if (event.type === "event") {
+			if (event.data !== "[DONE]") {
+				const content = JSON.parse(event.data).choices[0].delta?.content || "";
+				const { abort } = await onDeltaReceived(content, false);
 				if (abort) {
 					abortController.abort();
 					return;
 				}
 			}
-		}
-	}
-}
-
-function mapToDataArray(text: string): string[] {
-	const dataArray: string[] = [];
-	for (const line of text.split("\n")) {
-		const dataPropertyNameIndex = line.indexOf("data:");
-		if (dataPropertyNameIndex > -1) {
-			const data = line.substring(dataPropertyNameIndex + 5).trim();
-			if (data[0] === "{") {
-				console.log({ data });
-				dataArray.push(data);
+			else {
+				await onDeltaReceived("", true);
+				return;
 			}
 		}
+	};
+
+	const parser = new AsyncEventSourceParser(onParseAsync);
+
+	const decoder = new TextDecoder();
+	for await (const chunk of response.body) {
+		const value = decoder.decode(chunk as BufferSource);
+		await parser.feedAsync(value);
 	}
-	return dataArray;
 }
