@@ -1,24 +1,27 @@
 import { fireEvent } from "@testing-library/react";
-import { mocked } from "jest-mock";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import { useSpeechRecognition } from "react-speech-recognition";
 import { v4 as uuidv4 } from "uuid";
 import { waitFor } from "@testing-library/react";
 import { within } from "@testing-library/dom";
-
-import Chat from "./Chat";
-import ChatService from "../services/ChatService";
 import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
-import { useSpeechRecognition } from "react-speech-recognition";
+
+import Chat from "./Chat";
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
-jest.mock("../../auth/hooks/useAuth", () => ({
+const mockConnect = jest.fn();
+const mockSend = jest.fn();
+const mockDisconnect = jest.fn();
+
+jest.mock("../hooks/useWebSocket", () => ({
 	__esModule: true,
 	default: () => ({
-		userId: "user-123",
-		accessToken: "access-token-123",
+		connect: mockConnect,
+		send: mockSend,
+		disconnect: mockDisconnect,
 	}),
 }));
 
@@ -31,7 +34,13 @@ jest.mock("react-speech-recognition", () => ({
 	},
 }));
 
-jest.mock("../services/ChatService");
+jest.mock("../../auth/hooks/useAuth", () => ({
+	__esModule: true,
+	default: () => ({
+		userId: "user-123",
+		accessToken: "access-token-123",
+	}),
+}));
 
 const server = setupServer(
 	rest.post("*/auth/createWsToken", (req, res, ctx) => {
@@ -50,7 +59,6 @@ describe("Chat", () => {
 	const userId = "user-123";
 	const chatId = uuidv4();
 	const transcript = "this is a test";
-	const chatServiceMock = mocked(ChatService);
 
 	beforeAll(() => {
 		server.listen();
@@ -64,7 +72,7 @@ describe("Chat", () => {
 		setupSpeechRecognitionHook(transcript);
 		renderChat(chatId);
 		await waitFor(() => {
-			expect(chatServiceMock.prototype.connect).toHaveBeenCalledWith(tokenId);
+			expect(mockConnect).toHaveBeenCalledWith(tokenId);
 		});
 	});
 
@@ -72,7 +80,7 @@ describe("Chat", () => {
 		setupSpeechRecognitionHook(transcript);
 		const { unmount } = renderChat(chatId);
 		unmount();
-		expect(chatServiceMock.prototype.disconnect).toHaveBeenCalled();
+		expect(mockDisconnect).toHaveBeenCalled();
 	});
 
 	it("should invoke send passing composed message when send button is pressed", () => {
@@ -81,7 +89,7 @@ describe("Chat", () => {
 		const { getByLabelText } = renderChat(chatId);
 		fireEvent.click(getByLabelText("listen-send"));
 
-		expect(chatServiceMock.prototype.send).toHaveBeenCalledWith({
+		expect(mockSend).toHaveBeenCalledWith({
 			type: "userMessage" as const,
 			payload: {
 				chatId,
@@ -155,7 +163,7 @@ describe("Chat", () => {
 		);
 		fireEvent.click(getByLabelText("listen-send"));
 
-		expect(chatServiceMock.prototype.send).toHaveBeenCalledWith({
+		expect(mockSend).toHaveBeenCalledWith({
 			type: "userMessage" as const,
 			payload: {
 				chatId,

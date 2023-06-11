@@ -4,12 +4,12 @@ import { v4 as uuidv4 } from "uuid";
 
 import AddAttachment from "./AddAttachment";
 import ChatLog from "./ChatLog";
-import ChatService from "../services/ChatService";
 import HeroSection from "../../../components/HeroSection";
 import SpeechToText from "./SpeechToText";
 import TypingIndicator from "../../../components/TypingIndicator";
 import useAudioPlayer from "../hooks/useAudioPlayer";
 import useAuth from "../../auth/hooks/useAuth";
+import useWebSocket from "../hooks/useWebSocket";
 import { addOrUpdateMessage } from "../chatSlice";
 import { useCreateWsTokenMutation } from "../../auth/authApi";
 import { RootStateType } from "../../../store";
@@ -18,6 +18,7 @@ const Chat = () => {
 	const dispatch = useDispatch();
 	const { userId, accessToken } = useAuth();
 	const { queueAudio } = useAudioPlayer();
+
 	const { chatId, attachments, messages } = useSelector(
 		(state: RootStateType) => state.chat
 	);
@@ -36,10 +37,10 @@ const Chat = () => {
 	useEffect(() => {
 		const tokenId = createWsTokenResponse?.tokenId;
 		if (tokenId) {
-			chatService.current?.connect(tokenId);
+			connect(tokenId);
 		}
 		return () => {
-			chatService.current?.disconnect();
+			disconnect();
 		};
 	}, [createWsTokenResponse]);
 
@@ -52,7 +53,7 @@ const Chat = () => {
 		setIsAwaitingAudio(true);
 		dispatch(addOrUpdateMessage({ message }));
 
-		chatService.current?.send({
+		send({
 			type: "userMessage" as const,
 			payload: {
 				userId,
@@ -138,13 +139,12 @@ const Chat = () => {
 		});
 	};
 
-	const chatService = useRef<ChatService>(
-		new ChatService(chatId, onMessageReceived)
-	);
 	const typingIndicatorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
 		null
 	);
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
+
+	const { connect, send, disconnect } = useWebSocket({ onMessageReceived });
 
 	return (
 		<>
