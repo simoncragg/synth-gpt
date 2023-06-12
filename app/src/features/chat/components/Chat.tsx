@@ -106,6 +106,15 @@ const Chat = () => {
 		}
 	};
 
+	const onConnectionClosed = (event: CloseEvent) => {
+		const normalClosureCode = 1000;
+		if (event.code !== normalClosureCode) {
+			if (userId && accessToken) {
+				createWsToken({ userId, accessToken });
+			}
+		}
+	};
+
 	const processMessageSegmentPayload = (payload: MessageSegmentPayload) => {
 		const { message, isLastSegment } = payload;
 
@@ -142,9 +151,13 @@ const Chat = () => {
 	const typingIndicatorTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
 		null
 	);
+
 	const scrollToTargetRef = useRef<HTMLDivElement>(null);
 
-	const { connect, send, disconnect } = useWebSocket({ onMessageReceived });
+	const { connect, send, disconnect } = useWebSocket({
+		onMessageReceived,
+		onConnectionClosed,
+	});
 
 	return (
 		<>

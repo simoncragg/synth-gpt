@@ -1,6 +1,9 @@
 import { useRef } from "react";
 
-const useWebSocket = ({ onMessageReceived }: ChatSocketProps) => {
+const useWebSocket = ({
+	onMessageReceived,
+	onConnectionClosed,
+}: ChatSocketProps) => {
 	const socketRef = useRef<WebSocket | null>(null);
 
 	const connect = (tokenId: string): void => {
@@ -12,6 +15,10 @@ const useWebSocket = ({ onMessageReceived }: ChatSocketProps) => {
 		});
 		socket.addEventListener("message", (event: MessageEvent) => {
 			onMessageReceived(JSON.parse(event.data));
+		});
+		socket.addEventListener("close", (event: CloseEvent) => {
+			console.log("WebSocket connection closed", event);
+			onConnectionClosed(event);
 		});
 		socketRef.current = socket;
 	};
@@ -28,7 +35,7 @@ const useWebSocket = ({ onMessageReceived }: ChatSocketProps) => {
 
 	const disconnect = (): void => {
 		if (socketRef.current) {
-			socketRef.current.close();
+			socketRef.current.close(1000, "Normal Closure");
 			socketRef.current = null;
 		}
 	};
@@ -38,6 +45,7 @@ const useWebSocket = ({ onMessageReceived }: ChatSocketProps) => {
 
 export interface ChatSocketProps {
 	onMessageReceived: (message: WebSocketMessage) => void;
+	onConnectionClosed: (event: CloseEvent) => void;
 }
 
 export default useWebSocket;

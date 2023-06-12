@@ -16,13 +16,18 @@ const mockConnect = jest.fn();
 const mockSend = jest.fn();
 const mockDisconnect = jest.fn();
 
+let onConnectionClosedCallback: (event: CloseEvent) => null = null;
+
 jest.mock("../hooks/useWebSocket", () => ({
 	__esModule: true,
-	default: () => ({
-		connect: mockConnect,
-		send: mockSend,
-		disconnect: mockDisconnect,
-	}),
+	default: ({ onConnectionClosed }) => {
+		onConnectionClosedCallback = onConnectionClosed;
+		return {
+			connect: mockConnect,
+			send: mockSend,
+			disconnect: mockDisconnect,
+		};
+	},
 }));
 
 jest.mock("react-speech-recognition", () => ({
@@ -42,17 +47,7 @@ jest.mock("../../auth/hooks/useAuth", () => ({
 	}),
 }));
 
-const server = setupServer(
-	rest.post("*/auth/createWsToken", (req, res, ctx) => {
-		return res(
-			ctx.json({
-				tokenId: "token-123",
-				expiryTime: Date.now() + 30000,
-				success: true,
-			})
-		);
-	})
-);
+const server = setupServer();
 
 describe("Chat", () => {
 	const tokenId = "token-123";
@@ -61,7 +56,26 @@ describe("Chat", () => {
 	const transcript = "this is a test";
 
 	beforeAll(() => {
-		server.listen();
+		server.listen({
+			onUnhandledRequest(req) {
+				console.error(
+					"Found an unhandled %s request to %s",
+					req.method,
+					req.url.href
+				);
+			},
+		});
+		server.use(
+			rest.post("*/auth/createWsToken", (req, res, ctx) => {
+				return res(
+					ctx.json({
+						tokenId: "token-123",
+						expiryTime: Date.now() + 30000,
+						success: true,
+					})
+				);
+			})
+		);
 	});
 
 	afterAll(() => {
@@ -81,6 +95,34 @@ describe("Chat", () => {
 		const { unmount } = renderChat(chatId);
 		unmount();
 		expect(mockDisconnect).toHaveBeenCalled();
+	});
+
+	it("should attempt to establish a new connection when the websocket is unexceptedly disconnected", async () => {
+		setupSpeechRecognitionHook(transcript);
+		renderChat(chatId);
+
+		mockDisconnect.mockImplementation(() => {
+			onConnectionClosedCallback({ code: 1006 });
+		});
+		mockDisconnect();
+
+		await waitFor(() => {
+			expect(mockConnect).toHaveBeenCalledTimes(2);
+		});
+	});
+
+	it("should not attempt to establish a new connection when the websocket is disconnected with close code 1000 (Normal Closure)", async () => {
+		setupSpeechRecognitionHook(transcript);
+		renderChat(chatId);
+
+		mockDisconnect.mockImplementation(() => {
+			onConnectionClosedCallback({ code: 1005 });
+		});
+		mockDisconnect();
+
+		await waitFor(() => {
+			expect(mockConnect).toHaveBeenCalledTimes(1);
+		});
 	});
 
 	it("should invoke send passing composed message when send button is pressed", () => {
