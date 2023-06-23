@@ -41,7 +41,7 @@ export async function generateChatResponseAsync(messages: Message[]): Promise<Me
 
 export async function generateChatResponseDeltasAsync(
 	messages: Message[],
-	onDeltaReceived: (string, boolean) => Promise<{ abort: boolean }>
+	onDeltaReceived: (delta: string, done: boolean) => Promise<{ abort: boolean }>
 ): Promise<void> {
 
 	const headers = {

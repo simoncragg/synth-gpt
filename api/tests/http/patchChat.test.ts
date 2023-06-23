@@ -2,7 +2,7 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
 import ChatRepository from "@repositories/ChatRepository";
-import { buildContext, buildHttpPatchEvent } from "./builders";
+import { buildHttpPatchEvent } from "../builders";
 import { patchChat } from "@handlers/http/patchChat/handler";
 
 jest.mock("@repositories/ChatRepository");
@@ -14,14 +14,13 @@ type PatchChatRequestBodyType = {
 describe("patch chat handler", () => {
 	const chatId = uuidv4();
 	const title = "New title";
-	const context = buildContext("patchChat");
 	const chatRepositoryMock = mocked(ChatRepository);
 
 	it("should patch the chat in the ChatRepository", async () => {
 		const event = buildHttpPatchEvent<PatchChatRequestBodyType>(
 			`/chats/${chatId}`, { title }, { chatId }
 		);
-		const result = await patchChat(event, context, null);
+		const result = await patchChat(event, null, null);
 
 		expect(chatRepositoryMock.prototype.updateTitleAsync)
 			.toHaveBeenCalledWith(chatId, title);
@@ -41,7 +40,7 @@ describe("patch chat handler", () => {
 		const event = buildHttpPatchEvent<PatchChatRequestBodyType>(
 			`/chats/${chatId}`, { title }, { chatId }
 		);
-		const result = await patchChat(event, context, null);
+		const result = await patchChat(event, null, null);
 
 		expect(result).toEqual({
 			statusCode: 500,

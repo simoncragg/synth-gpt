@@ -1,7 +1,7 @@
 import { mocked } from "jest-mock";
 
 import ChatRepository from "@repositories/ChatRepository";
-import { buildContext, buildHttpPostEvent } from "./builders";
+import { buildHttpPostEvent } from "../builders";
 import { generateChatResponseAsync } from "@clients/openaiApiClient";
 import { generateTitle } from "@handlers/http/generateTitle/handler";
 
@@ -12,7 +12,6 @@ describe("generateTitle handler", () => {
 	const chatId = "chat123";
 	const message = "This is a test message";
 	const generatedTitle = "Test title";
-	const context = buildContext("generateTitle");
 	const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
 
 	type GenerateTitleRequestBody = {
@@ -26,7 +25,7 @@ describe("generateTitle handler", () => {
 		});
 
 		const event = buildHttpPostEvent<GenerateTitleRequestBody>(`/chats/${chatId}/generateTitle`, { message }, { chatId });
-		const result = await generateTitle(event, context, null);
+		const result = await generateTitle(event, null, null);
 
 		expect(ChatRepository.prototype.updateTitleAsync)
 			.toHaveBeenCalledWith(chatId, generatedTitle);
@@ -46,7 +45,7 @@ describe("generateTitle handler", () => {
 		generateChatResponseAsyncMock.mockRejectedValue(new Error(errorMessage));
 
 		const event = buildHttpPostEvent<GenerateTitleRequestBody>(`/chat/${chatId}/generateTitle`, { message }, { chatId });
-		const result = await generateTitle(event, context, null);
+		const result = await generateTitle(event, null, null);
 
 		expect(result).toEqual({
 			statusCode: 500,

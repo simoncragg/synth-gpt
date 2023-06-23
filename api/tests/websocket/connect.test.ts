@@ -1,7 +1,13 @@
+import type { APIGatewayProxyEvent } from "aws-lambda";
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
+import type { WebSocketToken } from "src/types";
 import WebSocketTokenRepository from "@repositories/WebSocketTokenRepository";
+import {
+	buildApiGatewayProxyEvent,
+	buildRequestContextWithConnectionId
+} from "../builders";
 import { main as connect } from "@websocket/connect/handler";
 
 jest.mock("@repositories/WebSocketTokenRepository");
@@ -10,13 +16,12 @@ describe("connect", () => {
 	const tokenId = uuidv4();
 	const connectionId = "test-connection-id";
 	const webSocketTokenRepositoryMock = mocked(WebSocketTokenRepository.prototype);
-	let event;
+	let event: APIGatewayProxyEvent;
 
 	beforeEach(() => {
 		event = {
-			requestContext: {
-				connectionId,
-			},
+			...buildApiGatewayProxyEvent("", null),
+			requestContext: buildRequestContextWithConnectionId(connectionId),
 			queryStringParameters: {
 				tokenId,
 			},
@@ -51,7 +56,7 @@ describe("connect", () => {
 			expiryTime,
 			createdTime,
 			timeToLive,
-		};
+		} as WebSocketToken;
 		webSocketTokenRepositoryMock.getByTokenIdAsync.mockResolvedValueOnce(token);
 
 		const response = await connect(event);
@@ -74,7 +79,7 @@ describe("connect", () => {
 			expiryTime,
 			createdTime,
 			timeToLive,
-		};
+		} as WebSocketToken;
 		webSocketTokenRepositoryMock.getByTokenIdAsync.mockResolvedValueOnce(token);
 
 		const response = await connect(event);
@@ -97,7 +102,7 @@ describe("connect", () => {
 			expiryTime,
 			createdTime,
 			timeToLive,
-		};
+		} as WebSocketToken;
 		webSocketTokenRepositoryMock.getByTokenIdAsync.mockResolvedValueOnce(token);
 
 		const response = await connect(event);

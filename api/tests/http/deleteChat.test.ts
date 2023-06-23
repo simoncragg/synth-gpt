@@ -2,7 +2,7 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
 import ChatRepository from "@repositories/ChatRepository";
-import { buildHttpDeleteEvent } from "./builders";
+import { buildHttpDeleteEvent } from "../builders";
 import { deleteChat } from "@handlers/http/deleteChat/handler";
 
 jest.mock("@repositories/ChatRepository");
@@ -12,7 +12,7 @@ describe("deleteChat handler", () => {
 	const chatRepositoryMock = mocked(ChatRepository);
 
 	it("should successfully deleted chat for given chatId", async () => {
-		const event = buildHttpDeleteEvent(`/chats/${chatId}`, {}, { chatId });
+		const event = buildHttpDeleteEvent(`/chats/${chatId}`, { chatId });
 		const result = await deleteChat(event);
 
 		expect(ChatRepository.prototype.deleteByChatIdAsync)
@@ -30,7 +30,7 @@ describe("deleteChat handler", () => {
 		const errorMessage = "An unexpected error occurred whilst processing your request";
 		chatRepositoryMock.prototype.deleteByChatIdAsync.mockRejectedValue(new Error(errorMessage));
 
-		const event = buildHttpDeleteEvent(`/chats/${chatId}`, {}, { chatId });
+		const event = buildHttpDeleteEvent(`/chats/${chatId}`, { chatId });
 		const result = await deleteChat(event);
 
 		expect(result).toEqual({

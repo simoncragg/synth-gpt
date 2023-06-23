@@ -6,6 +6,7 @@ import type {
 	ValidatedEventAPIGatewayProxyEvent
 } from "../types";
 
+import type { WebSocketToken } from "../../../types";
 import WebSocketTokenRepository from "@repositories/WebSocketTokenRepository";
 import schema from "./schema";
 import { formatJSONResponse } from "@libs/api-gateway";
@@ -24,7 +25,7 @@ export const createWsToken: ValidatedEventAPIGatewayProxyEvent<typeof schema> = 
 			claimedTime: null,
 			createdTime: now,
 			timeToLive: now + sevenDaysMs,
-		};
+		} as WebSocketToken;
 
 		const webSocketTokenRepository = new WebSocketTokenRepository();
 		await webSocketTokenRepository.updateItemAsync(token);

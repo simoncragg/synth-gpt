@@ -1,12 +1,12 @@
+import type { APIGatewayProxyEvent } from "aws-lambda";
 import { middyfy } from "@libs/lambda";
 
 import type { BaseResponseBody } from "../types";
 import type { ChatWithoutMessages } from "../../../types";
-
 import ChatRepository from "@repositories/ChatRepository";
 import { formatJSONResponse } from "@libs/api-gateway";
 
-export const getChats = async (event) => {
+export const getChats = async (event: APIGatewayProxyEvent) => {
 	try {
 		const userId = event.queryStringParameters["userId"];
 		const chatRepository = new ChatRepository();

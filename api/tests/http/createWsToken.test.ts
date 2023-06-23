@@ -1,7 +1,7 @@
 import { mocked } from "jest-mock";
 
 import WebSocketTokenRepository from "@repositories/WebSocketTokenRepository";
-import { buildContext, buildHttpPostEvent } from "./builders";
+import { buildHttpPostEvent } from "../builders";
 import { createWsToken } from "@handlers/http/createWsToken/handler";
 
 const tokenId = "token-123";
@@ -19,7 +19,6 @@ type CreateWsTokenRequestBodyType = {
 
 describe("createWsToken handler", () => {
 	const userId = "user-123";
-	const context = buildContext("createWsToken");
 	const webSocketTokenRepository = mocked(WebSocketTokenRepository);
 
 	const now = Date.now();
@@ -31,7 +30,7 @@ describe("createWsToken handler", () => {
 			{ userId }
 		);
 
-		await createWsToken(event, context, null);
+		await createWsToken(event, null, null);
 
 		expect(webSocketTokenRepository.prototype.updateItemAsync)
 			.toHaveBeenCalledWith(expect.objectContaining({
@@ -51,7 +50,7 @@ describe("createWsToken handler", () => {
 			{ userId }
 		);
 
-		const result = await createWsToken(event, context, null);
+		const result = await createWsToken(event, null, null);
 
 		expect(result).toEqual({
 			statusCode: 200,
@@ -71,7 +70,7 @@ describe("createWsToken handler", () => {
 			"/auth/createWsToken",
 			{ userId }
 		);
-		const result = await createWsToken(event, context, null);
+		const result = await createWsToken(event, null, null);
 
 		expect(result).toEqual({
 			statusCode: 500,
