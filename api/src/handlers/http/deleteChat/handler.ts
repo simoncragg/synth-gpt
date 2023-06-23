@@ -1,6 +1,9 @@
-import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
+
+import type { BaseResponseBody } from "../types";
+
 import ChatRepository from "@repositories/ChatRepository";
+import { formatJSONResponse } from "@libs/api-gateway";
 
 export const deleteChat = async (event) => {
 	const { chatId } = event.pathParameters;

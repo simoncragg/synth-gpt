@@ -1,5 +1,7 @@
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
+import type { WebSocketToken } from "../types";
+
 const wsTokenTableName = `ws-token-${process.env.STAGE}`;
 
 export default class WebSocketTokenRepository {

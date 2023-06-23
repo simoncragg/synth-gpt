@@ -1,6 +1,10 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
 import { v4 as uuidv4 } from "uuid";
+
+import type {
+	BaseResponseBody,
+	ValidatedEventAPIGatewayProxyEvent
+} from "../types";
 
 import WebSocketTokenRepository from "@repositories/WebSocketTokenRepository";
 import schema from "./schema";
@@ -42,3 +46,8 @@ export const createWsToken: ValidatedEventAPIGatewayProxyEvent<typeof schema> = 
 };
 
 export const main = middyfy(createWsToken);
+
+export interface WebSocketTokenResponseBody extends BaseResponseBody {
+	tokenId: string;
+	expiryTime: number;
+}

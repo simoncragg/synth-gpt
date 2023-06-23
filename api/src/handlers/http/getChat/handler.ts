@@ -1,5 +1,8 @@
 import { middyfy } from "@libs/lambda";
 
+import type { BaseResponseBody } from "../types";
+import type { Chat } from "../../../types";
+
 import ChatRepository from "@repositories/ChatRepository";
 import { formatJSONResponse } from "@libs/api-gateway";
 
@@ -32,3 +35,7 @@ export const getChat = async (event) => {
 };
 
 export const main = middyfy(getChat);
+
+export interface GetChatResponseBody extends BaseResponseBody {
+	chat: Chat;
+}

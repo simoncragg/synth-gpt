@@ -31,10 +31,9 @@ const handleUserMessage = async (event: APIGatewayProxyEvent) => {
 	}
 	catch (error) {
 		console.error(error);
-		return formatJSONResponse<BaseResponseBody>({
-			success: false,
-			error: "An unexpected error occurred whilst handling the user message"
-		}, 500);
+		return {
+			statusCode: 500
+		};
 	}
 };
 

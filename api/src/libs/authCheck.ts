@@ -1,7 +1,9 @@
+import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import middy from "@middy/core";
-import { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
 import { JwtRsaVerifier } from "aws-jwt-verify";
 import { formatJSONResponse } from "@libs/api-gateway";
+
+import type { BaseResponseBody } from "../handlers/http/types";
 
 const verifier = JwtRsaVerifier.create({
 	issuer: process.env.JWT_ISSUER_DOMAIN,

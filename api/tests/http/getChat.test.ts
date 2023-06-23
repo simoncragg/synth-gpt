@@ -1,6 +1,8 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
+import type { Chat } from "../../src/types";
+
 import ChatRepository from "@repositories/ChatRepository";
 import { buildHttpGetEvent } from "./builders";
 import { getChat } from "@handlers/http/getChat/handler";

@@ -1,10 +1,26 @@
 import { v4 as uuidv4 } from "uuid";
-import { newChatText } from "../constants";
-import { performWebSearchAsync } from "@clients/bingSearchApiClient";
-import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
+
 import ChatCompletionService from "@services/ChatCompletionService";
 import ChatRepository from "@repositories/ChatRepository";
 import TextToSpeechService from "@services/TextToSpeechService";
+import { newChatText } from "../constants";
+import { performWebSearchAsync } from "@clients/bingSearchApiClient";
+import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
+
+import type {
+	Chat,
+	ChatMessage,
+	MessageSegment,
+} from "../types";
+
+import type {
+	BaseWebSocketMessagePayload,
+	ReadingWebSearchResultsAction,
+	SearchingWebAction,
+	WebActivity,
+	WebSearchResult,
+	WebSocketMessage,
+} from "../types";
 
 export default class UserMessageProcessor {
 
@@ -91,7 +107,7 @@ export default class UserMessageProcessor {
 						chatId: chat.chatId,
 						message,
 						isLastSegment,
-					},
+					} as AssistantMessageSegmentPayload,
 				});
 
 				const value = message.content.value as string;
@@ -148,10 +164,12 @@ export default class UserMessageProcessor {
 
 		const webActivity = {
 			...(assistantMessage.content.value as WebActivity),
-			actions: [{
-				type: "searching",
-				searchTerm,
-			}]
+			actions: [
+				{
+					type: "searching",
+					searchTerm,
+				} as SearchingWebAction
+			]
 		};
 
 		await postToConnectionAsync(connectionId, {
@@ -166,7 +184,7 @@ export default class UserMessageProcessor {
 					},
 				},
 				isLastSegment: false,
-			},
+			} as AssistantMessageSegmentPayload,
 		});
 
 		console.log("///////////////////////////////////////////////////////////////////");
@@ -208,7 +226,7 @@ export default class UserMessageProcessor {
 					},
 				},
 				isLastSegment: false,
-			},
+			} as AssistantMessageSegmentPayload,
 		});
 
 		const userMessage = {
@@ -255,7 +273,7 @@ export default class UserMessageProcessor {
 				chatId: chat.chatId,
 				message: updatedAssistantMessage,
 				isLastSegment: false,
-			},
+			} as AssistantMessageSegmentPayload,
 		});
 
 		await Promise.all([
@@ -265,8 +283,9 @@ export default class UserMessageProcessor {
 					chatId: chat.chatId,
 					message: finalAssistantMessage,
 					isLastSegment: true,
-				},
+				} as AssistantMessageSegmentPayload,
 			}),
+
 			this.processAssistantVoiceAsync(
 				connectionId, chat, finalAssistantMessage
 			),
@@ -313,4 +332,22 @@ export default class UserMessageProcessor {
 		chat.updatedTime = Date.now();
 		await this.chatRepository.updateItemAsync(chat);
 	}
+}
+
+export interface AssistantAudioSegmentPayload extends BaseWebSocketMessagePayload {
+	audioSegment: AudioSegment;
+}
+
+export interface AudioSegment {
+	audioUrl: string;
+	timestamp: number;
+}
+
+export interface AssistantMessageSegmentPayload extends BaseWebSocketMessagePayload, MessageSegment { }
+
+export interface ProcessUserMessagePayload {
+	connectionId: string;
+	chatId: string;
+	userId: string;
+	message: ChatMessage;
 }

@@ -1,6 +1,8 @@
 import { AbortSignal } from "node-fetch/externals";
 import fetch, { Response } from "node-fetch";
 
+import type { RoleType } from "../types";
+
 import { AsyncEventSourceParser, EventSourceParseCallbackAsync } from "../services/AsyncEventSourceParser";
 
 const data = {
@@ -86,4 +88,9 @@ export async function generateChatResponseDeltasAsync(
 		const value = decoder.decode(chunk as BufferSource);
 		await parser.feedAsync(value);
 	}
+}
+
+export interface Message {
+	role: RoleType
+	content: string
 }

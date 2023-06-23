@@ -1,5 +1,7 @@
 import { DocumentClient } from "aws-sdk/clients/dynamodb";
 
+import type { Chat, ChatWithoutMessages } from "../types";
+
 const chatsTableName = `chats-${process.env.STAGE}`;
 
 export default class ChatRepository {

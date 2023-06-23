@@ -2,7 +2,6 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
 import WebSocketTokenRepository from "@repositories/WebSocketTokenRepository";
-import { formatJSONResponse } from "@libs/api-gateway";
 import { main as connect } from "@websocket/connect/handler";
 
 jest.mock("@repositories/WebSocketTokenRepository");
@@ -124,9 +123,8 @@ describe("connect", () => {
 
 		expect(webSocketTokenRepositoryMock.getByTokenIdAsync).toHaveBeenCalledWith(tokenId);
 		expect(webSocketTokenRepositoryMock.updateItemAsync).not.toHaveBeenCalled();
-		expect(response).toEqual(formatJSONResponse({
-			success: false,
-			error: "An unexpected error occurred whilst establishing a connection",
-		}, 500));
+		expect(response).toEqual({
+			statusCode: 500
+		});
 	});
 });

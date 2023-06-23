@@ -2,6 +2,8 @@ import {
 	ApiGatewayManagementApiClient,
 	PostToConnectionCommand,
 } from "@aws-sdk/client-apigatewaymanagementapi";
+
+import type { WebSocketMessage } from "../types";
 import { isDev } from "../utils";
 
 export async function postToConnectionAsync(connectionId: string, data: WebSocketMessage) {

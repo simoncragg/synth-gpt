@@ -1,6 +1,5 @@
 import type { APIGatewayProxyEvent } from "aws-lambda";
 import WebSocketTokenRepository from "@repositories/WebSocketTokenRepository";
-import { formatJSONResponse } from "@libs/api-gateway";
 
 const connect = async (event: APIGatewayProxyEvent) => {
 	const { connectionId } = event.requestContext;
@@ -31,10 +30,9 @@ const connect = async (event: APIGatewayProxyEvent) => {
 	}
 	catch (error) {
 		console.error(error);
-		return formatJSONResponse<BaseResponseBody>({
-			success: false,
-			error: "An unexpected error occurred whilst establishing a connection"
-		}, 500);
+		return {
+			statusCode: 500,
+		};
 	}
 };
 

@@ -1,9 +1,15 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
-import { formatJSONResponse } from "@libs/api-gateway";
-import { generateChatResponseAsync } from "@clients/openaiApiClient";
 import { middyfy } from "@libs/lambda";
+
+import type {
+	BaseResponseBody,
+	ValidatedEventAPIGatewayProxyEvent
+} from "../types";
+
 import ChatRepository from "@repositories/ChatRepository";
 import schema from "./schema";
+import { formatJSONResponse } from "@libs/api-gateway";
+import { generateChatResponseAsync } from "@clients/openaiApiClient";
+
 
 export const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	try {
@@ -42,3 +48,8 @@ export const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = 
 };
 
 export const main = middyfy(generateTitle);
+
+export interface GenerateTitleResponseBody extends BaseResponseBody {
+	chatId: string;
+	title: string;
+}

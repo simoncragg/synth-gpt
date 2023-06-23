@@ -1,6 +1,10 @@
-import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
+
+import type { BaseResponseBody } from "../types";
+import type { ChatWithoutMessages } from "../../../types";
+
 import ChatRepository from "@repositories/ChatRepository";
+import { formatJSONResponse } from "@libs/api-gateway";
 
 export const getChats = async (event) => {
 	try {
@@ -23,3 +27,7 @@ export const getChats = async (event) => {
 };
 
 export const main = middyfy(getChats);
+
+export interface GetChatsResponseBody extends BaseResponseBody {
+	chats: ChatWithoutMessages[];
+}

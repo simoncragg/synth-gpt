@@ -1,8 +1,13 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
-import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
+
+import type {
+	BaseResponseBody,
+	ValidatedEventAPIGatewayProxyEvent
+} from "../types";
+
 import ChatRepository from "@repositories/ChatRepository";
 import schema from "./schema";
+import { formatJSONResponse } from "@libs/api-gateway";
 
 export const patchChat: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	const { chatId } = event.pathParameters;

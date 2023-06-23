@@ -1,5 +1,28 @@
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
+
+import type {
+	ChatMessage,
+	Content,
+	ReadingWebSearchResultsAction,
+	SearchingWebAction,
+	WebActivity,
+	WebSearchResult,
+} from "../../src/types";
+
+import type {
+	WebPage,
+	WebPages,
+	WebSearchResponse,
+} from "@clients/bingSearchApiClient";
+
+import type {
+	ProcessUserMessagePayload,
+} from "@services/UserMessageProcessor";
+
+import ChatRepository from "@repositories/ChatRepository";
+import TextToSpeechService from "@services/TextToSpeechService";
+import UserMessageProcessor from "@services/UserMessageProcessor";
 import { performWebSearchAsync } from "@clients/bingSearchApiClient";
 import {
 	generateChatResponseAsync,
@@ -7,9 +30,6 @@ import {
 } from "@clients/openaiApiClient";
 import { newChatText } from "../../src/constants";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
-import ChatRepository from "@repositories/ChatRepository";
-import TextToSpeechService from "@services/TextToSpeechService";
-import UserMessageProcessor from "@services/UserMessageProcessor";
 
 jest.mock("@clients/apiGatewayManagementApiClient");
 jest.mock("@clients/bingSearchApiClient");
