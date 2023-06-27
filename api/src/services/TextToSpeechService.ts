@@ -31,7 +31,7 @@ export default class TextToSpeechService {
 			new GetObjectCommand({
 				Bucket: process.env.S3_AUDIO_BUCKET_NAME,
 				Key: filename
-			}), { expiresIn: 60 }
+			}), { expiresIn: 300 }
 		);
 	}
 
