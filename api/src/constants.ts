@@ -1,4 +1,5 @@
 export const newChatText = "New chat";
+export const isDev = process.env.STAGE === "dev";
 
 export const prePrompt = [
 	"Your name is Synth. ",

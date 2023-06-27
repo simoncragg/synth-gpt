@@ -1,5 +1,5 @@
 import { Polly, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
-import { isDev } from "../utils";
+import { isDev } from "../constants";
 
 export async function performTextToSpeech(text: string) {
 	const command = new SynthesizeSpeechCommand({
