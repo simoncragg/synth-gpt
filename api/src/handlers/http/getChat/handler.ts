@@ -15,9 +15,7 @@ export const getChat = async (event: APIGatewayProxyEvent) => {
 
 		const filteredChat = {
 			...chat,
-			messages: chat.messages.filter(msg =>
-				!(msg.content.type === "text" && (msg.content.value as string).startsWith("```json\n{webSearchResults:"))
-			)
+			messages: chat.messages.filter(msg => (msg.role !== "function"))
 		};
 
 		return formatJSONResponse<GetChatResponseBody>({

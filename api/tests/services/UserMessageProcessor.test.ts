@@ -10,6 +10,8 @@ import type {
 	WebSearchResult,
 } from "../../src/types";
 
+import type { Delta } from "@clients/openaiApiClient";
+
 import type {
 	WebPage,
 	WebPages,
@@ -146,7 +148,6 @@ describe("UserMessageProcessor", () => {
 		});
 
 		describe("Process a user message using a web search", () => {
-			const searchExplanation = "I will have to perform a web search for that.\n";
 			const searchTerm = "Wimbledon 2023 start date";
 			const assistantAnswer = "According to my search results, Wimbledon 2023 will start on Monday, July 3rd, 2023 and will end on Sunday, July 16th, 2023.";
 
@@ -172,7 +173,7 @@ describe("UserMessageProcessor", () => {
 				webSearchResponse = buildWebSearchResponse();
 				userMessageProcessor = new UserMessageProcessor();
 
-				arrangeGenerateChatResponseDeltasAsyncMock([searchExplanation, `SEARCH[${searchTerm}]`]);
+				arrangeGenerateChatResponseDeltasAsyncMockWithSearchTerm(searchTerm);
 				arrangeGenerateChatResponseAsyncMock(assistantAnswer);
 				arrangePerformWebSearchAsyncMock(webSearchResponse);
 				arrangeTextToSpeechServiceMock();
@@ -246,37 +247,8 @@ describe("UserMessageProcessor", () => {
 				);
 			});
 
-			it("should post assistant messages to client", async () => {
-				await userMessageProcessor.process(userMessagePayload);
-				expectAssistantMessageSegmentToBePostedToClient(
-					{
-						type: "text",
-						value: searchExplanation,
-					},
-					userMessagePayload,
-				);
-
-				expectAssistantMessageSegmentToBePostedToClient(
-					{
-						type: "text",
-						value: searchExplanation,
-					},
-					userMessagePayload,
-				);
-
-				expectAssistantMessageSegmentToBePostedToClient(
-					{
-						type: "text",
-						value: "",
-					},
-					userMessagePayload,
-					true
-				);
-			});
-
 			it("should post audio to client", async () => {
 				await userMessageProcessor.process(userMessagePayload);
-				expectAudioMessageSegmentToBePostedToClient(searchExplanation, userMessagePayload);
 				expectAudioMessageSegmentToBePostedToClient(assistantAnswer, userMessagePayload);
 			});
 
@@ -328,15 +300,6 @@ describe("UserMessageProcessor", () => {
 								id: expect.any(String),
 								role: "assistant",
 								content: {
-									type: "text",
-									value: searchExplanation
-								},
-								timestamp: expect.any(Number),
-							},
-							{
-								id: expect.any(String),
-								role: "assistant",
-								content: {
 									type: "webActivity",
 									value: {
 										...webActivity,
@@ -354,10 +317,13 @@ describe("UserMessageProcessor", () => {
 							},
 							{
 								id: expect.any(String),
-								role: "user",
+								role: "function",
 								content: {
-									type: "text",
-									value: `\`\`\`json\n{webSearchResults: ${JSON.stringify(results)}}\n\`\`\``
+									type: "functionResult",
+									value: {
+										name: "perform_web_search",
+										result: `{webSearchResults: ${JSON.stringify(results)}}`
+									}
 								},
 								timestamp: expect.any(Number),
 							},
@@ -404,21 +370,6 @@ describe("UserMessageProcessor", () => {
 		});
 	});
 
-	const arrangeGenerateChatResponseDeltasAsyncMock = (lines: string[]) => {
-		generateChatResponseDeltasAsyncMock.mockImplementation(async (
-			_,
-			onDeltaReceived: (delta: string, done: boolean) => Promise<{ abort: boolean }>
-		): Promise<void> => {
-			for (const line of lines) {
-				const tokens = tokenize(line);
-				for (const token of tokens) {
-					await onDeltaReceived(token, false);
-				}
-				await onDeltaReceived("", true);
-			}
-		});
-	};
-
 	const arrangeGenerateChatResponseAsyncMock = (content: string) => {
 		generateChatResponseAsyncMock.mockResolvedValueOnce({
 			role: "assistant",
@@ -426,16 +377,47 @@ describe("UserMessageProcessor", () => {
 		});
 	};
 
-	const arrangePerformWebSearchAsyncMock = (webSearchResponse: WebSearchResponse) => {
-		performWebSearchAsyncMock.mockResolvedValue(webSearchResponse);
+	const arrangeGenerateChatResponseDeltasAsyncMock = (lines: string[]) => {
+		generateChatResponseDeltasAsyncMock.mockImplementation(async (
+			_,
+			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
+		): Promise<void> => {
+			for (const line of lines) {
+				const tokens = tokenize(line);
+				for (const token of tokens) {
+					await onDeltaReceived({ content: token }, null);
+				}
+				await onDeltaReceived({}, "stop");
+			}
+		});
 	};
 
-	const tokenize = (str: string): string[] => {
-		return str.split(" ").map(token =>
-			token.indexOf("\n") > -1
-				? token
-				: token + " "
-		);
+	const arrangeGenerateChatResponseDeltasAsyncMockWithSearchTerm = (searchTerm: string) => {
+		generateChatResponseDeltasAsyncMock.mockImplementation(async (
+			_,
+			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
+		): Promise<void> => {
+
+			await onDeltaReceived({
+				function_call: {
+					name: "perform_web_search",
+					arguments: "",
+				},
+			}, null);
+
+			for (const token of ["{", " ", "\"", "search_", "term", "\":", " \"", ...tokenize(searchTerm), "\"", " ", "}"]) {
+				await onDeltaReceived({
+					function_call: {
+						arguments: token
+					},
+				}, null);
+			}
+			await onDeltaReceived({}, "function_call");
+		});
+	};
+
+	const arrangePerformWebSearchAsyncMock = (webSearchResponse: WebSearchResponse) => {
+		performWebSearchAsyncMock.mockResolvedValue(webSearchResponse);
 	};
 
 	const arrangeTextToSpeechServiceMock = () => {
@@ -487,6 +469,14 @@ describe("UserMessageProcessor", () => {
 					},
 				},
 			},
+		);
+	};
+
+	const tokenize = (str: string): string[] => {
+		return str.split(" ").map((token, i, tokens) =>
+			token.indexOf("\n") > -1
+				? token
+				: token + (i < tokens.length - 1 ? " " : "")
 		);
 	};
 });

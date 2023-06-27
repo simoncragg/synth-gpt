@@ -2,15 +2,22 @@ import { v4 as uuidv4 } from "uuid";
 
 import type {
 	ChatMessage,
-	Content,
+	FunctionResult,
 	MessageSegment,
-	WebActivity
 } from "../types";
+
+import type {
+	Delta,
+	FunctionCall,
+	Message,
+} from "@clients/openaiApiClient";
 
 import {
 	generateChatResponseAsync,
 	generateChatResponseDeltasAsync
 } from "@clients/openaiApiClient";
+
+import { functions } from "../functions";
 import { prePrompt } from "../constants";
 
 export default class ChatCompletionService {
@@ -18,73 +25,86 @@ export default class ChatCompletionService {
 	async generateAssistantMessageAsync(
 		chatMessages: ChatMessage[]
 	): Promise<ChatMessage> {
+
 		const messages = [
 			{
-				role: "system" as const,
+				role: "system",
 				content: prePrompt,
 			},
-			...chatMessages.map(msg => {
-				return {
-					role: msg.role,
-					content: this.mapContent(msg.content)
-				};
-			})
-		];
+			...this.mapMessages(chatMessages),
+		] as Message[];
 
-		const { content } = await generateChatResponseAsync(messages);
-		return this.buildChatMessage(uuidv4(), content);
+		const { content } = await generateChatResponseAsync({ messages, functions });
+		return this.buildChatMessageFromContent(uuidv4(), content);
 	}
 
 	async generateAssistantMessageSegmentsAsync(
 		chatMessages: ChatMessage[],
-		onSegmentReceived: (segment: MessageSegment) => Promise<{ abort: boolean }>
+		onSegmentReceived: (segment: MessageSegment) => Promise<void>
 	): Promise<void> {
+
 		const messages = [
 			{
-				role: "system" as const,
+				role: "system",
 				content: prePrompt,
 			},
-			...chatMessages.map(msg => {
-				return {
-					role: msg.role,
-					content: this.mapContent(msg.content)
-				};
-			})
-		];
+			...this.mapMessages(chatMessages),
+		] as Message[];
+
 		let content = "";
+		const functionCall: FunctionCall = {
+			name: "",
+			arguments: "",
+		};
 		const id = uuidv4();
-		await generateChatResponseDeltasAsync(messages, async (delta: string, done: boolean): Promise<{ abort: boolean }> => {
-			content += delta ?? "";
-			if (done || delta?.indexOf("\n") > 0) {
-				const segment = {
-					message: this.buildChatMessage(id, content),
-					isLastSegment: done,
-				};
-				content = "";
-				return await onSegmentReceived(segment);
+		const request = { messages, functions };
+
+		await generateChatResponseDeltasAsync(request, async (delta: Delta, finishReason: string) => {
+			let flushSegment = finishReason !== null;
+			if (delta.content) {
+				content += delta.content ?? "";
+				if (delta.content?.indexOf("\n") > 0) {
+					flushSegment = true;
+				}
+			} else if (delta.function_call) {
+				if (delta.function_call.name) {
+					functionCall.name += delta.function_call.name;
+				}
+				if (delta.function_call.arguments) {
+					functionCall.arguments += delta.function_call.arguments;
+				}
 			}
-			return { abort: false };
+
+			if (flushSegment) {
+				const message = (finishReason === "function_call")
+					? this.buildChatMessageFromFunctionCall(id, functionCall)
+					: this.buildChatMessageFromContent(id, content);
+				await onSegmentReceived({
+					message,
+					isLastSegment: finishReason !== null,
+				});
+				content = "";
+				functionCall.name = "";
+				functionCall.arguments = "";
+			}
 		});
 	}
 
-	private buildChatMessage(id: string, content: string): ChatMessage {
-		if (this.isSearchPrompt(content)) {
-			const searchTerm = this.extractSearchTerm(content);
-			return {
-				id,
-				role: "assistant",
-				content: {
-					type: "webActivity",
-					value: {
-						searchTerm,
-						currentState: "searching" as const,
-						actions: [],
-					},
-				},
-				timestamp: Date.now(),
-			};
-		}
+	private mapMessages(chatMessages: ChatMessage[]): Message[] {
+		return chatMessages
+			.filter(msg => msg.content.type !== "webActivity")
+			.map(msg => msg.role === "function"
+				? {
+					role: msg.role,
+					name: (msg.content.value as FunctionResult).name,
+					content: (msg.content.value as FunctionResult).result,
+				} : {
+					role: msg.role,
+					content: msg.content.value as string
+				});
+	}
 
+	private buildChatMessageFromContent(id: string, content: string): ChatMessage {
 		return {
 			id,
 			role: "assistant",
@@ -96,18 +116,26 @@ export default class ChatCompletionService {
 		};
 	}
 
-	private mapContent(content: Content): string {
-		return content.type === "webActivity"
-			? `SEARCH[${(content.value as WebActivity).searchTerm}]`
-			: content.value as string;
+	private buildChatMessageFromFunctionCall(id: string, functionCall: FunctionCall): ChatMessage {
+		const searchTerm = this.extractSearchTerm(functionCall);
+		return {
+			id,
+			role: "assistant",
+			content: {
+				type: "webActivity",
+				value: {
+					searchTerm,
+					currentState: "searching",
+					actions: [],
+				},
+			},
+			timestamp: Date.now(),
+		};
 	}
 
-	private isSearchPrompt(line: string): boolean {
-		return /SEARCH\[.+?\]/.test(line);
-	}
-
-	private extractSearchTerm(input: string): string | null {
-		const match = input.match(/SEARCH\[(.+?)\]/);
-		return match ? match[1] : null;
+	private extractSearchTerm(functionCall: FunctionCall): string | null {
+		return (functionCall.name === "perform_web_search")
+			? JSON.parse(functionCall.arguments).search_term
+			: null;
 	}
 }

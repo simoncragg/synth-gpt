@@ -9,17 +9,7 @@ export interface Chat {
 
 export type ChatWithoutMessages = Omit<Chat, "messages">;
 
-export type RoleType = "system" | "user" | "assistant";
-
-export interface MessageDeltaData {
-	delta: DeltaContent;
-	index: number;
-	finish_reason: string?;
-}
-
-export interface DeltaContent {
-	content?: string;
-}
+export type RoleType = "system" | "user" | "assistant" | "function";
 
 export interface MessageSegment {
 	message: ChatMessage;
@@ -33,11 +23,11 @@ export interface ChatMessage {
 	timestamp: number;
 }
 
-export type ContentType = "text" | "webActivity";
+export type ContentType = "text" | "webActivity" | "functionResult";
 
 export interface Content {
 	type: ContentType;
-	value: string | WebActivity;
+	value: string | WebActivity | FunctionResult;
 }
 
 export type WebBrowsingStateType = "searching" | "readingResults" | "finished";
@@ -67,6 +57,11 @@ export interface WebSearchResult {
 	url: string;
 	isFamilyFriendly: boolean;
 	snippet: string;
+}
+
+export interface FunctionResult {
+	name: string;
+	result: string;
 }
 
 export interface WebSocketToken {

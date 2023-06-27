@@ -15,6 +15,7 @@ import type {
 
 import type {
 	BaseWebSocketMessagePayload,
+	FunctionResult,
 	ReadingWebSearchResultsAction,
 	SearchingWebAction,
 	WebActivity,
@@ -85,7 +86,7 @@ export default class UserMessageProcessor {
 
 		await this.chatCompletionService.generateAssistantMessageSegmentsAsync(
 			chat.messages,
-			async (segment: MessageSegment): Promise<{ abort: boolean }> => {
+			async (segment: MessageSegment): Promise<void> => {
 
 				const { message, isLastSegment } = segment;
 
@@ -98,7 +99,7 @@ export default class UserMessageProcessor {
 						}
 					};
 
-					return { abort: true };
+					return;
 				}
 
 				await postToConnectionAsync(connectionId, {
@@ -134,8 +135,6 @@ export default class UserMessageProcessor {
 				else {
 					assistantMessage.content.value += value;
 				}
-
-				return { abort: false };
 			});
 
 		if (assistantMessage) {
@@ -220,7 +219,7 @@ export default class UserMessageProcessor {
 								{
 									type: "readingResults",
 									results,
-								} as ReadingWebSearchResultsAction
+								} as ReadingWebSearchResultsAction,
 							]
 						}
 					},
@@ -229,16 +228,15 @@ export default class UserMessageProcessor {
 			} as AssistantMessageSegmentPayload,
 		});
 
-		const userMessage = {
+		const functionMessage = {
 			id: uuidv4(),
-			role: "user" as const,
+			role: "function" as const,
 			content: {
-				type: "text" as const,
-				value: [
-					"```json",
-					`{webSearchResults: ${JSON.stringify(results)}}`,
-					"```"
-				].join("\n"),
+				type: "functionResult" as const,
+				value: {
+					name: "perform_web_search",
+					result: `{webSearchResults: ${JSON.stringify(results)}}`,
+				} as FunctionResult,
 			},
 			timestamp: Date.now(),
 		};
@@ -262,7 +260,7 @@ export default class UserMessageProcessor {
 		} as ChatMessage;
 
 		chat.messages.push(updatedAssistantMessage);
-		chat.messages.push(userMessage);
+		chat.messages.push(functionMessage);
 
 		const finalAssistantMessage = await this.chatCompletionService
 			.generateAssistantMessageAsync(chat.messages);
@@ -311,7 +309,7 @@ export default class UserMessageProcessor {
 		const audioSegment = await this.generateAudioSegmentAsync(transcript);
 
 		await postToConnectionAsync(connectionId, {
-			type: "assistantAudioSegment" as const,
+			type: "assistantAudioSegment",
 			payload: {
 				chatId: chat.chatId,
 				audioSegment,

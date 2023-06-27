@@ -13,8 +13,6 @@ import { generateChatResponseAsync } from "@clients/openaiApiClient";
 
 export const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = async (event) => {
 	try {
-		console.time("generateTitle");
-
 		const { chatId } = event.pathParameters;
 		const { message } = event.body;
 		const messages = [
@@ -23,13 +21,9 @@ export const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = 
 				content: `Summarize this message in three words:\n\n${message}`
 			}
 		];
-
-		const { content: title } = await generateChatResponseAsync(messages);
-
+		const { content: title } = await generateChatResponseAsync({ messages });
 		const chatRepository = new ChatRepository();
 		await chatRepository.updateTitleAsync(chatId, title);
-
-		console.timeEnd("generateTitle");
 
 		return formatJSONResponse<GenerateTitleResponseBody>({
 			chatId,
