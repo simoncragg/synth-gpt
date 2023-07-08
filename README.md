@@ -1,6 +1,6 @@
 # synth-gpt
 
-An intelligent voice assistant powered by GPT-3.5 turbo.
+An intelligent voice assistant powered by GPT-4.
 
 https://github.com/simoncragg/synth-gpt/assets/22366916/cbfb40e9-0be3-4704-a08d-35a6866fb507
 
@@ -18,7 +18,7 @@ https://github.com/simoncragg/synth-gpt/assets/22366916/cbfb40e9-0be3-4704-a08d-
 
 - Migrate frontend app from CRA to Vite.
 - Web Browsing: Ability to visit web pages sourced from web searches to provide more comprehensive and accurate responses.
-- Image Attachments: Attach images to expand the input modalities (GPT-4 required).
+- Image Attachments: Enable users to share visual information by attaching images (when the API becomes available).
 - Image Generation: Integrate with the DALL·E 2 API for image responses.
 
 ## Setup
