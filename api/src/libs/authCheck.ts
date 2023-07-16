@@ -6,9 +6,9 @@ import { formatJSONResponse } from "@libs/api-gateway";
 import type { BaseResponseBody } from "../handlers/http/types";
 
 const verifier = JwtRsaVerifier.create({
-	issuer: process.env.JWT_ISSUER_DOMAIN,
+	issuer: `https://${process.env.JWT_ISSUER_DOMAIN}/`,
 	audience: process.env.JWT_AUDIENCE,
-	jwksUri: process.env.JWT_JWKS_URI
+	jwksUri: `https://${process.env.JWT_ISSUER_DOMAIN}/.well-known/jwks.json`
 });
 
 const authCheck = (): middy.MiddlewareObj<APIGatewayProxyEvent, APIGatewayProxyResult> => {
