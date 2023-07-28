@@ -25,7 +25,8 @@
 		"@middy/core": "^3.4.0",
 		"@middy/http-json-body-parser": "^3.4.0",
 		"aws-jwt-verify": "^4.0.0",
-		"node-fetch": "^2.6.7"
+		"node-fetch": "^2.6.7",
+		"serverless-dynamodb": "^0.2.42"
 	},
 	"devDependencies": {
 		"@serverless/typescript": "^3.0.0",
@@ -44,7 +45,6 @@
 		"json-schema-to-ts": "^1.5.0",
 		"rimraf": "^4.4.1",
 		"serverless": "^3.27.0",
-		"serverless-dynamodb-local": "^0.2.40",
 		"serverless-esbuild": "^1.37.3",
 		"serverless-offline": "^12.0.4",
 		"serverless-s3-local": "^0.7.1",
@@ -52,11 +52,5 @@
 		"ts-node": "^10.4.0",
 		"tsconfig-paths": "^3.9.0",
 		"typescript": "^4.9.5"
-	},
-	"overrides": {
-		"serverless-dynamodb-local": {
-			"flat": "^5.0.1",
-			"minimatch": "^3.0.5"
-		}
 	}
 }

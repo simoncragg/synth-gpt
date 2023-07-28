@@ -17,7 +17,7 @@ const serverlessConfiguration: AWS = {
 		"serverless-esbuild",
 		"serverless-offline",
 		"serverless-s3-local",
-		"serverless-dynamodb-local",
+		"serverless-dynamodb",
 	],
 	provider: {
 		name: "aws",
@@ -113,7 +113,7 @@ const serverlessConfiguration: AWS = {
 				Resource: "*"
 			},
 		],
-		dynamodb: {
+		"serverless-dynamodb": {
 			stages: [
 				"dev",
 			],

@@ -120,8 +120,8 @@ export default class ChatRepository {
 			: {
 				region: "localhost",
 				endpoint: "http://localhost:8000",
-				accessKeyId: "DUMMY_ACCESS_KEY",
-				secretAccessKey: "DUMMY_SECRET_ACCESS_KEY",
+				accessKeyId: "DUMMY",
+				secretAccessKey: "DUMMY",
 			};
 	}
 }
