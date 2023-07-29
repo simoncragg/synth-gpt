@@ -1,8 +1,9 @@
+import { marked } from "marked";
 import { useSelector, shallowEqual } from "react-redux";
-import { RootStateType } from "../../../store";
 import { AiOutlineUser } from "react-icons/ai";
 import { ImAttachment } from "react-icons/im";
 import { RiVoiceprintFill } from "react-icons/ri";
+import { RootStateType } from "../../../store";
 import { mapToContentParts } from "../mappers/contentMapper";
 import Code from "../../../components/Code";
 import WebActivity from "./WebActivity";
@@ -48,9 +49,10 @@ const ChatLog = () => {
 														<li
 															key={`${id}-${partIndex}-${listItem.id}`}
 															className="mb-4 text-base font-normal text-gray-400"
-														>
-															{listItem.text}
-														</li>
+															dangerouslySetInnerHTML={{
+																__html: marked.parseInline(listItem.text),
+															}}
+														/>
 													)
 												)}
 											</ol>
@@ -70,9 +72,10 @@ const ChatLog = () => {
 											<p
 												key={`${id}-${partIndex}`}
 												className="mb-4 text-base font-normal text-gray-400"
-											>
-												{(part as Paragraph).text}
-											</p>
+												dangerouslySetInnerHTML={{
+													__html: marked.parseInline((part as Paragraph).text),
+												}}
+											/>
 										);
 								}
 							}
