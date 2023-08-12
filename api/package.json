@@ -48,6 +48,7 @@
 		"serverless-esbuild": "^1.37.3",
 		"serverless-offline": "^12.0.4",
 		"serverless-s3-local": "^0.7.1",
+		"tiktoken-node": "^0.0.6",
 		"ts-jest": "^29.0.5",
 		"ts-node": "^10.4.0",
 		"tsconfig-paths": "^3.9.0",

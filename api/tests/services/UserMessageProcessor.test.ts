@@ -1,3 +1,4 @@
+import tiktoken from "tiktoken-node";
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
@@ -43,8 +44,8 @@ const performWebSearchAsyncMock = mocked(performWebSearchAsync);
 const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
 const generateChatResponseDeltasAsyncMock = mocked(generateChatResponseDeltasAsync);
 const postToConnectionAsyncMock = mocked(postToConnectionAsync);
-const TextToSpeechServiceMock = mocked(TextToSpeechService);
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
+const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
 describe("UserMessageProcessor", () => {
 	const connectionId = uuidv4();
@@ -58,7 +59,7 @@ describe("UserMessageProcessor", () => {
 	describe("Process a user message without using a web search", () => {
 		const generatedLines = [
 			"Sure, here's the JavaScript code to log \"Hello World\" to the console:\n",
-			"```javascript\n",
+			"```javascript \n",
 			"console.log(\"Hello World\");\n",
 			"```\n",
 			"When you run this code, it will output \"Hello World\" in the console.\n",
@@ -104,7 +105,7 @@ describe("UserMessageProcessor", () => {
 						type: "text",
 						value: line,
 					},
-					userMessagePayload
+					userMessagePayload,
 				);
 			}
 		});
@@ -114,7 +115,7 @@ describe("UserMessageProcessor", () => {
 
 			const spokenLines = [
 				generatedLines[0],
-				generatedLines[4]
+				getLastItem(generatedLines),
 			];
 
 			for (const transcript of spokenLines) {
@@ -383,9 +384,9 @@ describe("UserMessageProcessor", () => {
 			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
 		): Promise<void> => {
 			for (const line of lines) {
-				const tokens = tokenize(line);
-				for (const token of tokens) {
-					await onDeltaReceived({ content: token }, null);
+				const chunks = tokenizeAndDecodeChunks(line);
+				for (const chunk of chunks) {
+					await onDeltaReceived({ content: chunk }, null);
 				}
 				await onDeltaReceived({}, "stop");
 			}
@@ -405,10 +406,10 @@ describe("UserMessageProcessor", () => {
 				},
 			}, null);
 
-			for (const token of ["{", " ", "\"", "search_", "term", "\":", " \"", ...tokenize(searchTerm), "\"", " ", "}"]) {
+			for (const chunk of tokenizeAndDecodeChunks(`{ "search_term": "${searchTerm}" }`)) {
 				await onDeltaReceived({
 					function_call: {
-						arguments: token
+						arguments: chunk
 					},
 				}, null);
 			}
@@ -443,7 +444,7 @@ describe("UserMessageProcessor", () => {
 					message: {
 						id: expect.any(String),
 						role: "assistant",
-						content: content,
+						content,
 						timestamp: expect.any(Number),
 					},
 					isLastSegment,
@@ -472,11 +473,12 @@ describe("UserMessageProcessor", () => {
 		);
 	};
 
-	const tokenize = (str: string): string[] => {
-		return str.split(" ").map((token, i, tokens) =>
-			token.indexOf("\n") > -1
-				? token
-				: token + (i < tokens.length - 1 ? " " : "")
-		);
+	const tokenizeAndDecodeChunks = (str: string): string[] => {
+		const tokenizer = tiktoken.getEncoding("cl100k_base");
+		return tokenizer.encode(str).map(token => tokenizer.decode([token]));
+	};
+
+	const getLastItem = (arr: string[]): string => {
+		return arr[arr.length - 1];
 	};
 });
