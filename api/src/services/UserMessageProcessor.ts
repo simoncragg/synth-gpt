@@ -114,7 +114,9 @@ export default class UserMessageProcessor {
 				const value = message.content.value as string;
 
 				if (value.indexOf("```") > -1) {
-					isInCodeBlock = !isInCodeBlock;
+					if (!value.match(/```[\s\S]*?```/g)) {
+						isInCodeBlock = !isInCodeBlock;
+					}
 				}
 				else if (!isInCodeBlock) {
 					await this.processAssistantVoiceAsync(

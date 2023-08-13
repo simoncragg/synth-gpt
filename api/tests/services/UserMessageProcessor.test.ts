@@ -56,20 +56,47 @@ describe("UserMessageProcessor", () => {
 
 	let userMessageProcessor: UserMessageProcessor;
 
-	describe("Process a user message without using a web search", () => {
+	describe("Process a user message with a complex multipe code block response", () => {
 		const generatedLines = [
-			"Sure, here's the JavaScript code to log \"Hello World\" to the console:\n",
-			"```javascript \n",
-			"console.log(\"Hello World\");\n",
-			"```\n",
-			"When you run this code, it will output \"Hello World\" in the console.\n",
+			{
+				line: "Sure, here's a two-line Python code to calculate the sum of even numbers from 1 to 10:\n",
+				isSpoken: true,
+			},
+			{
+				line: "```python \n",
+				isSpoken: false,
+			},
+			{
+				line: "even_sum = sum(range(2, 11, 2))\n",
+				isSpoken: false,
+			},
+			{
+				line: "print(even_sum)\n",
+				isSpoken: false,
+			},
+			{
+				line: "```\n",
+				isSpoken: false,
+			},
+			{
+				line: "Expected output:\n",
+				isSpoken: true,
+			},
+			{
+				line: "```bash 30```\n",
+				isSpoken: false,
+			},
+			{
+				line: "The provided Python code calculates and prints the sum of even numbers from 1 to 10, resulting in an expected output of 30.\n",
+				isSpoken: true,
+			}
 		];
 
 		let userMessage: ChatMessage;
 		let userMessagePayload: ProcessUserMessagePayload;
 
 		beforeEach(() => {
-			arrangeGenerateChatResponseDeltasAsyncMock(generatedLines);
+			arrangeGenerateChatResponseDeltasAsyncMock(generatedLines.map(x => x.line));
 			arrangeTextToSpeechServiceMock();
 
 			userMessage = {
@@ -77,7 +104,7 @@ describe("UserMessageProcessor", () => {
 				role: "user",
 				content: {
 					type: "text",
-					value: "Write JavaScript to log \"Hello World\" to console",
+					value: "Calculate the sum of even numbers from 1 to 10 using 2 lines of Python and show the expected output",
 				},
 				timestamp: 1234567890,
 			};
@@ -99,7 +126,7 @@ describe("UserMessageProcessor", () => {
 		it("should post assistantMessage messages to client", async () => {
 			await userMessageProcessor.process(userMessagePayload);
 
-			for (const line of generatedLines) {
+			for (const line of generatedLines.map(x => x.line)) {
 				expectAssistantMessageSegmentToBePostedToClient(
 					{
 						type: "text",
@@ -110,16 +137,23 @@ describe("UserMessageProcessor", () => {
 			}
 		});
 
-		it("should post assistantAudio messages to client", async () => {
+		it("should post correct assistantAudio messages to client", async () => {
 			await userMessageProcessor.process(userMessagePayload);
 
-			const spokenLines = [
-				generatedLines[0],
-				getLastItem(generatedLines),
-			];
+			const spokenLines = generatedLines
+				.filter(x => x.isSpoken)
+				.map(x => x.line);
 
 			for (const transcript of spokenLines) {
 				expectAudioMessageSegmentToBePostedToClient(transcript, userMessagePayload);
+			}
+
+			const unspokenLines = generatedLines
+				.filter(x => x.isSpoken === false)
+				.map(x => x.line);
+
+			for (const transcript of unspokenLines) {
+				expectAudioMessageSegmentNotToBePostedToClient(transcript, userMessagePayload);
 			}
 		});
 
@@ -138,7 +172,7 @@ describe("UserMessageProcessor", () => {
 							role: "assistant",
 							content: {
 								type: "text",
-								value: generatedLines.join(""),
+								value: generatedLines.map(x => x.line).join(""),
 							},
 							timestamp: expect.any(Number),
 						}
@@ -473,12 +507,31 @@ describe("UserMessageProcessor", () => {
 		);
 	};
 
-	const tokenizeAndDecodeChunks = (str: string): string[] => {
-		const tokenizer = tiktoken.getEncoding("cl100k_base");
-		return tokenizer.encode(str).map(token => tokenizer.decode([token]));
+	const expectAudioMessageSegmentNotToBePostedToClient = (
+		transcript: string,
+		userMessagePayload: ProcessUserMessagePayload
+	) => {
+		const { connectionId, chatId } = userMessagePayload;
+		expect(postToConnectionAsyncMock).not.toHaveBeenCalledWith(
+			connectionId,
+			{
+				type: "assistantAudioSegment",
+				payload: {
+					chatId,
+					audioSegment: {
+						audioUrl: baseAudioUrl + encodeURIComponent(transcript) + ".mpg",
+						timestamp: expect.any(Number),
+					},
+				},
+			},
+		);
 	};
 
-	const getLastItem = (arr: string[]): string => {
-		return arr[arr.length - 1];
+	const tokenizeAndDecodeChunks = (str: string): string[] => {
+		const tokenizer = tiktoken.getEncoding("cl100k_base");
+		const output = tokenizer.encode(str).map(token => tokenizer.decode([token]));
+
+		console.log(output.join("").replace(" ", "*"));
+		return output;
 	};
 });
