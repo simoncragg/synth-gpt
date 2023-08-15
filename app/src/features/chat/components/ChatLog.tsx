@@ -50,7 +50,10 @@ const ChatLog = () => {
 															key={`${id}-${partIndex}-${listItem.id}`}
 															className="mb-4 text-base font-normal text-gray-400"
 															dangerouslySetInnerHTML={{
-																__html: marked.parseInline(listItem.text),
+																__html: marked.parseInline(listItem.text, {
+																	headerIds: false,
+																	mangle: false,
+																}),
 															}}
 														/>
 													)
@@ -73,7 +76,10 @@ const ChatLog = () => {
 												key={`${id}-${partIndex}`}
 												className="mb-4 text-base font-normal text-gray-400"
 												dangerouslySetInnerHTML={{
-													__html: marked.parseInline((part as Paragraph).text),
+													__html: marked.parseInline((part as Paragraph).text, {
+														headerIds: false,
+														mangle: false,
+													}),
 												}}
 											/>
 										);
