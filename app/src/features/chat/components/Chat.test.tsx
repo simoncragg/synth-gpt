@@ -1,3 +1,6 @@
+import type { UseWebSocketProps } from "../hooks/useWebSocket";
+
+import { PreloadedState } from "@reduxjs/toolkit";
 import { fireEvent } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
@@ -5,10 +8,11 @@ import { useSpeechRecognition } from "react-speech-recognition";
 import { v4 as uuidv4 } from "uuid";
 import { waitFor } from "@testing-library/react";
 import { within } from "@testing-library/dom";
-import { newChatText } from "../../../constants";
-import { renderWithProviders } from "../../../utils/test-utils";
 
 import Chat from "./Chat";
+import { RootStateType } from "../../../store";
+import { newChatText } from "../../../constants";
+import { renderWithProviders } from "../../../utils/test-utils";
 
 window.HTMLElement.prototype.scrollIntoView = jest.fn();
 
@@ -16,11 +20,11 @@ const mockConnect = jest.fn();
 const mockSend = jest.fn();
 const mockDisconnect = jest.fn();
 
-let onConnectionClosedCallback: (event: CloseEvent) => null = null;
+let onConnectionClosedCallback: (event: CloseEvent) => void;
 
 jest.mock("../hooks/useWebSocket", () => ({
 	__esModule: true,
-	default: ({ onConnectionClosed }) => {
+	default: ({ onConnectionClosed }: UseWebSocketProps) => {
 		onConnectionClosedCallback = onConnectionClosed;
 		return {
 			connect: mockConnect,
@@ -32,7 +36,12 @@ jest.mock("../hooks/useWebSocket", () => ({
 
 jest.mock("react-speech-recognition", () => ({
 	__esModule: true,
-	useSpeechRecognition: jest.fn(),
+	useSpeechRecognition: jest.fn(() => ({
+		transcript: "",
+		listening: false,
+		browserSupportsSpeechRecognition: true,
+		resetTranscript: jest.fn(),
+	})),
 	default: {
 		startListening: jest.fn(),
 		stopListening: jest.fn(),
@@ -102,7 +111,7 @@ describe("Chat", () => {
 		renderChat(chatId);
 
 		mockDisconnect.mockImplementation(() => {
-			onConnectionClosedCallback({ code: 1006 });
+			onConnectionClosedCallback({ code: 1006 } as CloseEvent);
 		});
 		mockDisconnect();
 
@@ -116,7 +125,7 @@ describe("Chat", () => {
 		renderChat(chatId);
 
 		mockDisconnect.mockImplementation(() => {
-			onConnectionClosedCallback({ code: 1005 });
+			onConnectionClosedCallback({ code: 1005 } as CloseEvent);
 		});
 		mockDisconnect();
 
@@ -224,7 +233,8 @@ describe("Chat", () => {
 	});
 
 	const setupSpeechRecognitionHook = (transcript: string, listening = true) => {
-		useSpeechRecognition.mockReturnValue({
+		const useSpeechRecognitionMock = useSpeechRecognition as jest.Mock;
+		useSpeechRecognitionMock.mockReturnValue({
 			transcript,
 			listening,
 			browserSupportsSpeechRecognition: true,
@@ -234,7 +244,7 @@ describe("Chat", () => {
 
 	const renderChat = (
 		chatId: string,
-		initialState?: PreloadedState<RootState>
+		initialState?: PreloadedState<RootStateType>
 	) => {
 		return renderWithProviders(<Chat />, {
 			preloadedState: initialState ?? {

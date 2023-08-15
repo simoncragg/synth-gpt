@@ -1,13 +1,14 @@
-import { v4 as uuidv4 } from "uuid";
+import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
+import { v4 as uuidv4 } from "uuid";
 import { waitFor } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
+
+import ChatOrganiser from "./ChatOrganiser";
 import { addOrUpdateMessage } from "../chatSlice";
 import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
-import userEvent from "@testing-library/user-event";
-import ChatOrganiser from "./ChatOrganiser";
 
 const userId = "user-123";
 const accessToken = "dummy-access-token";
@@ -29,7 +30,7 @@ describe("ChatOrganiser", () => {
 	beforeAll(() => {
 		server.listen();
 		server.use(
-			rest.get("*/api/v1/chats", (req, res, ctx) => {
+			rest.get("*/api/v1/chats", (_, res, ctx) => {
 				return res(
 					ctx.json({
 						chats: mockChats,
@@ -70,12 +71,12 @@ describe("ChatOrganiser", () => {
 			{ chatId: uuidv4(), userId, title: newChatText },
 			...mockChats,
 		];
-		const chatId = chats.find((chat) => chat.title === newChatText).chatId;
+		const chatId = chats[0].chatId;
 
 		server.use(
-			rest.post(`*/api/v1/chats/${chatId}/generateTitle`, (req, res, ctx) => {
+			rest.post(`*/api/v1/chats/${chatId}/generateTitle`, (_, res, ctx) => {
 				const chat = chats.find((chat) => chat.chatId === chatId);
-				chat.title = title;
+				if (chat) chat.title = title;
 				return res(
 					ctx.json({
 						chatId,
@@ -95,25 +96,7 @@ describe("ChatOrganiser", () => {
 			})
 		);
 
-		const { getByText, store } = renderChatOrganiser(chatId, {
-			chat: {
-				chatId,
-				title: "New chat",
-				transcript: "",
-				attachments: [],
-				messages: [
-					{
-						id: uuidv4(),
-						role: "user" as const,
-						content: {
-							type: "text",
-							value: "Who was the 16th US president",
-						},
-						timestamp: Date.now(),
-					},
-				],
-			},
-		});
+		const { getByText, store } = renderChatOrganiser(chatId, title);
 
 		await waitFor(() => {
 			store.dispatch(
@@ -166,7 +149,7 @@ describe("ChatOrganiser", () => {
 		expect(window.location.pathname).toBe("/");
 	});
 
-	const renderChatOrganiser = (chatId: string) => {
+	const renderChatOrganiser = (chatId: string, title: string = newChatText) => {
 		return renderWithProviders(
 			<BrowserRouter>
 				<ChatOrganiser />
@@ -175,7 +158,7 @@ describe("ChatOrganiser", () => {
 				preloadedState: {
 					chat: {
 						chatId,
-						title: newChatText,
+						title,
 						transcript: "",
 						attachments: [],
 						messages: [],

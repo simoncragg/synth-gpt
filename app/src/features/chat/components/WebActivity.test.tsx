@@ -1,6 +1,7 @@
+import userEvent from "@testing-library/user-event";
 import { render, waitFor } from "@testing-library/react";
 import { v4 as uuidv4 } from "uuid";
-import userEvent from "@testing-library/user-event";
+
 import WebActivity from "./WebActivity";
 
 describe("WebActivity", () => {
@@ -38,9 +39,9 @@ describe("WebActivity", () => {
 				{
 					type: "searching",
 					searchTerm,
-				},
+				} as SearchingWebAction,
 			],
-		};
+		} as WebActivity;
 
 		const { getByText, getByTestId } = render(
 			<WebActivity id={messageId} activity={activity} />
@@ -53,8 +54,9 @@ describe("WebActivity", () => {
 	it("renders 'Finished browsing' when the state is 'finished'", async () => {
 		const activity = {
 			currentState: "finished",
+			searchTerm,
 			actions: [],
-		};
+		} as WebActivity;
 
 		const { getByText } = render(
 			<WebActivity id={messageId} activity={activity} />
@@ -71,9 +73,9 @@ describe("WebActivity", () => {
 				{
 					type: "searching",
 					searchTerm,
-				},
+				} as SearchingWebAction,
 			],
-		};
+		} as WebActivity;
 
 		const { getByText, getByRole } = render(
 			<WebActivity id={messageId} activity={activity} />
@@ -98,13 +100,13 @@ describe("WebActivity", () => {
 					{
 						type: "searching",
 						searchTerm,
-					},
+					} as SearchingWebAction,
 					{
 						type: "readingResults",
 						results,
-					},
+					} as ReadingWebSearchResultsAction,
 				],
-			};
+			} as WebActivity;
 
 			const { getByText, getByRole, getAllByRole } = render(
 				<WebActivity id={messageId} activity={activity} />
@@ -121,13 +123,15 @@ describe("WebActivity", () => {
 			expect(getByText("Reading search results")).toBeInTheDocument();
 			const resultLinks = getAllByRole("link");
 			for (let i = 0; i < resultLinks.length; i++) {
-				expect(resultLinks[i]).toHaveTextContent(
-					activity.actions[1].results[i].name
-				);
-				expect(resultLinks[i]).toHaveAttribute(
-					"href",
-					activity.actions[1].results[i].url
-				);
+				const actions = activity.actions as ReadingWebSearchResultsAction[];
+				const results = actions[1]?.results as WebSearchResult[];
+				const result = results?.[i];
+				if (result) {
+					expect(resultLinks[i]).toHaveTextContent(result.name);
+					expect(resultLinks[i]).toHaveAttribute("href", result.url);
+				} else {
+					throw new Error(`Result at index ${i} is null or undefined.`);
+				}
 			}
 		}
 	);

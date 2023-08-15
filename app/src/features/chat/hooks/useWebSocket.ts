@@ -3,7 +3,7 @@ import { useRef } from "react";
 const useWebSocket = ({
 	onMessageReceived,
 	onConnectionClosed,
-}: ChatSocketProps) => {
+}: UseWebSocketProps) => {
 	const socketRef = useRef<WebSocket | null>(null);
 
 	const connect = (tokenId: string): void => {
@@ -43,7 +43,7 @@ const useWebSocket = ({
 	return { connect, send, disconnect };
 };
 
-export interface ChatSocketProps {
+export interface UseWebSocketProps {
 	onMessageReceived: (message: WebSocketMessage) => void;
 	onConnectionClosed: (event: CloseEvent) => void;
 }

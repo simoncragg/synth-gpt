@@ -1,14 +1,21 @@
+import userEvent from "@testing-library/user-event";
+import { BrowserRouter } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
 import { waitFor } from "@testing-library/react";
-import { BrowserRouter } from "react-router-dom";
-import { renderWithProviders } from "../../../utils/test-utils";
-import userEvent from "@testing-library/user-event";
+
 import ChatLink from "./ChatLink";
+import { renderWithProviders } from "../../../utils/test-utils";
 
 describe("ChatLink", () => {
 	const chat = {
 		chatId: uuidv4(),
 		title: "Test Chat",
+		userId: uuidv4(),
+		transcript: "",
+		messages: [],
+		attachments: [],
+		createdTime: Date.now() - 1000,
+		updatedTime: Date.now(),
 	};
 
 	const editChatTitleMock = jest.fn();
@@ -19,51 +26,27 @@ describe("ChatLink", () => {
 	});
 
 	it("should render chat link with chat title", () => {
-		const { getByText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={false}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByText } = renderChatLink();
+
 		expect(getByText(chat.title)).toBeInTheDocument();
 	});
 
 	it("should add selected class to chat link when isSelected is true", () => {
-		const { getByRole } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByRole } = renderChatLink();
+
 		expect(getByRole("link")).toHaveClass("bg-gray-700");
 	});
 
 	it("should show delete button when isSelected is true and not pending any confirmation", () => {
-		const { getByLabelText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editTitleChat={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText } = renderChatLink();
+
 		expect(getByLabelText("Edit chat title")).toBeInTheDocument();
 		expect(getByLabelText("Delete chat")).toBeInTheDocument();
 	});
 
 	it("should show confirm and cancel buttons when isSelected is true and pending deletion confirmation", async () => {
-		const { getByLabelText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText } = renderChatLink();
+
 		const editButton = getByLabelText("Edit chat title");
 		await waitFor(() => {
 			userEvent.click(editButton);
@@ -73,14 +56,8 @@ describe("ChatLink", () => {
 	});
 
 	it("should show confirm and cancel buttons when the edit button is clicked", async () => {
-		const { getByLabelText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText } = renderChatLink();
+
 		const editButton = getByLabelText("Edit chat title");
 		await waitFor(() => {
 			userEvent.click(editButton);
@@ -91,14 +68,8 @@ describe("ChatLink", () => {
 	});
 
 	it("should bring text input of title into focus when edit button is clicked", async () => {
-		const { getByLabelText, getByRole } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText, getByRole } = renderChatLink();
+
 		const editButton = getByLabelText("Edit chat title");
 		await waitFor(() => {
 			userEvent.click(editButton);
@@ -112,14 +83,7 @@ describe("ChatLink", () => {
 	it("should call editChatTitle with correct args when the confirm button is clicked", async () => {
 		const newTitle = "New title";
 
-		const { getByLabelText, getByRole } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText, getByRole } = renderChatLink();
 
 		const editButton = getByLabelText("Edit chat title");
 		await waitFor(() => {
@@ -135,14 +99,8 @@ describe("ChatLink", () => {
 	});
 
 	it("should not call editChatTitle when cancel button is clicked", async () => {
-		const { getByLabelText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText } = renderChatLink();
+
 		const editButton = getByLabelText("Edit chat title");
 		await waitFor(() => {
 			userEvent.click(editButton);
@@ -154,14 +112,8 @@ describe("ChatLink", () => {
 	});
 
 	it("should show confirm and cancel deletion buttons when the delete button is clicked", async () => {
-		const { getByLabelText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText } = renderChatLink();
+
 		const deleteButton = getByLabelText("Delete chat");
 		await waitFor(() => {
 			userEvent.click(deleteButton);
@@ -172,14 +124,7 @@ describe("ChatLink", () => {
 	});
 
 	it("should call deleteChat when the confirm button is clicked", async () => {
-		const { getByLabelText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText } = renderChatLink();
 
 		const deleteButton = getByLabelText("Delete chat");
 		await waitFor(() => {
@@ -192,14 +137,8 @@ describe("ChatLink", () => {
 	});
 
 	it("should not call deleteChat when cancel button is clicked", async () => {
-		const { getByLabelText } = render(
-			<ChatLink
-				chat={chat}
-				isSelected={true}
-				editChatTitle={editChatTitleMock}
-				deleteChat={deleteChatMock}
-			/>
-		);
+		const { getByLabelText } = renderChatLink();
+
 		const deleteButton = getByLabelText("Delete chat");
 		await waitFor(() => {
 			userEvent.click(deleteButton);
@@ -210,7 +149,7 @@ describe("ChatLink", () => {
 		expect(deleteChatMock).not.toHaveBeenCalled();
 	});
 
-	const render = () => {
+	const renderChatLink = () => {
 		return renderWithProviders(
 			<BrowserRouter>
 				<ChatLink

@@ -1,7 +1,9 @@
-import { waitFor } from "@testing-library/react";
-import { renderWithProviders } from "../utils/test-utils";
 import userEvent from "@testing-library/user-event";
+import { v4 as uuidv4 } from "uuid";
+import { waitFor } from "@testing-library/react";
+
 import Navbar from "./Navbar";
+import { renderWithProviders } from "../utils/test-utils";
 
 jest.mock("react-router-dom");
 
@@ -13,7 +15,11 @@ describe("Navbar", () => {
 		const { getByText } = renderWithProviders(<Navbar />, {
 			preloadedState: {
 				chat: {
+					chatId: uuidv4(),
 					title,
+					transcript: "",
+					messages: [],
+					attachments: [],
 				},
 			},
 		});

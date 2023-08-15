@@ -3,11 +3,11 @@ import { render, RenderOptions } from "@testing-library/react";
 import type { PreloadedState } from "@reduxjs/toolkit";
 import { Provider } from "react-redux";
 
-import { setupStore, AppStore, RootState } from "../store";
+import { setupStore, AppStoreType, RootStateType } from "../store";
 
 interface ExtendedRenderOptions extends Omit<RenderOptions, "queries"> {
-	preloadedState?: PreloadedState<RootState>;
-	store?: AppStore;
+	preloadedState?: PreloadedState<RootStateType>;
+	store?: AppStoreType;
 }
 
 export function renderWithProviders(

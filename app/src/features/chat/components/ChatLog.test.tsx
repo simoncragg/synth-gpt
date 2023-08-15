@@ -1,37 +1,42 @@
 import { v4 as uuidv4 } from "uuid";
-import { renderWithProviders } from "../../../utils/test-utils";
+
 import ChatLog from "./ChatLog";
+import { newChatText } from "../../../constants";
+import { renderWithProviders } from "../../../utils/test-utils";
 
 describe("ChatLog", () => {
+	const chat = {
+		chatId: uuidv4(),
+		title: newChatText,
+		transcript: "",
+		messages: [],
+		attachments: [],
+	};
+
 	it("displays simple paragraph messages", () => {
 		const messages = [
 			{
 				id: uuidv4(),
-				sender: "user",
-				timestamp: Date.now(),
+				role: "user" as const,
 				content: {
-					type: "text",
+					type: "text" as const,
 					value: "Hello",
 				},
+				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
-				sender: "assistant",
-				timestamp: Date.now() + 1000,
+				role: "assistant" as const,
 				content: {
-					type: "text",
+					type: "text" as const,
 					value: "Hi there!",
 				},
+				timestamp: Date.now() + 1000,
 			},
 		];
 
 		const { getByText } = renderWithProviders(<ChatLog />, {
-			preloadedState: {
-				chat: {
-					attachments: [],
-					messages,
-				},
-			},
+			preloadedState: { chat: { ...chat, messages } },
 		});
 
 		for (const msg of messages) {
@@ -54,31 +59,26 @@ describe("ChatLog", () => {
 		const messages = [
 			{
 				id: uuidv4(),
-				sender: "user",
-				timestamp: Date.now(),
+				role: "user" as const,
 				content: {
-					type: "text",
+					type: "text" as const,
 					value: "Hello",
 				},
+				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
-				sender: "assistant",
-				timestamp: Date.now() + 1000,
+				role: "assistant" as const,
 				content: {
-					type: "text",
+					type: "text" as const,
 					value: fullResponse,
 				},
+				timestamp: Date.now() + 1000,
 			},
 		];
 
 		const { getByText, getByTestId } = renderWithProviders(<ChatLog />, {
-			preloadedState: {
-				chat: {
-					attachments: [],
-					messages,
-				},
-			},
+			preloadedState: { chat: { ...chat, messages } },
 		});
 
 		const el = getByText(responseOpener);
@@ -99,36 +99,31 @@ describe("ChatLog", () => {
 		const code =
 			"function fibonacci(n: number): number {\n// more code goes here\nif (n === 0) return 0; console.log(fibonacci(i));\n}\n";
 		const responseText2 =
-			"This program defines a `fibonacci` function which recursively calculates the nth Fibonacci number. Then, it loops over the first 10 numbers and prints each one to the console";
+			"This program defines a fibonacci function which recursively calculates the nth Fibonacci number. Then, it loops over the first 10 numbers and prints each one to the console";
 
 		const messages = [
 			{
 				id: uuidv4(),
-				sender: "user",
+				role: "user" as const,
 				timestamp: Date.now(),
 				content: {
-					type: "text",
+					type: "text" as const,
 					value: userCommand,
 				},
 			},
 			{
 				id: uuidv4(),
-				sender: "assistant",
+				role: "assistant" as const,
 				timestamp: Date.now() + 1321,
 				content: {
-					type: "text",
+					type: "text" as const,
 					value: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}`,
 				},
 			},
 		];
 
 		const { getByText, getByTestId } = renderWithProviders(<ChatLog />, {
-			preloadedState: {
-				chat: {
-					attachments: [],
-					messages,
-				},
-			},
+			preloadedState: { chat: { ...chat, messages } },
 		});
 
 		const textToFind = [userCommand, responseText1, responseText2];
@@ -149,25 +144,25 @@ describe("ChatLog", () => {
 		const messages = [
 			{
 				id: uuidv4(),
-				sender: "user",
+				role: "user" as const,
 				timestamp: Date.now(),
 				content: {
-					type: "text",
+					type: "text" as const,
 					value: userText,
 				},
 			},
 			{
 				id: uuidv4(),
-				sender: "assistant",
+				role: "assistant" as const,
 				timestamp: Date.now() + 1321,
 				content: {
-					type: "webActivity",
+					type: "webActivity" as const,
 					value: {
 						currentState: "searching",
 						searchTerm,
 						actions: [
 							{
-								type: "searching",
+								type: "searching" as const,
 								searchTerm,
 							},
 						],
@@ -177,12 +172,7 @@ describe("ChatLog", () => {
 		];
 
 		const { getByText } = renderWithProviders(<ChatLog />, {
-			preloadedState: {
-				chat: {
-					attachments: [],
-					messages,
-				},
-			},
+			preloadedState: { chat: { ...chat, messages } },
 		});
 
 		const textToFind = [userText, "Browsing the web ..."];

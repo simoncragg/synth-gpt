@@ -14,6 +14,8 @@ jest.mock("react-speech-recognition", () => ({
 	},
 }));
 
+const useSpeechRecognitionMock = useSpeechRecognition as jest.Mock;
+
 describe("SpeechToText", () => {
 	const mockTranscript = "this is a test";
 
@@ -21,11 +23,14 @@ describe("SpeechToText", () => {
 		transcript: string,
 		listening: boolean
 	) => {
-		useSpeechRecognition.mockReturnValue({
-			resetTranscript: jest.fn(),
+		useSpeechRecognitionMock.mockReturnValue({
 			transcript,
+			interimTranscript: transcript,
+			finalTranscript: transcript,
 			listening,
 			browserSupportsSpeechRecognition: true,
+			resetTranscript: jest.fn(),
+			isMicrophoneAvailable: true,
 		});
 	};
 
@@ -71,7 +76,7 @@ describe("SpeechToText", () => {
 	});
 
 	it("should display a message when the browser doesn't support speech recognition", () => {
-		useSpeechRecognition.mockReturnValue({
+		useSpeechRecognitionMock.mockReturnValue({
 			browserSupportsSpeechRecognition: false,
 		});
 
