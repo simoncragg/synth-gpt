@@ -192,7 +192,7 @@ This section outlines the process for configuring and initiating a backend syste
     export POLLY_SECRET_ACCESS_KEY=Your_Amazon_Polly_SECRET_ACCESS_KEY
     ```
 
-9.  Sign in to your Microsoft Azure portal and navigate to the Bing Search v7 resource. You can follow the instructions here to create a Bing Search resource if you don't already have one.
+9.  Sign in to your Microsoft Azure portal and navigate to the Bing Search v7 resource. You can follow the instructions [here](https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/create-bing-search-service-resource) to create a Bing Search resource if you don't already have one.
     Once you have a Bing Search resource, copy one of the generated API keys and add it to your '.api.dev.env' file.
 
     ```
