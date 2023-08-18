@@ -1,15 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2022",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "webworker",
-      "esnext.bigint",
-      "esnext.intl",
-      "esnext.promise",
-      "esnext.symbol"
-    ],
+    "target": "ESNext",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,

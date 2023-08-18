@@ -7,7 +7,7 @@ const useWebSocket = ({
 	const socketRef = useRef<WebSocket | null>(null);
 
 	const connect = (tokenId: string): void => {
-		const baseSocketUrl = process.env.SOCKET_URL ?? "ws://localhost:4001/";
+		const baseSocketUrl = import.meta.env.SOCKET_URL ?? "ws://localhost:4001/";
 		const socketUrl = `${baseSocketUrl}?tokenId=${tokenId}`;
 		const socket = new WebSocket(socketUrl);
 		socket.addEventListener("open", () => {

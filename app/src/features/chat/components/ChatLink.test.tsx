@@ -1,6 +1,7 @@
 import userEvent from "@testing-library/user-event";
 import { BrowserRouter } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
+import { vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 
 import ChatLink from "./ChatLink";
@@ -18,11 +19,11 @@ describe("ChatLink", () => {
 		updatedTime: Date.now(),
 	};
 
-	const editChatTitleMock = jest.fn();
-	const deleteChatMock = jest.fn();
+	const editChatTitleMock = vi.fn();
+	const deleteChatMock = vi.fn();
 
 	afterEach(() => {
-		jest.clearAllMocks();
+		vi.clearAllMocks();
 	});
 
 	it("should render chat link with chat title", () => {

@@ -1,13 +1,15 @@
 import userEvent from "@testing-library/user-event";
 import { v4 as uuidv4 } from "uuid";
+import { vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 
 import Navbar from "./Navbar";
 import { renderWithProviders } from "../utils/test-utils";
 
-jest.mock("react-router-dom");
+vi.mock("react-router-dom");
 
 describe("Navbar", () => {
+
 	it("displays the title of the active chat on mobile", () => {
 		window.innerWidth = 375;
 		const title = "test title";

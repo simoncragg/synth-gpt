@@ -1,7 +1,50 @@
-import { useEffect, useState, useRef } from "react";
+import okaidia from "react-syntax-highlighter/dist/esm/styles/prism/okaidia";
+
+import bash from "react-syntax-highlighter/dist/esm/languages/prism/bash";
+import c from "react-syntax-highlighter/dist/esm/languages/prism/c";
+import cpp from "react-syntax-highlighter/dist/esm/languages/prism/cpp";
+import csharp from "react-syntax-highlighter/dist/esm/languages/prism/csharp";
+import css from "react-syntax-highlighter/dist/esm/languages/prism/css";
+import git from "react-syntax-highlighter/dist/esm/languages/prism/git";
+import go from "react-syntax-highlighter/dist/esm/languages/prism/go";
+import java from "react-syntax-highlighter/dist/esm/languages/prism/java";
+import javascript from "react-syntax-highlighter/dist/esm/languages/prism/javascript";
+import json from "react-syntax-highlighter/dist/esm/languages/prism/json";
+import jsx from "react-syntax-highlighter/dist/esm/languages/prism/jsx";
+import markup from "react-syntax-highlighter/dist/esm/languages/prism/markup";
+import php from "react-syntax-highlighter/dist/esm/languages/prism/php";
+import python from "react-syntax-highlighter/dist/esm/languages/prism/python";
+import rust from "react-syntax-highlighter/dist/esm/languages/prism/rust";
+import toml from "react-syntax-highlighter/dist/esm/languages/prism/toml";
+import tsx from "react-syntax-highlighter/dist/esm/languages/prism/tsx";
+import typescript from "react-syntax-highlighter/dist/esm/languages/prism/typescript";
+import yaml from "react-syntax-highlighter/dist/esm/languages/prism/yaml";
+
 import { FiClipboard } from "react-icons/fi";
 import { MdDone } from "react-icons/md";
-import Prism from "prismjs";
+import { PrismLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import { useState } from "react";
+
+SyntaxHighlighter.registerLanguage("bash", bash);
+SyntaxHighlighter.registerLanguage("c", c);
+SyntaxHighlighter.registerLanguage("cpp", cpp);
+SyntaxHighlighter.registerLanguage("csharp", csharp);
+SyntaxHighlighter.registerLanguage("css", css);
+SyntaxHighlighter.registerLanguage("git", git);
+SyntaxHighlighter.registerLanguage("go", go);
+SyntaxHighlighter.registerLanguage("html", markup);
+SyntaxHighlighter.registerLanguage("java", java);
+SyntaxHighlighter.registerLanguage("javascript", javascript);
+SyntaxHighlighter.registerLanguage("json", json);
+SyntaxHighlighter.registerLanguage("jsx", jsx);
+SyntaxHighlighter.registerLanguage("markup", markup);
+SyntaxHighlighter.registerLanguage("php", php);
+SyntaxHighlighter.registerLanguage("python", python);
+SyntaxHighlighter.registerLanguage("rust", rust);
+SyntaxHighlighter.registerLanguage("toml", toml);
+SyntaxHighlighter.registerLanguage("tsx", tsx);
+SyntaxHighlighter.registerLanguage("typescript", typescript);
+SyntaxHighlighter.registerLanguage("yaml", yaml);
 
 interface CodeProps {
 	code: string;
@@ -10,13 +53,6 @@ interface CodeProps {
 
 const Code = ({ code, language }: CodeProps) => {
 	const [isCopied, setIsCopied] = useState(false);
-	const codeElementRef = useRef<HTMLElement | null>(null);
-
-	useEffect(() => {
-		if (codeElementRef.current) {
-			Prism.highlightElement(codeElementRef.current);
-		}
-	}, [code]);
 
 	const copyToClipboard = () => {
 		if (!isCopied) {
@@ -46,17 +82,9 @@ const Code = ({ code, language }: CodeProps) => {
 					)}
 				</button>
 			</div>
-			<div className="Code">
-				<pre className="line-numbers">
-					<code
-						ref={codeElementRef}
-						data-testid="code"
-						className={`language-${language}`}
-					>
-						{code}
-					</code>
-				</pre>
-			</div>
+			<SyntaxHighlighter data-testid="code" showLineNumbers={true} language={language} style={okaidia} customStyle={{ marginTop: 0, background: "#000000" }}>
+      			{code}
+    		</SyntaxHighlighter>
 		</div>
 	);
 };

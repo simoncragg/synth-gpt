@@ -3,9 +3,9 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 export const chatApi = createApi({
 	reducerPath: "chatApi",
 	baseQuery: fetchBaseQuery({
-		baseUrl: process.env.REACT_APP_CHAT_API_BASE_URL,
+		baseUrl: import.meta.env.VITE_CHAT_API_BASE_URL,
 		prepareHeaders: (headers) => {
-			headers.set("x-api-key", process.env.REACT_APP_CHAT_API_KEY as string);
+			headers.set("x-api-key", import.meta.env.VITE_CHAT_API_KEY as string);
 			return headers;
 		},
 	}),

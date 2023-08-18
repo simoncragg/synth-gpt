@@ -5,8 +5,10 @@
     },
     "extends": [
         "eslint:recommended",
+        "plugin:react/recommended",
         "plugin:@typescript-eslint/recommended",
-        "plugin:prettier/recommended"
+        "plugin:prettier/recommended",
+        "plugin:vitest/recommended"
     ],
     "overrides": [{
         "files": ["*.config.js"],
@@ -21,7 +23,8 @@
     },
     "plugins": [
         "@typescript-eslint",
-        "prettier"
+        "prettier",
+        "vitest"
     ],
     "rules": {
         "indent": [
@@ -44,6 +47,12 @@
                 "singleQuote": false,
                 "jsxSingleQuote": false
             }
-        ]
+        ],
+        "vitest/max-nested-describe": [
+            "error",
+            {
+              "max": 3
+            }
+          ]
     }
 }

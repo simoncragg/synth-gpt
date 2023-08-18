@@ -7,7 +7,7 @@
 		"start:app": "npm start --prefix ./app",
 		"start": "concurrently \"npm run start:api\" \"npm run start:app\" --prefix-colors \"magenta,cyan\"",
 		"test:api": "npm t --prefix ./api",
-		"test:app": "npm t --prefix ./app -- --watchAll=false",
+		"test:app": "npm t --prefix ./app run",
 		"test": "concurrently \"npm run test:api\" \"npm run test:app\" --prefix-colors \"magenta,cyan\"",
 		"prepare": "husky install"
 	},

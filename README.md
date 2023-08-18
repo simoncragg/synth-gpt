@@ -16,7 +16,6 @@ https://github.com/simoncragg/synth-gpt/assets/22366916/cbfb40e9-0be3-4704-a08d-
 
 ## 🔮 Roadmap
 
-- Migrate frontend app from CRA to Vite.
 - Web Browsing: Ability to visit web pages sourced from web searches to provide more comprehensive and accurate responses.
 - Image Attachments: Enable users to share visual information by attaching images (when the API becomes available).
 - Image Generation: Integrate with the DALL·E 2 API for image responses.

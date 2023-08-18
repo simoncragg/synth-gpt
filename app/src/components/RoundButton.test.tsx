@@ -1,4 +1,5 @@
-import { render, fireEvent } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
+import { vi } from "vitest";
 import { RoundButton } from "./RoundButton";
 
 describe("RoundButton component", () => {
@@ -13,7 +14,7 @@ describe("RoundButton component", () => {
 	});
 
 	it("should call onClick prop when clicked", () => {
-		const handleClick = jest.fn();
+		const handleClick = vi.fn();
 		const { getByRole } = render(
 			<RoundButton ariaLabel="Test Button" onClick={handleClick}>
 				Click me

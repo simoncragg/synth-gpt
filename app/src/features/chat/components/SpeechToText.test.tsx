@@ -1,20 +1,21 @@
-import "regenerator-runtime/runtime";
-import { render, fireEvent } from "@testing-library/react";
 import SpeechRecognition, {
 	useSpeechRecognition,
 } from "react-speech-recognition";
+import { render, fireEvent } from "@testing-library/react";
+import { vi } from "vitest";
+
 import SpeechToText from "./SpeechToText";
 
-jest.mock("react-speech-recognition", () => ({
+vi.mock("react-speech-recognition", () => ({
 	__esModule: true,
-	useSpeechRecognition: jest.fn(),
+	useSpeechRecognition: vi.fn(),
 	default: {
-		startListening: jest.fn(),
-		stopListening: jest.fn(),
+		startListening: vi.fn(),
+		stopListening: vi.fn(),
 	},
 }));
 
-const useSpeechRecognitionMock = useSpeechRecognition as jest.Mock;
+const useSpeechRecognitionMock = useSpeechRecognition as vi.Mock;
 
 describe("SpeechToText", () => {
 	const mockTranscript = "this is a test";
@@ -29,7 +30,7 @@ describe("SpeechToText", () => {
 			finalTranscript: transcript,
 			listening,
 			browserSupportsSpeechRecognition: true,
-			resetTranscript: jest.fn(),
+			resetTranscript: vi.fn(),
 			isMicrophoneAvailable: true,
 		});
 	};
@@ -102,7 +103,7 @@ describe("SpeechToText", () => {
 		"Hi Seth",
 		"Hiya Seth",
 	])(
-		"should fix common misheard name in a greeting",
+		"should fix common misheard name in a greeting: %s",
 		(misheardGreeting: string) => {
 			setupSpeechRecognitionHook(`${misheardGreeting}, how's it going?`, true);
 
@@ -115,7 +116,7 @@ describe("SpeechToText", () => {
 	);
 
 	const renderSpeechToText = () => {
-		const onTranscriptionEndedMock = jest.fn();
+		const onTranscriptionEndedMock = vi.fn();
 		const renderResult = render(
 			<SpeechToText onTranscriptionEnded={onTranscriptionEndedMock} />
 		);

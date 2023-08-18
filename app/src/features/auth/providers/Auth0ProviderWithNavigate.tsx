@@ -10,10 +10,10 @@ const Auth0ProviderWithNavigate = ({
 }: Auth0ProviderWithNavigateProps) => {
 	const navigate = useNavigate();
 
-	const domain = process.env.REACT_APP_AUTH0_DOMAIN;
-	const clientId = process.env.REACT_APP_AUTH0_CLIENT_ID;
-	const redirectUri = process.env.REACT_APP_AUTH0_CALLBACK_URL;
-	const audience = process.env.REACT_APP_AUTH0_AUDIENCE;
+	const domain = import.meta.env.VITE_AUTH0_DOMAIN;
+	const clientId = import.meta.env.VITE_AUTH0_CLIENT_ID;
+	const redirectUri = import.meta.env.VITE_AUTH0_CALLBACK_URL;
+	const audience = import.meta.env.VITE_AUTH0_AUDIENCE;
 
 	const onRedirectCallback = (appState: AppState | undefined) => {
 		navigate(appState?.returnTo || window.location.pathname);

@@ -3,6 +3,7 @@ import { BrowserRouter } from "react-router-dom";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { v4 as uuidv4 } from "uuid";
+import { vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 
 import ChatOrganiser from "./ChatOrganiser";
@@ -13,7 +14,7 @@ import { renderWithProviders } from "../../../utils/test-utils";
 const userId = "user-123";
 const accessToken = "dummy-access-token";
 
-jest.mock("../../auth/hooks/useAuth", () => ({
+vi.mock("../../auth/hooks/useAuth", () => ({
 	__esModule: true,
 	default: () => ({ userId, accessToken }),
 }));

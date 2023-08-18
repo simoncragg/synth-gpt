@@ -3,7 +3,7 @@ node_modules
 
 # distributables
 api/.esbuild
-app/build
+app/dist
 
 # s3 local
 api/s3
@@ -14,3 +14,4 @@ app/coverage
 
 # ide
 .vscode
+app/stats.html

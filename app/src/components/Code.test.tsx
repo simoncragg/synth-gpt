@@ -1,4 +1,5 @@
 import { render, fireEvent } from "@testing-library/react";
+import { vi } from "vitest";
 import Code from "./Code";
 
 Object.assign(navigator, {
@@ -12,7 +13,7 @@ describe("Code component", () => {
 		const code = "console.log('Hello, world!')";
 		const { getByText } = render(<Code code={code} language="javascript" />);
 		const copyButton = getByText("Copy code");
-		const clipboardSpy = jest.spyOn(navigator.clipboard, "writeText");
+		const clipboardSpy = vi.spyOn(navigator.clipboard, "writeText");
 		clipboardSpy.mockResolvedValueOnce();
 
 		fireEvent.click(copyButton);

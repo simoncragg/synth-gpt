@@ -6,6 +6,7 @@ import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { useSpeechRecognition } from "react-speech-recognition";
 import { v4 as uuidv4 } from "uuid";
+import { vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 import { within } from "@testing-library/dom";
 
@@ -14,15 +15,15 @@ import { RootStateType } from "../../../store";
 import { newChatText } from "../../../constants";
 import { renderWithProviders } from "../../../utils/test-utils";
 
-window.HTMLElement.prototype.scrollIntoView = jest.fn();
+window.HTMLElement.prototype.scrollIntoView = vi.fn();
 
-const mockConnect = jest.fn();
-const mockSend = jest.fn();
-const mockDisconnect = jest.fn();
+const mockConnect = vi.fn();
+const mockSend = vi.fn();
+const mockDisconnect = vi.fn();
 
 let onConnectionClosedCallback: (event: CloseEvent) => void;
 
-jest.mock("../hooks/useWebSocket", () => ({
+vi.mock("../hooks/useWebSocket", () => ({
 	__esModule: true,
 	default: ({ onConnectionClosed }: UseWebSocketProps) => {
 		onConnectionClosedCallback = onConnectionClosed;
@@ -34,21 +35,21 @@ jest.mock("../hooks/useWebSocket", () => ({
 	},
 }));
 
-jest.mock("react-speech-recognition", () => ({
+vi.mock("react-speech-recognition", () => ({
 	__esModule: true,
-	useSpeechRecognition: jest.fn(() => ({
+	useSpeechRecognition: vi.fn(() => ({
 		transcript: "",
 		listening: false,
 		browserSupportsSpeechRecognition: true,
-		resetTranscript: jest.fn(),
+		resetTranscript: vi.fn(),
 	})),
 	default: {
-		startListening: jest.fn(),
-		stopListening: jest.fn(),
+		startListening: vi.fn(),
+		stopListening: vi.fn(),
 	},
 }));
 
-jest.mock("../../auth/hooks/useAuth", () => ({
+vi.mock("../../auth/hooks/useAuth", () => ({
 	__esModule: true,
 	default: () => ({
 		userId: "user-123",
@@ -85,6 +86,10 @@ describe("Chat", () => {
 				);
 			})
 		);
+	});
+
+	afterEach(() => {
+		vi.clearAllMocks();
 	});
 
 	afterAll(() => {
@@ -233,12 +238,12 @@ describe("Chat", () => {
 	});
 
 	const setupSpeechRecognitionHook = (transcript: string, listening = true) => {
-		const useSpeechRecognitionMock = useSpeechRecognition as jest.Mock;
+		const useSpeechRecognitionMock = useSpeechRecognition as vi.Mock;
 		useSpeechRecognitionMock.mockReturnValue({
 			transcript,
 			listening,
 			browserSupportsSpeechRecognition: true,
-			resetTranscript: jest.fn(),
+			resetTranscript: vi.fn(),
 		});
 	};
 

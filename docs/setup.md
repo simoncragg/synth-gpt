@@ -265,7 +265,7 @@ This section outlines the process for configuring and initiating a backend syste
 5. Remember the unique API key you invented in Step 5 of the [API Setup](#api-setup)? It's time to use that key again. Copy this exact key into your '.app.dev.env' file, as illustrated below:
 
    ```
-   export REACT_APP_CHAT_API_KEY=ExampleAPIKey1234abcdeFGHIJKLMnopq
+   export VITE_CHAT_API_KEY=ExampleAPIKey1234abcdeFGHIJKLMnopq
    ```
 
    Please note that the environment variable name here differs from the one in your 'api.dev.env' file. Make sure to copy carefully to avoid any errors, and remember, you should replace 'ExampleAPIKey1234abcdeFGHIJKLMnopq' with your actual API key.
@@ -273,8 +273,8 @@ This section outlines the process for configuring and initiating a backend syste
 6. Sign in to your Auth0 account and navigate to your Application. On your Application's 'Settings' tab, locate your 'Domain' and 'Client ID' values. Copy these values and insert them into your '.app.dev.env' file, as shown below:
 
    ```
-   export REACT_APP_AUTH0_DOMAIN=Your_Auth0_Domain
-   export REACT_APP_AUTH0_CLIENT_ID=Your_Auth0_Client_ID
+   export VITE_AUTH0_DOMAIN=Your_Auth0_Domain
+   export VITE_AUTH0_CLIENT_ID=Your_Auth0_Client_ID
    ```
 
    Please replace 'Your_Auth0_Domain' and 'Your_Auth0_Client_ID' with the actual values from your Auth0 application settings.
@@ -316,7 +316,7 @@ If everything was set up correctly, the synth-gpt app should now be accessible a
   💡 Tip: You can check an environment variable is set using the echo command:
 
   ```bash
-  echo $REACT_APP_AUTH0_DOMAIN
+  echo $VITE_AUTH0_DOMAIN
   ```
 
   Note the presence of the $ symbol.

@@ -1,8 +1,9 @@
+import { vi } from "vitest";
 import { mapToContentParts } from "./contentMapper";
 
 const mockedId = "mockedId";
 
-jest.mock("uuid", () => ({
+vi.mock("uuid", () => ({
 	v4: () => mockedId,
 }));
 
