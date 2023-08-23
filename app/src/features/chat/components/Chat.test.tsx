@@ -130,7 +130,7 @@ describe("Chat", () => {
 		renderChat(chatId);
 
 		mockDisconnect.mockImplementation(() => {
-			onConnectionClosedCallback({ code: 1005 } as CloseEvent);
+			onConnectionClosedCallback({ code: 1000 } as CloseEvent);
 		});
 		mockDisconnect();
 
