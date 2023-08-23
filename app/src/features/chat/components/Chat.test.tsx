@@ -2,7 +2,7 @@ import type { UseWebSocketProps } from "../hooks/useWebSocket";
 
 import { Mock, vi } from "vitest";
 import { PreloadedState } from "@reduxjs/toolkit";
-import { fireEvent } from "@testing-library/react";
+import { act, fireEvent } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { useSpeechRecognition } from "react-speech-recognition";
@@ -119,7 +119,7 @@ describe("Chat", () => {
 		mockDisconnect.mockImplementation(() => {
 			onConnectionClosedCallback({ code: 1006 } as CloseEvent);
 		});
-		mockDisconnect();
+		act(() => mockDisconnect());
 
 		await waitFor(() => {
 			expect(mockConnect).toHaveBeenCalledTimes(1);
@@ -134,7 +134,7 @@ describe("Chat", () => {
 		mockDisconnect.mockImplementation(() => {
 			onConnectionClosedCallback({ code: 1000 } as CloseEvent);
 		});
-		mockDisconnect();
+		act(() => mockDisconnect());
 
 		await waitFor(() => {
 			expect(mockConnect).toHaveBeenCalledTimes(0);
