@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useRef, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 
-import AddAttachment from "./AddAttachment";
+import Attach from "./Attach";
 import ChatLog from "./ChatLog";
 import HeroSection from "../../../components/HeroSection";
 import SpeechToText from "./SpeechToText";
@@ -49,10 +49,9 @@ const Chat = () => {
 	}, [messages]);
 
 	const onTranscriptionEnded = (transcript: string) => {
-		const message = composeMessage(transcript, attachments);
+		const message = buildMessage(transcript, attachments);
 		setIsAwaitingAudio(true);
 		dispatch(addOrUpdateMessage({ message }));
-
 		send({
 			type: "userMessage" as const,
 			payload: {
@@ -63,32 +62,14 @@ const Chat = () => {
 		});
 	};
 
-	const composeMessage = (
-		transcript: string,
-		attachments: Attachment[]
-	): ChatMessage => {
-		const codeAttachments = attachments.filter(
-			(x) => x.type === "Code"
-		) as CodeAttachment[];
-
-		const flatMap = (codeAttachments: CodeAttachment[]) => {
-			return codeAttachments.flatMap(
-				(attachment) =>
-					`\`\`\`${attachment.content.language}\n${attachment.content.code}\n\`\`\`\n`
-			);
-		};
-
-		const text =
-			codeAttachments.length > 0
-				? `${transcript}\n${flatMap(codeAttachments).join("\n")}`
-				: transcript;
-
+	const buildMessage = (transcript: string, attachments: Attachment[]): ChatMessage => {
 		return {
 			id: uuidv4(),
 			role: "user",
+			attachments,
 			content: {
 				type: "text",
-				value: text,
+				value: transcript,
 			},
 			timestamp: Date.now(),
 		};
@@ -179,7 +160,7 @@ const Chat = () => {
 					) : (
 						<>
 							<SpeechToText onTranscriptionEnded={onTranscriptionEnded} />
-							<AddAttachment />
+							<Attach />
 						</>
 					)}
 				</div>

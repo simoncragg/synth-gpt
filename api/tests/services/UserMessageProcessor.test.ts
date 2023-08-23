@@ -102,6 +102,7 @@ describe("UserMessageProcessor", () => {
 			userMessage = {
 				id: uuidv4(),
 				role: "user",
+				attachments: [],
 				content: {
 					type: "text",
 					value: "Calculate the sum of even numbers from 1 to 10 using 2 lines of Python and show the expected output",
@@ -170,6 +171,7 @@ describe("UserMessageProcessor", () => {
 						{
 							id: expect.any(String),
 							role: "assistant",
+							attachments: [],
 							content: {
 								type: "text",
 								value: generatedLines.map(x => x.line).join(""),
@@ -197,6 +199,7 @@ describe("UserMessageProcessor", () => {
 					message: {
 						id: uuidv4(),
 						role: "user",
+						attachments: [],
 						content: {
 							type: "text",
 							value: "When does Wimbledon start this year?",
@@ -334,6 +337,7 @@ describe("UserMessageProcessor", () => {
 							{
 								id: expect.any(String),
 								role: "assistant",
+								attachments: [],
 								content: {
 									type: "webActivity",
 									value: {
@@ -353,6 +357,7 @@ describe("UserMessageProcessor", () => {
 							{
 								id: expect.any(String),
 								role: "function",
+								attachments: [],
 								content: {
 									type: "functionResult",
 									value: {
@@ -365,6 +370,7 @@ describe("UserMessageProcessor", () => {
 							{
 								id: expect.any(String),
 								role: "assistant",
+								attachments: [],
 								content: {
 									type: "text",
 									value: assistantAnswer
@@ -478,6 +484,7 @@ describe("UserMessageProcessor", () => {
 					message: {
 						id: expect.any(String),
 						role: "assistant",
+						attachments: [],
 						content,
 						timestamp: expect.any(Number),
 					},

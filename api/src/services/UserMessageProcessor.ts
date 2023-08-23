@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import type { Attachment } from "../types";
 
 import ChatCompletionService from "@services/ChatCompletionService";
 import ChatRepository from "@repositories/ChatRepository";
@@ -233,6 +234,7 @@ export default class UserMessageProcessor {
 		const functionMessage = {
 			id: uuidv4(),
 			role: "function" as const,
+			attachments: [] as Attachment[],
 			content: {
 				type: "functionResult" as const,
 				value: {

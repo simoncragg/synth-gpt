@@ -6,7 +6,7 @@ interface ChatState {
 	chatId: string;
 	title: string;
 	transcript: string;
-	attachments: CodeAttachment[];
+	attachments: Attachment[];
 	messages: ChatMessage[];
 }
 
@@ -79,7 +79,7 @@ interface CreateWsTokenRequest {
 	accessToken: string;
 }
 
-interface CreateWsTokenResponse {
+interface CreateWsTokenResponse extends BaseResponse {
 	tokenId: string;
 	expiryTime: number;
 }
@@ -124,9 +124,9 @@ interface Chat {
 	chatId: string;
 	title: string;
 	userId: string;
-	createdTime: number;
-	updatedTime: number;
 	messages: ChatMessage[];
+	createdTime: number;
+	updatedTime: number;	
 }
 
 type RoleType = "user" | "assistant";
@@ -134,6 +134,7 @@ type RoleType = "user" | "assistant";
 interface ChatMessage {
 	id: string;
 	role: RoleType;
+	attachments: Attachment[];
 	content: Content;
 	timestamp: number;
 }
@@ -218,13 +219,25 @@ interface WebSearch extends MessagePart {
 
 /* Attachments */
 
-type AttachmentType = "Code" | "Image";
+type AttachmentType = "File" | "CodeSnippet";
 
 interface Attachment {
 	id: string;
 	type: AttachmentType;
 }
 
+interface FileAttachment extends Attachment {
+	file: AttachedFile;
+}
+
 interface CodeAttachment extends Attachment {
 	content: CodeSnippet;
+}
+
+interface AttachedFile {
+	name: string;
+	contentType: string;
+	extension: string;
+	size: number;
+	contents: string;
 }

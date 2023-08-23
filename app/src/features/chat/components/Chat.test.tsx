@@ -1,5 +1,6 @@
 import type { UseWebSocketProps } from "../hooks/useWebSocket";
 
+import userEvent from "@testing-library/user-event";
 import { Mock, vi } from "vitest";
 import { PreloadedState } from "@reduxjs/toolkit";
 import { act, fireEvent } from "@testing-library/react";
@@ -116,7 +117,7 @@ describe("Chat", () => {
 		renderChat(chatId);
 		mockConnect.mockClear();
 
-		mockDisconnect.mockImplementation(() => {
+		mockDisconnect.mockImplementationOnce(() => {
 			onConnectionClosedCallback({ code: 1006 } as CloseEvent);
 		});
 		act(() => mockDisconnect());
@@ -141,7 +142,7 @@ describe("Chat", () => {
 		});
 	});
 
-	it("should invoke send passing composed message when send button is pressed", () => {
+	it("should send message when send button is pressed", () => {
 		setupSpeechRecognitionHook(transcript);
 
 		const { getByLabelText } = renderChat(chatId);
@@ -155,6 +156,7 @@ describe("Chat", () => {
 				message: {
 					id: expect.any(String),
 					role: "user" as const,
+					attachments: [],
 					content: {
 						type: "text",
 						value: transcript,
@@ -165,7 +167,7 @@ describe("Chat", () => {
 		});
 	});
 
-	it("should render user message in chat log and auto-scroll page", () => {
+	it("should render user message in chat log and auto-scroll the page", () => {
 		setupSpeechRecognitionHook(transcript);
 
 		const { getByTestId } = renderChat(chatId, {
@@ -178,6 +180,7 @@ describe("Chat", () => {
 					{
 						id: uuidv4(),
 						role: "user" as const,
+						attachments: [],
 						content: {
 							type: "text",
 							value: transcript,
@@ -199,10 +202,10 @@ describe("Chat", () => {
 		);
 	});
 
-	it("should add code to chat log when attached", () => {
+	it("should render code attachment in chat log when attached", async () => {
 		setupSpeechRecognitionHook(transcript);
 
-		const { getByTestId } = renderChatAndAddAttachment(
+		const { getByTestId } = await renderChatAndAttachCodeSnippet(
 			chatId,
 			"console.log('Hello World!');"
 		);
@@ -212,14 +215,90 @@ describe("Chat", () => {
 		expect(code).toBeInTheDocument();
 	});
 
-	it("should send the composed message when send button is pressed", () => {
+	it("should render file attachment in chat log when attached", async () => {
 		setupSpeechRecognitionHook(transcript);
 
-		const { getByLabelText } = renderChatAndAddAttachment(
+		const file = new File(["hello"], "hello.txt", { type: "text/plain" });
+		const { getByTestId } = await renderChatAndAttachFiles(chatId, [file]);
+		
+		const chatLog = getByTestId("chat-log");
+
+		await waitFor(() => {
+			const fileEl = within(chatLog).getByText(file.name);
+			expect(fileEl).toBeInTheDocument()
+		});
+	});
+
+	it("should send message with attached code snippet", async () => {
+		setupSpeechRecognitionHook(transcript);
+
+		const code = "console.log('Hello World!');";
+		const { getByLabelText } = await renderChatAndAttachCodeSnippet(
 			chatId,
-			"console.log('Hello World!');"
+			code
 		);
-		fireEvent.click(getByLabelText("listen-send"));
+	
+		userEvent.click(getByLabelText("listen-send"));
+
+		await waitFor(() => {
+			expect(mockSend).toHaveBeenCalledWith({
+				type: "userMessage" as const,
+				payload: {
+					chatId,
+					userId,
+					message: {
+						id: expect.any(String),
+						role: "user",
+						attachments: [{
+								id: expect.any(String),
+								type: "CodeSnippet",
+								content: {
+									language: "typescript",
+									code,
+								},
+							},
+						],
+						content: {
+							type: "text",
+							value: transcript,
+						},
+						timestamp: expect.any(Number),
+					},
+				},
+			});
+		});
+	});
+
+	it("should allow user to add file attachments and display", async () => {
+		setupSpeechRecognitionHook(transcript);
+
+		const expectedFiles = [
+			{
+				name: "hello.txt",
+				contentType: "text/plain",
+				contents: "hello world",
+				extension: "txt",
+				size: 11,
+			},
+			{
+				name: "data.csv",
+				contentType: "text/plain",
+				contents: "name,age",
+				extension: "csv",
+				size: 8,
+			},
+		] as AttachedFile[];
+
+		const files = expectedFiles.map(f => new File([f.contents], f.name, { type: f.contentType }));
+		const { getByText, getByLabelText } = await renderChatAndAttachFiles(chatId, files);
+
+		await waitFor(() => {
+			for (const file of files) {
+				expect(getByText(file.name)).toBeInTheDocument();
+			}
+		});
+
+		userEvent.click(getByLabelText("listen-send"));
 
 		expect(mockSend).toHaveBeenCalledWith({
 			type: "userMessage" as const,
@@ -229,9 +308,21 @@ describe("Chat", () => {
 				message: {
 					id: expect.any(String),
 					role: "user",
+					attachments: 
+						expectedFiles.map(f => ({
+							id: expect.any(String),
+							type: "File",
+							file: {
+								name: f.name,
+								contentType: f.contentType,
+								contents: f.contents,
+								extension: f.extension,
+								size: f.size,
+							},
+						})),
 					content: {
 						type: "text",
-						value: `${transcript}\n\`\`\`typescript\nconsole.log('Hello World!');\n\`\`\`\n`,
+						value: transcript,
 					},
 					timestamp: expect.any(Number),
 				},
@@ -266,15 +357,26 @@ describe("Chat", () => {
 		});
 	};
 
-	const renderChatAndAddAttachment = (chatId: string, codeToAttach: string) => {
+	const renderChatAndAttachCodeSnippet = async (chatId: string, codeToAttach: string) => {
 		const renderResult = renderChat(chatId);
 		const { getByLabelText, getByRole } = renderResult;
-		fireEvent.click(getByLabelText("attachments-menu"));
-		fireEvent.click(getByLabelText("attach-code"));
-		fireEvent.change(getByLabelText("input-code"), {
-			target: { value: codeToAttach },
+		userEvent.click(getByLabelText("attachments-menu"));
+		userEvent.click(getByLabelText("attach-code"));
+		await waitFor(() => userEvent.paste(getByLabelText("input-code"), codeToAttach));
+		userEvent.click(getByRole("button", { name: /^attach$/i }));
+		return renderResult;
+	};
+
+	const renderChatAndAttachFiles = async (chatId: string, files: File[]) => {
+		const renderResult = renderChat(chatId);
+		const { getByLabelText, getByTestId } = renderResult;
+		userEvent.click(getByLabelText("attachments-menu"));
+		userEvent.click(getByLabelText("attach-file"));
+		
+		await waitFor(() =>	{
+			const fileInput = getByTestId("file-input");
+			userEvent.upload(fileInput, files);
 		});
-		fireEvent.click(getByRole("button", { name: /^attach$/i }));
 
 		return renderResult;
 	};

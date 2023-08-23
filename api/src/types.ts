@@ -19,8 +19,37 @@ export interface MessageSegment {
 export interface ChatMessage {
 	id: string;
 	role: RoleType;
+	attachments: Attachment[],
 	content: Content,
 	timestamp: number;
+}
+
+type AttachmentType = "File" | "CodeSnippet";
+
+export interface Attachment {
+	id: string;
+	type: AttachmentType;
+}
+
+export interface FileAttachment extends Attachment {
+	file: AttachedFile;
+}
+
+export interface CodeAttachment extends Attachment {
+	content: CodeSnippet;
+}
+
+export interface AttachedFile {
+	name: string;
+	contentType: string;
+	contents: string;
+	extension: string;
+	size: number;
+}
+
+export interface CodeSnippet {
+	language: string;
+	code: string;
 }
 
 export type ContentType = "text" | "webActivity" | "functionResult";
@@ -84,3 +113,4 @@ export interface WebSocketMessage {
 export interface BaseWebSocketMessagePayload {
 	chatId: string;
 }
+

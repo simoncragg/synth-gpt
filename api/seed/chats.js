@@ -7,6 +7,7 @@ module.exports = [
 			{
 				id: "56921588-d729-46d2-b028-5117f7fa1610",
 				role: "user",
+				attachments: [],
 				content: {
 					type: "text",
 					value: "Hi Synth. How are you?",
@@ -16,6 +17,7 @@ module.exports = [
 			{
 				id: "89647995-54b9-498e-a676-b6686ef30908",
 				role: "assistant",
+				attachments: [],
 				content: {
 					type: "text",
 					value: "Hello! I'm an AI language model, so I don't have feelings in the way humans do. But I'm always ready to assist you with anything language-related! How can I help today?",
@@ -34,6 +36,7 @@ module.exports = [
 			{
 				id: "0b88030c-1fd2-466a-bfee-1a1a0a591970",
 				role: "user",
+				attachments: [],
 				content: {
 					type: "text",
 					value: "Is number one prime or composite?",
@@ -43,6 +46,7 @@ module.exports = [
 			{
 				id: "8089dce3-75d5-4f9a-ad84-8663603bc741",
 				role: "assistant",
+				attachments: [],
 				content: {
 					type: "text",
 					value: "Number one is neither prime nor composite.",

@@ -2,6 +2,8 @@ import { v4 as uuidv4 } from "uuid";
 
 import type {
 	ChatMessage,
+	CodeAttachment,
+	FileAttachment,
 	FunctionResult,
 	MessageSegment,
 } from "../types";
@@ -22,10 +24,7 @@ import { prePrompt } from "../constants";
 
 export default class ChatCompletionService {
 
-	async generateAssistantMessageAsync(
-		chatMessages: ChatMessage[]
-	): Promise<ChatMessage> {
-
+	async generateAssistantMessageAsync(chatMessages: ChatMessage[]): Promise<ChatMessage> {
 		const messages = [
 			{
 				role: "system",
@@ -100,14 +99,30 @@ export default class ChatCompletionService {
 					content: (msg.content.value as FunctionResult).result,
 				} : {
 					role: msg.role,
-					content: msg.content.value as string
+					content: this.convertToMarkdown(msg) as string
 				});
+	}
+
+	private convertToMarkdown(message: ChatMessage) {
+		let markdown = `${message.content.value}\n\n`;
+		for (const attachment of message.attachments) {
+			if (attachment.type === "File") {
+				const { file } = attachment as FileAttachment;
+				markdown += `\`\`\`${file.name}\n${file.contents}\n\`\`\`\n\n`;
+			}
+			if (attachment.type === "CodeSnippet") {
+				const { content: { language, code } } = attachment as CodeAttachment;
+				markdown += `\`\`\`${language}\n${code}\n\`\`\`\n\n`;
+			}
+		}
+		return markdown;
 	}
 
 	private buildChatMessageFromContent(id: string, content: string): ChatMessage {
 		return {
 			id,
 			role: "assistant",
+			attachments: [],
 			content: {
 				type: "text",
 				value: content,
@@ -121,6 +136,7 @@ export default class ChatCompletionService {
 		return {
 			id,
 			role: "assistant",
+			attachments: [],
 			content: {
 				type: "webActivity",
 				value: {

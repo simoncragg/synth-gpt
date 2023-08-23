@@ -12,7 +12,9 @@ const initialState: ChatState = {
 
 type SetActiveChatPayloadType = { chat: Chat };
 type AddOrUpdateMessagePayloadType = { message: ChatMessage };
+type AttachFilePayloadType = { file: AttachedFile };
 type AttachCodeSnippetPayloadType = { codeSnippet: CodeSnippet };
+type RemoveAttachmentPayloadType = { attachmentId: string };
 
 const chatSlice = createSlice({
 	name: "chat",
@@ -25,7 +27,7 @@ const chatSlice = createSlice({
 			chat.attachments = [];
 			chat.messages = [];
 		},
-
+		
 		setActiveChat: (
 			chat: ChatState,
 			action: PayloadAction<SetActiveChatPayloadType>
@@ -38,15 +40,34 @@ const chatSlice = createSlice({
 			chat.messages = messages;
 		},
 
+		attachFile: (
+			chat: ChatState,
+			action: PayloadAction<AttachFilePayloadType>
+		) => {
+			chat.attachments.push({
+				id: uuidv4(),
+				type: "File",
+				file: action.payload.file,
+			} as FileAttachment);
+		},
+
 		attachCodeSnippet: (
 			chat: ChatState,
 			action: PayloadAction<AttachCodeSnippetPayloadType>
 		) => {
 			chat.attachments.push({
 				id: uuidv4(),
-				type: "Code",
+				type: "CodeSnippet",
 				content: action.payload.codeSnippet,
 			} as CodeAttachment);
+		},
+
+		removeAttachment: (
+			chat: ChatState,
+			action: PayloadAction<RemoveAttachmentPayloadType>
+		) => {
+			const { attachmentId } = action.payload;
+			chat.attachments = chat.attachments.filter(a => a.id !== attachmentId);
 		},
 
 		addOrUpdateMessage: (
@@ -81,7 +102,13 @@ const chatSlice = createSlice({
 	},
 });
 
-export const { newChat, setActiveChat, attachCodeSnippet, addOrUpdateMessage } =
-	chatSlice.actions;
+export const { 
+	newChat, 
+	setActiveChat, 
+	attachFile, 
+	attachCodeSnippet, 
+	addOrUpdateMessage,
+	removeAttachment,
+} =	chatSlice.actions;
 
 export default chatSlice;
