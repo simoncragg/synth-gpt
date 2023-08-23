@@ -1,12 +1,12 @@
 import type { UseWebSocketProps } from "../hooks/useWebSocket";
 
+import { Mock, vi } from "vitest";
 import { PreloadedState } from "@reduxjs/toolkit";
 import { fireEvent } from "@testing-library/react";
 import { rest } from "msw";
 import { setupServer } from "msw/node";
 import { useSpeechRecognition } from "react-speech-recognition";
 import { v4 as uuidv4 } from "uuid";
-import { vi } from "vitest";
 import { waitFor } from "@testing-library/react";
 import { within } from "@testing-library/dom";
 
@@ -238,7 +238,7 @@ describe("Chat", () => {
 	});
 
 	const setupSpeechRecognitionHook = (transcript: string, listening = true) => {
-		const useSpeechRecognitionMock = useSpeechRecognition as vi.Mock;
+		const useSpeechRecognitionMock = useSpeechRecognition as Mock;
 		useSpeechRecognitionMock.mockReturnValue({
 			transcript,
 			listening,
