@@ -114,6 +114,7 @@ describe("Chat", () => {
 	it("should attempt to establish a new connection when the websocket is unexceptedly disconnected", async () => {
 		setupSpeechRecognitionHook(transcript);
 		renderChat(chatId);
+		mockConnect.mockClear();
 
 		mockDisconnect.mockImplementation(() => {
 			onConnectionClosedCallback({ code: 1006 } as CloseEvent);
@@ -121,13 +122,14 @@ describe("Chat", () => {
 		mockDisconnect();
 
 		await waitFor(() => {
-			expect(mockConnect).toHaveBeenCalledTimes(2);
+			expect(mockConnect).toHaveBeenCalledTimes(1);
 		});
 	});
 
 	it("should not attempt to establish a new connection when the websocket is disconnected with close code 1000 (Normal Closure)", async () => {
 		setupSpeechRecognitionHook(transcript);
 		renderChat(chatId);
+		mockConnect.mockClear();
 
 		mockDisconnect.mockImplementation(() => {
 			onConnectionClosedCallback({ code: 1000 } as CloseEvent);
@@ -135,7 +137,7 @@ describe("Chat", () => {
 		mockDisconnect();
 
 		await waitFor(() => {
-			expect(mockConnect).toHaveBeenCalledTimes(1);
+			expect(mockConnect).toHaveBeenCalledTimes(0);
 		});
 	});
 
