@@ -36,7 +36,7 @@ const ChatLog = () => {
 						{new Date(timestamp).toTimeString().substring(0, 8)}
 					</time>
 
-					{attachments?.length > 0 && <Attachments attachments={attachments} />}
+					{attachments?.length > 0 && <Attachments attachments={attachments} allowDeletions={false} />}
 
 					{content.type === "text" &&
 						mapToContentParts(content.value as string).map(
@@ -104,7 +104,7 @@ const ChatLog = () => {
 					<time className="block mb-1 text-sm font-normal leading-none text-gray-500">
 						{new Date(Date.now()).toTimeString().substring(0, 8)}
 					</time>
-					<Attachments attachments={attachments} />
+					<Attachments attachments={attachments} allowDeletions={true} />
 				</li>
 			)}
 		</ol>
