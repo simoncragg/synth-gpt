@@ -2,17 +2,20 @@ import { MdClose } from "react-icons/md";
 
 interface AttachedFileProps {
 	attachment: FileAttachment;
+	onPreview: (file: AttachedFile) => void;
 	onDelete: (attachmentId: string) => void;
 	canDelete: boolean;
 }
 
 const AttachedFile = ({
 	attachment: { id, file }, 
+	onPreview,
 	onDelete, 
 	canDelete,
 }: AttachedFileProps) => {
 	return (
 		<div className="relative flex flex-row w-44" aria-label={file.name} title={file.name}>
+			<button type="button" aria-label="Preview contents" className="absolute inset-0 cursor-pointer hover:bg-black/5 w-42" onClick={() => onPreview(file)}></button>
 			<div className="flex-shrink-0 w-12 h-12 bg-purple-800 rounded-tl-md rounded-bl-md grid place-items-center text-white text-sm uppercase truncate">
 				{file.extension}
 			</div>

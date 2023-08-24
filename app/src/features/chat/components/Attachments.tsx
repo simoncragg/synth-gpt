@@ -1,7 +1,9 @@
 import { useDispatch } from "react-redux";
+import { useState } from "react";
 
 import AttachedFile from "./AttachedFile";
 import Code from "../../../components/Code";
+import { Modal } from "flowbite-react";
 import { removeAttachment } from "../chatSlice";
 
 interface AttachmentsProps {
@@ -10,7 +12,14 @@ interface AttachmentsProps {
 }
 
 const Attachments = ({ attachments, allowDeletions }: AttachmentsProps) => {
+
+	const [fileToPreview, setFileToPreview] = useState<AttachedFile | null>(null);
 	const dispatch = useDispatch();
+
+	const previewFileContents = (file: AttachedFile) => {
+		console.log(file.name + "\n\n" + file.contents);
+		setFileToPreview(file);
+	}
 
 	const deleteAttachment = (attachmentId: string) => {
 		dispatch(removeAttachment({attachmentId}));
@@ -26,6 +35,7 @@ const Attachments = ({ attachments, allowDeletions }: AttachmentsProps) => {
 						<div key={attachment.id} className="mr-4 mb-4">
 							<AttachedFile 
 								attachment={attachment} 
+								onPreview={previewFileContents}
 								onDelete={deleteAttachment} 
 								canDelete={allowDeletions} />
 						</div>
@@ -44,6 +54,31 @@ const Attachments = ({ attachments, allowDeletions }: AttachmentsProps) => {
 					/>
 				))
 			}
+
+			{fileToPreview && (
+				<Modal
+					show={true}
+					size="7xl"
+					onClose={() => setFileToPreview(null)}
+				>
+					<Modal.Header>
+						<span className="flex w-full gap-2">
+							{fileToPreview.name}
+						</span>
+					</Modal.Header>
+					<Modal.Body>
+						<div style={{ height: "50vh" }}>
+							<textarea
+								aria-label="input-code"
+								className="w-full h-full resize-none whitespace-pre-wrap overflow-auto bg-gray-900 text-white focus:outline-blue-900 p-4"
+								style={{ fontFamily: "Inter, 'Open Sans', sans-serif" }}
+								readOnly={true}
+								defaultValue={fileToPreview.contents}
+							></textarea>
+						</div>
+					</Modal.Body>
+				</Modal>
+			)}
 		</>
 	);
 };

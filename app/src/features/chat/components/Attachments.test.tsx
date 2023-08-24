@@ -1,6 +1,6 @@
 import userEvent from "@testing-library/user-event";
 import { Mock, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render, waitFor } from "@testing-library/react";
 import { useDispatch } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
 
@@ -57,6 +57,19 @@ describe("Attachments", () => {
 		const fileAttachment = getByLabelText("hello.txt");
 		expect(fileAttachment).toBeInTheDocument();
 		expect(fileAttachment.innerHTML).not.toContain("Delete");
+	});
+
+	it("should display file contents when preview button is clicked", async () => {
+		const { getByLabelText, getByText } = render(
+			<Attachments attachments={attachments} allowDeletions={true} />
+		);
+
+		const previewButton = getByLabelText("Preview contents");
+		userEvent.click(previewButton);
+
+		await waitFor(() =>
+			expect(getByText(attachments[0].file.contents)).toBeInTheDocument()
+		);
 	});
 
 	it("should remove the file attachment when deleted", () => {
