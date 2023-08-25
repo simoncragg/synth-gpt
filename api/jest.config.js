@@ -11,6 +11,7 @@ module.exports = {
 		"^@clients/(.*)": "<rootDir>/src/clients/$1",
 		"^@handlers/(.*)": "<rootDir>/src/handlers/$1",
 		"^@libs/(.*)": "<rootDir>/src/libs/$1",
+		"^@mappers/(.*)": ["<rootDir>/src/mappers/$1"],
 		"^@repositories/(.*)": "<rootDir>/src/repositories/$1",
 		"^@services/(.*)": ["<rootDir>/src/services/$1"],
 		"^@websocket/(.*)": "<rootDir>/src/handlers/websocket/$1",

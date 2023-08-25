@@ -5,6 +5,7 @@
 			"@clients/*": ["src/clients/*"],
 			"@handlers/*": ["src/handlers/*"],
 			"@libs/*": ["src/libs/*"],
+			"@mappers/*": ["src/mappers/*"],
 			"@repositories/*": ["src/repositories/*"],
 			"@services/*": ["src/services/*"],
 			"@websocket/*": ["src/handlers/websocket/*"],
