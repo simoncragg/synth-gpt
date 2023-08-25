@@ -1,4 +1,4 @@
-import { Func } from "./clients/openaiApiClient";
+import { ChatCompletionFunction } from "./clients/openaiApiClient";
 
 export const functions = [{
 	name: "perform_web_search",
@@ -6,11 +6,7 @@ export const functions = [{
 	parameters: {
 		type: "object",
 		properties: {
-			"search_term": {
-				type: "string",
-				description: "The search term",
-			},
+			"search_term": { type: "string"	},
 		},
-		required: ["search_term"],
 	},
-}] as Func[];
+}] as ChatCompletionFunction[];

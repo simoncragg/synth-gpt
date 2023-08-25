@@ -11,7 +11,7 @@ import type {
 import type {
 	Delta,
 	FunctionCall,
-	Message,
+	ChatCompletionMessage,
 } from "@clients/openaiApiClient";
 
 import {
@@ -31,7 +31,7 @@ export default class ChatCompletionService {
 				content: prePrompt,
 			},
 			...this.mapMessages(chatMessages),
-		] as Message[];
+		] as ChatCompletionMessage[];
 
 		const { content } = await generateChatResponseAsync({ messages, functions });
 		return this.buildChatMessageFromContent(uuidv4(), content);
@@ -48,7 +48,7 @@ export default class ChatCompletionService {
 				content: prePrompt,
 			},
 			...this.mapMessages(chatMessages),
-		] as Message[];
+		] as ChatCompletionMessage[];
 
 		let content = "";
 		const functionCall: FunctionCall = {
@@ -89,7 +89,7 @@ export default class ChatCompletionService {
 		});
 	}
 
-	private mapMessages(chatMessages: ChatMessage[]): Message[] {
+	private mapMessages(chatMessages: ChatMessage[]): ChatCompletionMessage[] {
 		return chatMessages
 			.filter(msg => msg.content.type !== "webActivity")
 			.map(msg => msg.role === "function"

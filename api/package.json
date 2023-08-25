@@ -25,6 +25,7 @@
 		"@middy/http-json-body-parser": "^4.6.0",
 		"aws-jwt-verify": "^4.0.0",
 		"node-fetch": "^2.6.7",
+		"openai": "^4.2.0",
 		"serverless-dynamodb": "^0.2.43"
 	},
 	"devDependencies": {
