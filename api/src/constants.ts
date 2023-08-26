@@ -6,3 +6,5 @@ export const prePrompt = [
 	"When providing code snippets, always include the language e.g. \"```python\".\n\n",
 	`The current date is ${new Date().toDateString()}.`,
 ].join("");
+
+export const singleLineCodeBlockPattern = /```[\s\S]*?```/g;
