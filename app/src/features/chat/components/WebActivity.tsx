@@ -19,7 +19,7 @@ const WebActivity = ({ id, activity }: WebActivityProps) => {
 
 	return (
 		<div className="inline-flex flex-col items-start">
-			<div className="flex flex-start rounded-lg p-2 bg-emerald-500 text-gray-800 text-sm items-center inline-block">
+			<div className="flex flex-start rounded-lg p-2 bg-emerald-500 text-gray-800 text-sm items-center">
 				{activity.currentState !== "finished" ? (
 					<>
 						Browsing the web ...
