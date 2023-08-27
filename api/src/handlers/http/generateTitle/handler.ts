@@ -21,7 +21,8 @@ export const generateTitle: ValidatedEventAPIGatewayProxyEvent<typeof schema> = 
 				content: `Summarize this message in three words:\n\n${message}`
 			}
 		];
-		const { content: title } = await generateChatResponseAsync({ messages });
+		const model = "gpt-3.5-turbo";
+		const { content: title } = await generateChatResponseAsync({ model, messages });
 		const chatRepository = new ChatRepository();
 		await chatRepository.updateTitleAsync(chatId, title);
 

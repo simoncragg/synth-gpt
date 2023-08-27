@@ -1,5 +1,6 @@
 import Attach from "./Attach";
 import ChatLog from "./ChatLog";
+import ChatModelSelector from "./ChatModelSelector";
 import HeroSection from "../../../components/HeroSection";
 import SpeechToText from "./SpeechToText";
 import TypingIndicator from "../../../components/TypingIndicator";
@@ -23,6 +24,7 @@ const Chat = () => {
 			{messages.length === 0 && attachments.length === 0 && <HeroSection />}
 
 			<div className="flex flex-col w-full mb-[100px]">
+				<ChatModelSelector />
 				<ChatLog />
 				{isTyping && <TypingIndicator className="flex ml-6 -mt-8" />}
 			</div>

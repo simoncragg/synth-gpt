@@ -1,7 +1,10 @@
+export type ChatModelType = "gpt-3.5-turbo" | "gpt-4";
+
 export interface Chat {
 	chatId: string;
-	title: string;
 	userId: string;
+	title: string;
+	model: ChatModelType;
 	messages: ChatMessage[];
 	createdTime: number;
 	updatedTime: number;

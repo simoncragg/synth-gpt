@@ -4,12 +4,14 @@ import { newChatText } from "../../constants";
 
 const initialState: ChatState = {
 	chatId: uuidv4(),
+	model: "gpt-3.5-turbo",
 	title: newChatText,
 	transcript: "",
 	attachments: [],
 	messages: [],
 };
 
+type SetChatModelPayloadType = { model: ChatModelType };
 type SetActiveChatPayloadType = { chat: Chat };
 type AddOrUpdateMessagePayloadType = { message: ChatMessage };
 type AttachFilePayloadType = { file: AttachedFile };
@@ -20,8 +22,13 @@ const chatSlice = createSlice({
 	name: "chat",
 	initialState,
 	reducers: {
+		setChatModel: (chat: ChatState, action: PayloadAction<SetChatModelPayloadType>) => {
+			chat.model = action.payload.model;
+		},
+
 		newChat: (chat: ChatState) => {
 			chat.chatId = uuidv4();
+			chat.model = "gpt-3.5-turbo";
 			chat.title = newChatText;
 			chat.transcript = "";
 			chat.attachments = [];
@@ -32,8 +39,9 @@ const chatSlice = createSlice({
 			chat: ChatState,
 			action: PayloadAction<SetActiveChatPayloadType>
 		) => {
-			const { chatId, title, messages } = action.payload.chat;
+			const { chatId, title, model, messages } = action.payload.chat;
 			chat.chatId = chatId;
+			chat.model = model;
 			chat.title = title;
 			chat.transcript = "";
 			chat.attachments = [];
@@ -103,6 +111,7 @@ const chatSlice = createSlice({
 });
 
 export const { 
+	setChatModel,
 	newChat, 
 	setActiveChat, 
 	attachFile, 

@@ -56,6 +56,7 @@ export default class ChatRepository {
 			UpdateExpression: [
 				"set userId = :userId,",
 				"title = :title,",
+				"model = :model,",
 				"messages = :messages,",
 				"createdTime = :createdTime,",
 				"updatedTime = :updatedTime"
@@ -63,6 +64,7 @@ export default class ChatRepository {
 			ExpressionAttributeValues: {
 				":userId": chat.userId,
 				":title": chat.title,
+				":model": chat.model,
 				":messages": chat.messages,
 				":createdTime": chat.createdTime,
 				":updatedTime": chat.updatedTime

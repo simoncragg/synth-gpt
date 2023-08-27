@@ -2,8 +2,11 @@
 
 /* Chat State */
 
+type ChatModelType = "gpt-3.5-turbo" | "gpt-4";
+
 interface ChatState {
 	chatId: string;
+	model: ChatModelType;
 	title: string;
 	transcript: string;
 	attachments: Attachment[];
@@ -103,6 +106,7 @@ interface BasePayload {
 
 interface MessagePayload extends BasePayload {
 	message: ChatMessage;
+	model: ChatModelType;
 }
 
 interface MessageSegmentPayload extends MessagePayload {
@@ -127,6 +131,7 @@ interface Chat {
 	messages: ChatMessage[];
 	createdTime: number;
 	updatedTime: number;	
+	model: ChatModelType;
 }
 
 type RoleType = "user" | "assistant";

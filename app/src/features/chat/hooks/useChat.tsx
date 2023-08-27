@@ -14,7 +14,7 @@ const useChat = () => {
 	const { userId, accessToken } = useAuth();
 	const { queueAudio } = useAudioPlayer();
 
-	const { chatId, attachments, messages } = useSelector(
+	const { chatId, attachments, messages, model } = useSelector(
 		(state: RootStateType) => state.chat
 	);
 	const [isAwaitingAudio, setIsAwaitingAudio] = useState(false);
@@ -49,6 +49,7 @@ const useChat = () => {
 				userId,
 				chatId,
 				message,
+				model
 			} as MessagePayload,
 		});
 	};

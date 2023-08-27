@@ -1,6 +1,7 @@
 import type {
 	Chat,
 	ChatMessage,
+	ChatModelType,
 } from "../types";
 
 import AssistantMessageProcessor from "./AssistantMessageProcessor";
@@ -19,10 +20,11 @@ export default class UserMessageProcessor {
 		connectionId,
 		chatId,
 		userId,
-		message
+		model,
+		message,
 	}: ProcessUserMessagePayload) {
 
-		const chat = await this.getChatAsync(chatId, userId);
+		const chat = await this.getChatAsync(chatId, userId, model);
 		chat.messages.push(message);
 
 		const assistantMessageProcessor = new AssistantMessageProcessor(connectionId, chat);
@@ -34,15 +36,19 @@ export default class UserMessageProcessor {
 		await this.updateChatAsync(chat);
 	}
 
-	private async getChatAsync(chatId: string, userId: string) {
-		return await this.chatRepository.getByChatIdAsync(chatId) ?? {
+	private async getChatAsync(chatId: string, userId: string, model: ChatModelType) {
+		const chat = await this.chatRepository.getByChatIdAsync(chatId) ?? {
 			chatId,
 			title: newChatText,
 			userId,
+			model,
 			messages: [],
 			createdTime: Date.now(),
 			updatedTime: Date.now(),
 		};
+		
+		chat.model = model;
+		return chat;
 	}
 
 	private async persistChatIfNewAsync(chat: Chat) {
@@ -61,5 +67,6 @@ export interface ProcessUserMessagePayload {
 	connectionId: string;
 	chatId: string;
 	userId: string;
+	model: ChatModelType;
 	message: ChatMessage;
 }

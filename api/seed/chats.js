@@ -3,6 +3,7 @@ module.exports = [
 		chatId: "a8fe96dd-39df-400a-841c-860e14808c59",
 		title: "User requests assistance.",
 		userId: process.env.TEST_USER_ID,
+		model: "gpt-4",
 		messages: [
 			{
 				id: "56921588-d729-46d2-b028-5117f7fa1610",
@@ -32,6 +33,7 @@ module.exports = [
 		chatId: "53729415-fae2-40cd-833e-792fd9aa108f",
 		title: "Prime or composite?",
 		userId: process.env.TEST_USER_ID,
+		model: "gpt-3.5-turbo",
 		messages: [
 			{
 				id: "0b88030c-1fd2-466a-bfee-1a1a0a591970",

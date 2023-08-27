@@ -1,4 +1,4 @@
-import type { ChatMessage, MessageSegment } from "../types";
+import type { ChatMessage, ChatModelType, MessageSegment } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
 import type { Delta, FunctionCall, ChatCompletionMessage } from "@clients/openaiApiClient";
@@ -14,20 +14,25 @@ class ChatCompletionService {
 		this.chatCompletionMessageMapper = new ChatCompletionMessageMapper();
 	}
 
-	async generateAssistantMessageAsync(chatMessages: ChatMessage[]): Promise<ChatMessage> {
+	async generateAssistantMessageAsync(model: ChatModelType, chatMessages: ChatMessage[]): Promise<ChatMessage> {
 		const messages = this.buildMessages(chatMessages);
 		const { content } = await generateChatResponseAsync({
+			model,
 			messages,
 			functions,
 		});
 		return this.buildChatMessageWithTextContent(uuidv4(), content);
 	}
 
-	async generateAssistantMessageSegmentsAsync(chatMessages: ChatMessage[], onSegmentReceived: (segment: MessageSegment) => Promise<void>) {
+	async generateAssistantMessageSegmentsAsync(
+		model: ChatModelType,
+		chatMessages: ChatMessage[], 
+		onSegmentReceived: (segment: MessageSegment) => Promise<void>
+	) {
 		const messages = this.buildMessages(chatMessages);
 		const functionCall: FunctionCall = { name: "", arguments: "" };
 		const id = uuidv4();
-		const request = { messages, functions };
+		const request = { model, messages, functions };
 
 		let content = "";
 		await generateChatResponseDeltasAsync(

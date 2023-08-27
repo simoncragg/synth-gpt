@@ -6,15 +6,16 @@ import { isDev } from "../../../constants";
 
 const handleUserMessage = async (event: APIGatewayProxyEvent) => {
 	try {
-		const { payload } = JSON.parse(event.body);
-		const { chatId, message, userId } = payload;
 		const { connectionId } = event.requestContext;
-
+		const { payload } = JSON.parse(event.body);
+		const { chatId, userId, model, message } = payload;
+		
 		const eventPayload = {
+			connectionId,
 			chatId,
 			userId,
+			model,
 			message,
-			connectionId,
 		};
 
 		const lambda = createLambda();

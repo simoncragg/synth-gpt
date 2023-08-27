@@ -32,6 +32,7 @@ class AssistantMessageProcessor {
 	async process(): Promise<void> {
 
 		await this.chatCompletionService.generateAssistantMessageSegmentsAsync(
+			this.chat.model,
 			this.chat.messages,
 			async (segment: MessageSegment) => this.processSegment(segment)
 		);

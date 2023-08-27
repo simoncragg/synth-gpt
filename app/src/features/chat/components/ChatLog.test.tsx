@@ -7,6 +7,7 @@ import { renderWithProviders } from "../../../utils/test-utils";
 describe("ChatLog", () => {
 	const chat = {
 		chatId: uuidv4(),
+		model: "gpt-3.5-turbo" as const,
 		title: newChatText,
 		transcript: "",
 		messages: [],

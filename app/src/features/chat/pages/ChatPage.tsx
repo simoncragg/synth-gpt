@@ -42,7 +42,7 @@ const ChatPage = () => {
 			<Navbar />
 			<div className="flex flex-col items-center mt-16 pt-4 px-8 sm:ml-64 sm:mt-2 overflow-y-auto h-[calc(100vh-10px)]">
 				<div className="flex flex-col items-center text-base w-full pt-4 sm:w-3/4">
-					{isFetching ? <span>Loading ...</span> : <Chat />}
+					{isFetching ? <span className="pt-24">Loading ...</span> : <Chat />}
 				</div>
 			</div>
 		</>

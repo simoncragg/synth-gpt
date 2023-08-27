@@ -14,8 +14,9 @@ describe("getChats", () => {
 		const chats = [
 			{
 				chatId: uuidv4(),
-				title: "Chat 1",
 				userId: "user-123",
+				title: "Chat 1",
+				model: "gpt-3.5-turbo" as const,
 				createdTime: Date.now(),
 				updatedTime: Date.now(),
 			}

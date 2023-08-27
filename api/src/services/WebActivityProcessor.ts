@@ -34,7 +34,7 @@ class WebActivityProcessor {
 	public async process(assistantMessage: ChatMessage): Promise<void> {
 
 		const { searchTerm } = (assistantMessage.content.value as WebActivity);
-		const { chatId } = this.chat;
+		const { chatId, model } = this.chat;
 
 		const webActivity = {
 			...(assistantMessage.content.value as WebActivity),
@@ -139,7 +139,7 @@ class WebActivityProcessor {
 		this.chat.messages.push(functionMessage);
 
 		const finalAssistantMessage = await this.chatCompletionService
-			.generateAssistantMessageAsync(this.chat.messages);
+			.generateAssistantMessageAsync(model, this.chat.messages);
 
 		await postToConnectionAsync(this.connectionId, {
 			type: "assistantMessageSegment",

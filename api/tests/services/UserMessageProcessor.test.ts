@@ -53,6 +53,7 @@ describe("UserMessageProcessor", () => {
 	const userId = uuidv4();
 	const title = newChatText;
 	const baseAudioUrl = "http://localhost:4569/synth-gpt-audio-dev/";
+	const model = "gpt-3.5-turbo";
 
 	let userMessageProcessor: UserMessageProcessor;
 
@@ -114,6 +115,7 @@ describe("UserMessageProcessor", () => {
 				connectionId,
 				chatId,
 				userId,
+				model,
 				message: userMessage,
 			};
 
@@ -196,6 +198,7 @@ describe("UserMessageProcessor", () => {
 					connectionId,
 					chatId,
 					userId,
+					model,
 					message: {
 						id: uuidv4(),
 						role: "user",
@@ -298,6 +301,7 @@ describe("UserMessageProcessor", () => {
 						chatId,
 						title,
 						userId,
+						model,
 						messages: expect.arrayContaining([
 							expect.objectContaining({
 								...userMessagePayload.message,
@@ -329,6 +333,7 @@ describe("UserMessageProcessor", () => {
 						chatId,
 						title,
 						userId,
+						model,
 						messages: [
 							{
 								...userMessagePayload.message,

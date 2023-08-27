@@ -1,25 +1,26 @@
-import type { RoleType } from "../types";
+import type { ChatModelType, RoleType } from "../types";
 import OpenAI from "openai";
 
 const baseParams: BaseParams = {
-	model: "gpt-3.5-turbo",
 	temperature: 0.0,
 };
 
 export async function generateChatResponseAsync(request: ChatCompletionRequest): Promise<ChatCompletionMessage> {
-	const { messages, functions } = request;
+	const { model, messages, functions } = request;
 	
 	const openai = new OpenAI({
 		apiKey: process.env.OPENAI_API_KEY,
 	});
 
-	const completion = await openai.chat.completions.create({
+	const params = {
 		...baseParams,
+		model,
 		messages,
 		functions,
 		stream: false,
-	});
+	} as OpenAI.Chat.Completions.CompletionCreateParamsNonStreaming;
 
+	const completion = await openai.chat.completions.create(params);
 	return completion.choices[0].message;
 }
 
@@ -27,18 +28,21 @@ export async function generateChatResponseDeltasAsync(
 	request: ChatCompletionRequest,
 	onDeltaReceived: (delta: Delta, finishReason: string) => Promise<void>
 ): Promise<void> {
-	const { messages, functions } = request;
+	const { model, messages, functions } = request;
 	
 	const openai = new OpenAI({
 		apiKey: process.env.OPENAI_API_KEY,
 	});
 
-	const stream = await openai.chat.completions.create({
+	const params = {
 		...baseParams,
+		model,
 		messages,
 		functions,
 		stream: true,
-	});
+	} as OpenAI.Chat.Completions.CompletionCreateParamsStreaming;
+
+	const stream = await openai.chat.completions.create(params);
 
 	for await (const part of stream) {
 		if (part?.choices && part.choices.length > 0) {
@@ -52,8 +56,9 @@ export async function generateChatResponseDeltasAsync(
 }
 
 export interface ChatCompletionRequest {
-	messages: ChatCompletionMessage[],
-	functions?: ChatCompletionFunction[],
+	model: ChatModelType;
+	messages: ChatCompletionMessage[];
+	functions?: ChatCompletionFunction[];
 }
 
 export interface ChatCompletionMessage {
@@ -83,6 +88,5 @@ export interface FunctionCall {
 }
 
 interface BaseParams {
-	model: string;
 	temperature: number;
 }
