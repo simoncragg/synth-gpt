@@ -10,8 +10,9 @@ import { renderWithProviders } from "../../../utils/test-utils";
 describe("ChatLink", () => {
 	const chat = {
 		chatId: uuidv4(),
-		title: "Test Chat",
 		userId: uuidv4(),
+		title: "Test Chat",
+		model: "gpt-3.5-turbo" as const,
 		transcript: "",
 		messages: [],
 		attachments: [],

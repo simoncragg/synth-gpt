@@ -1,8 +1,6 @@
-import SpeechRecognition, {
-	useSpeechRecognition,
-} from "react-speech-recognition";
+import { Mock, vi } from "vitest";
+import SpeechRecognition, {	useSpeechRecognition } from "react-speech-recognition";
 import { render, fireEvent } from "@testing-library/react";
-import { vi } from "vitest";
 
 import SpeechToText from "./SpeechToText";
 
@@ -15,7 +13,7 @@ vi.mock("react-speech-recognition", () => ({
 	},
 }));
 
-const useSpeechRecognitionMock = useSpeechRecognition as vi.Mock;
+const useSpeechRecognitionMock = useSpeechRecognition as Mock;
 
 describe("SpeechToText", () => {
 	const mockTranscript = "this is a test";

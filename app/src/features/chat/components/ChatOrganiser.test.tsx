@@ -105,6 +105,7 @@ describe("ChatOrganiser", () => {
 					message: {
 						id: uuidv4(),
 						role: "assistant" as const,
+						attachments: [],
 						content: {
 							type: "text",
 							value:
@@ -160,6 +161,7 @@ describe("ChatOrganiser", () => {
 					chat: {
 						chatId,
 						title,
+						model: "gpt-3.5-turbo" as const,
 						transcript: "",
 						attachments: [],
 						messages: [],

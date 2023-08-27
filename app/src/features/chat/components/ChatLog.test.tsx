@@ -10,8 +10,8 @@ describe("ChatLog", () => {
 		model: "gpt-3.5-turbo" as const,
 		title: newChatText,
 		transcript: "",
-		messages: [],
 		attachments: [],
+		messages: [],
 	};
 
 	it("displays simple paragraph messages", () => {
@@ -19,6 +19,7 @@ describe("ChatLog", () => {
 			{
 				id: uuidv4(),
 				role: "user" as const,
+				attachments: [],
 				content: {
 					type: "text" as const,
 					value: "Hello",
@@ -28,6 +29,7 @@ describe("ChatLog", () => {
 			{
 				id: uuidv4(),
 				role: "assistant" as const,
+				attachments: [],
 				content: {
 					type: "text" as const,
 					value: "Hi there!",
@@ -61,6 +63,7 @@ describe("ChatLog", () => {
 			{
 				id: uuidv4(),
 				role: "user" as const,
+				attachments: [],
 				content: {
 					type: "text" as const,
 					value: "Hello",
@@ -70,6 +73,7 @@ describe("ChatLog", () => {
 			{
 				id: uuidv4(),
 				role: "assistant" as const,
+				attachments: [],
 				content: {
 					type: "text" as const,
 					value: fullResponse,
@@ -106,20 +110,22 @@ describe("ChatLog", () => {
 			{
 				id: uuidv4(),
 				role: "user" as const,
-				timestamp: Date.now(),
+				attachments: [],
 				content: {
 					type: "text" as const,
 					value: userCommand,
 				},
+				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
 				role: "assistant" as const,
-				timestamp: Date.now() + 1321,
+				attachments: [],
 				content: {
 					type: "text" as const,
 					value: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}`,
 				},
+				timestamp: Date.now() + 1321,
 			},
 		];
 
@@ -146,16 +152,17 @@ describe("ChatLog", () => {
 			{
 				id: uuidv4(),
 				role: "user" as const,
-				timestamp: Date.now(),
+				attachments: [],
 				content: {
 					type: "text" as const,
 					value: userText,
 				},
+				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
 				role: "assistant" as const,
-				timestamp: Date.now() + 1321,
+				attachments: [],
 				content: {
 					type: "webActivity" as const,
 					value: {
@@ -169,6 +176,7 @@ describe("ChatLog", () => {
 						],
 					},
 				},
+				timestamp: Date.now() + 1321,
 			},
 		];
 
