@@ -5,7 +5,8 @@
 body {
   font-family: Inter, 'Open Sans', sans-serif;
   color: #b3d1ff;
-  background: #1e1e26;
+  background: linear-gradient(to bottom right, rgba(0, 255, 255, 0.05) 0%, rgba(255, 0, 255, 0.05) 100%);
+  background-color: #1e1e26;
 }
 
 .logo {
