@@ -17,23 +17,13 @@ import {
 import { RootStateType } from "../../../store";
 
 const ChatOrganiser = () => {
+	
 	const navigate = useNavigate();
-
-	const { chatId, messages } = useSelector(
-		(state: RootStateType) => state.chat
-	);
-
+	const { chatId, messages } = useSelector((state: RootStateType) => state.chat);
 	const { userId, accessToken } = useAuth();
-
-	const [getChats, { data: getChatsResponse, isFetching }] =
-		useLazyGetChatsQuery();
-
-	const [generateTitle, { data: genTitleResponse }] =
-		useGenerateTitleMutation();
-
-	const [editChatTitle, { data: editChatTitleResponse }] =
-		useEditChatTitleMutation();
-
+	const [getChats, { data: getChatsResponse, isFetching }] = useLazyGetChatsQuery();
+	const [generateTitle, { data: genTitleResponse }] =	useGenerateTitleMutation();
+	const [editChatTitle, { data: editChatTitleResponse }] = useEditChatTitleMutation();
 	const [deleteChat, { data: deleteChatResponse }] = useDeleteChatMutation();
 
 	useEffect(() => {
