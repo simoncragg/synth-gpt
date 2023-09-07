@@ -93,7 +93,10 @@ const ChatOrganiser = () => {
 		<>
 			<button
 				type="button"
-				className="flex w-full py-3 px-2 items-center gap-2 rounded-md hover:bg-gray-700 text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20"
+				className={`
+					flex w-full py-3 px-2 items-center gap-2 rounded-md hover:bg-gray-700/50 
+					text-white cursor-pointer text-sm mb-2 flex-shrink-0 border border-white/20`
+				} 	
 				onClick={() => {
 					navigate("../", { replace: messages.length === 0 });
 				}}
@@ -103,7 +106,7 @@ const ChatOrganiser = () => {
 			</button>
 
 			{isFetching ? (
-				<div className="flex justify-center items-center h-[75%]">
+				<div className="flex justify-center items-center h-80">
 					<TbLoader
 						data-testid="chat-org-spinner"
 						className="animate-spin text-center m-auto"
@@ -134,7 +137,6 @@ const ChatOrganiser = () => {
 					</div>
 				</div>
 			)}
-			<div className="absolute inset-y-0 right-0 w-8 z-10 bg-gradient-to-l from-grey-800"></div>
 		</>
 	);
 };

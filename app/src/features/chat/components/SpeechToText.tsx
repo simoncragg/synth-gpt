@@ -63,7 +63,7 @@ const SpeechToText = ({ onTranscriptionEnded }: SpeechToTextProps) => {
 			<button
 				role="button"
 				aria-label="listen-send"
-				className="bg-slate-900 py-4 px-4 bottom-2 border-2 border-slate-500 rounded-full"
+				className="bg-gray-900 py-4 px-4 bottom-2 border-2 border-slate-500 rounded-full"
 				onClick={toggleListen}
 			>
 				{listening ? (
