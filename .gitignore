@@ -15,3 +15,7 @@ app/coverage
 # ide
 .vscode
 app/stats.html
+
+#interpreter
+__pycache__/
+aws-lambda-rie
