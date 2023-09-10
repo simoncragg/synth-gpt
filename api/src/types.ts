@@ -55,12 +55,50 @@ export interface CodeSnippet {
 	code: string;
 }
 
-export type ContentType = "text" | "webActivity" | "functionResult";
+export type ContentType = "text" | "webActivity" | "codingActivity" | "functionResult";
 
 export interface Content {
 	type: ContentType;
-	value: string | WebActivity | FunctionResult;
+	value: string | CodingActivity | WebActivity | FunctionResult;
 }
+
+//
+
+type CodingStateType = "working" | "done";
+
+export interface CodingActivity {
+	code: string;
+	executionSummary?: CodeExecutionSummary;
+	currentState: CodingStateType;
+}
+
+export interface CodeExecutionSummary {
+	success: boolean;
+	result?: string;
+	error?: string;
+}
+
+export interface CodeExecutionResponse {
+	success: boolean;
+	result?: BaseExecutionResult;
+	error?: ExecutionError; 
+}
+
+export interface BaseExecutionResult {
+	type: "string";
+}
+
+export interface ExecutionResultString extends BaseExecutionResult {
+	value: string;
+}
+
+export interface ExecutionError {
+	errorMessage: string;
+	errorType: string;
+	stackTrace: string[];
+}
+
+//
 
 export type WebBrowsingStateType = "searching" | "readingResults" | "finished";
 

@@ -47,7 +47,7 @@ export async function generateChatResponseDeltasAsync(
 	for await (const part of stream) {
 		if (part?.choices && part.choices.length > 0) {
 			const choice = part.choices[0];
-			const delta = choice.delta;
+			const delta = choice.delta as Delta;
 			if (delta) {
 				await onDeltaReceived(delta, choice.finish_reason);
 			}

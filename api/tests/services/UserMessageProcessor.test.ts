@@ -454,6 +454,7 @@ describe("UserMessageProcessor", () => {
 			for (const chunk of tokenizeAndDecodeChunks(`{ "search_term": "${searchTerm}" }`)) {
 				await onDeltaReceived({
 					function_call: {
+						name: "perform_web_search",
 						arguments: chunk
 					},
 				}, null);

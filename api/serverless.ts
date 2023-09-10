@@ -60,6 +60,7 @@ const serverlessConfiguration: AWS = {
 			BING_SEARCH_API_KEY: process.env.BING_SEARCH_API_KEY,
 			JWT_ISSUER_DOMAIN: process.env.JWT_ISSUER_DOMAIN,
 			JWT_AUDIENCE: process.env.JWT_AUDIENCE,
+			CODE_INTERPRETER_FUNCTION_NAME: process.env.CODE_INTERPRETER_FUNCTION_NAME,
 		},
 	},
 	package: { individually: true },

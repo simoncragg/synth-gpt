@@ -1,7 +1,8 @@
-import type { ChatMessage, ChatModelType, MessageSegment } from "../types";
 import { v4 as uuidv4 } from "uuid";
 
+import type { ChatMessage, ChatModelType, MessageSegment } from "../types";
 import type { Delta, FunctionCall, ChatCompletionMessage } from "@clients/openaiApiClient";
+
 import ChatCompletionMessageMapper from "@mappers/ChatCompletionMessageMapper";
 import { functions } from "../functions";
 import { generateChatResponseAsync, generateChatResponseDeltasAsync} from "@clients/openaiApiClient";
@@ -93,11 +94,31 @@ class ChatCompletionService {
 		};
 	}
 
-	private buildChatMessageWithFunctionCall(
-		id: string,
-		functionCall: FunctionCall
-	): ChatMessage {
-		const searchTerm = this.extractSearchTerm(functionCall);
+	private buildChatMessageWithFunctionCall(id: string, functionCall: FunctionCall): ChatMessage {
+		return (functionCall.name === "execute_python_code")
+			? this.buildCodingActivityMessage(id, functionCall)
+			: this.buildWebActivityMessage(id, functionCall);
+	}
+
+	private buildCodingActivityMessage(id: string, functionCall: FunctionCall): ChatMessage {
+		const code = JSON.parse(functionCall.arguments).code;
+		return {
+			id,
+			role: "assistant",
+			attachments: [],
+			content: {
+				type: "codingActivity",
+				value: {
+					code,
+					currentState: "working",
+				},
+			},
+			timestamp: Date.now(),
+		};
+	}
+
+	private buildWebActivityMessage(id: string, functionCall: FunctionCall): ChatMessage {
+		const searchTerm = JSON.parse(functionCall.arguments).search_term;
 		return {
 			id,
 			role: "assistant",
@@ -112,12 +133,6 @@ class ChatCompletionService {
 			},
 			timestamp: Date.now(),
 		};
-	}
-
-	private extractSearchTerm(functionCall: FunctionCall): string | null {
-		return functionCall.name === "perform_web_search"
-			? JSON.parse(functionCall.arguments).search_term
-			: null;
 	}
 }
 

@@ -6,6 +6,7 @@ import { RiVoiceprintFill } from "react-icons/ri";
 
 import Attachments from "./Attachments";
 import Code from "../../../components/Code";
+import CodingActivity from "./CodingActivity";
 import WebActivity from "./WebActivity";
 import { RootStateType } from "../../../store";
 import { mapToContentParts } from "../mappers/contentMapper";
@@ -90,6 +91,10 @@ const ChatLog = () => {
 								}
 							}
 						)}
+
+					{content.type === "codingActivity" && (
+						<CodingActivity id={id} activity={content.value as CodingActivity} />
+					)}
 
 					{content.type === "webActivity" && (
 						<WebActivity id={id} activity={content.value as WebActivity} />

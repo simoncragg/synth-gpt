@@ -16,7 +16,7 @@ class ChatCompletionMessageMapper {
 
 	public mapFromChatMessages(chatMessages: ChatMessage[]): ChatCompletionMessage[] {
 		return chatMessages
-			.filter((msg) => msg.content.type !== "webActivity")
+			.filter((msg) => msg.content.type !== "codingActivity" && msg.content.type !== "webActivity")
 			.map((msg) => this.mapFromChatMessage(msg));
 	}
 

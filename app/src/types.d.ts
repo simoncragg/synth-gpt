@@ -146,11 +146,25 @@ interface ChatMessage {
 
 /* Content */
 
-type ContentType = "text" | "webActivity";
+type ContentType = "text" | "codingActivity" | "webActivity";
 
 interface Content {
 	type: ContentType;
-	value: string | WebActivity;
+	value: string | CodingActivity | WebActivity;
+}
+
+type CodingStatusType = "working" | "done";
+
+interface CodingActivity {
+	code: string;
+	executionSummary?: CodeExecutionSummary,
+	currentState: CodingStatusType;
+}
+
+interface CodeExecutionSummary {
+	success: boolean;
+	result?: string;
+	error?: string;
 }
 
 interface WebActivity {
