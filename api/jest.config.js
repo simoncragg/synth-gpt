@@ -8,6 +8,7 @@ module.exports = {
 		"<rootDir>/(node_modules|dist|.serverless|.build)/",
 	],
 	moduleNameMapper: {
+		"^@src/(.*)": "<rootDir>/src/$1",
 		"^@clients/(.*)": "<rootDir>/src/clients/$1",
 		"^@handlers/(.*)": "<rootDir>/src/handlers/$1",
 		"^@libs/(.*)": "<rootDir>/src/libs/$1",
