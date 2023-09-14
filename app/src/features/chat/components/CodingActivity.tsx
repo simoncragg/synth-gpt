@@ -7,6 +7,7 @@ import { TbLoader } from "react-icons/tb";
 import { useState } from "react";
 
 import Code from "../../../components/Code";
+import ExecutionSummary from "./ExecutionSummary";
 
 interface CodingActivityProps {
 	id: string;
@@ -57,10 +58,7 @@ const CodingActivity = ({ id, activity }: CodingActivityProps) => {
 					{
 						activity.currentState === "done" && 
 					 	activity.executionSummary && 
-					 	<Code 
-							code={activity.executionSummary.success ? activity.executionSummary.result! : activity.executionSummary.error!}
-							language="bash"
-						/>
+					 	<ExecutionSummary summary={activity.executionSummary} />
 					}
 				</div>
 			)}
