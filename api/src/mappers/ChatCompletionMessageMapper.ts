@@ -11,7 +11,7 @@ import {
 
 class ChatCompletionMessageMapper {
 
-	private attachmentMapper: AttachmentMapper;
+	private readonly attachmentMapper: AttachmentMapper;
 
 	constructor() {
 		this.attachmentMapper = new AttachmentMapper();
