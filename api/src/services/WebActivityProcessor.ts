@@ -1,7 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
-
 import type { AssistantMessageSegmentPayload } from "./types";
-import type { Attachment } from "../types";
 import type { Chat, ChatMessage } from "../types";
 
 import AssistantVoiceProcessor from "./AssistantVoiceProcessor";
@@ -10,7 +7,6 @@ import { performWebSearchAsync } from "@clients/bingSearchApiClient";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 
 import type {
-	FunctionResult,
 	ReadingWebSearchResultsAction,
 	SearchingWebAction,
 	WebActivity,
@@ -103,20 +99,6 @@ class WebActivityProcessor {
 			} as AssistantMessageSegmentPayload,
 		});
 
-		const functionMessage = {
-			id: uuidv4(),
-			role: "function" as const,
-			attachments: [] as Attachment[],
-			content: {
-				type: "functionResult" as const,
-				value: {
-					name: "perform_web_search",
-					result: `{webSearchResults: ${JSON.stringify(results)}}`,
-				} as FunctionResult,
-			},
-			timestamp: Date.now(),
-		};
-
 		const updatedAssistantMessage = {
 			...assistantMessage,
 			content: {
@@ -136,7 +118,6 @@ class WebActivityProcessor {
 		} as ChatMessage;
 
 		this.chat.messages.push(updatedAssistantMessage);
-		this.chat.messages.push(functionMessage);
 
 		const finalAssistantMessage = await this.chatCompletionService
 			.generateAssistantMessageAsync(model, this.chat.messages);

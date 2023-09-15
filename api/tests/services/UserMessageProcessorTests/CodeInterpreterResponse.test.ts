@@ -148,19 +148,6 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 				},
 				{
 					id: expect.any(String),
-					role: "function",
-					attachments: [],
-					content: {
-						type: "functionResult",
-						value: {
-							name: "execute_python_code",
-							result: executionSummary.result,
-						},
-					},
-					timestamp: expect.any(Number),
-				},
-				{
-					id: expect.any(String),
 					role: "assistant",
 					attachments: [],
 					content: {

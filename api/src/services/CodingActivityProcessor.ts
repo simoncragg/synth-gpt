@@ -1,5 +1,3 @@
-import { v4 as uuidv4 } from "uuid";
-
 import type { 
 	AssistantMessageSegmentPayload
 } from "./types";
@@ -51,20 +49,6 @@ class CodingActivityProcessor {
 			currentState: "done",
 		} as CodingActivity;
 
-		this.chat.messages.push({
-			id: uuidv4(),
-			role: "function" as const,
-			attachments: [],
-			content: {
-				type: "functionResult" as const,
-				value: {
-					name: "execute_python_code",
-					result: this.mapToFunctionResult(codingActivity)
-				},
-			},
-			timestamp: Date.now(),
-		});
-
 		const updatedAssistantMessage = {
 			...assistantMessage,
 			content: {
@@ -111,12 +95,6 @@ class CodingActivityProcessor {
 			).join("\n");
 		}
 		return `${output}\n${errorType}: ${errorMessage}\n`;
-	}
-
-	private mapToFunctionResult(codingActivity: CodingActivity): string {
-		return codingActivity.executionSummary.success
-			? codingActivity.executionSummary.result
-			: codingActivity.executionSummary.error;
 	}
 
 	private async postToConnection(message: ChatMessage, isLastSegment: boolean = false) {

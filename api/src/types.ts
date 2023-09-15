@@ -55,11 +55,11 @@ export interface CodeSnippet {
 	code: string;
 }
 
-export type ContentType = "text" | "webActivity" | "codingActivity" | "functionResult";
+export type ContentType = "text" | "codingActivity" | "webActivity";
 
 export interface Content {
 	type: ContentType;
-	value: string | CodingActivity | WebActivity | FunctionResult;
+	value: string | CodingActivity | WebActivity;
 }
 
 //

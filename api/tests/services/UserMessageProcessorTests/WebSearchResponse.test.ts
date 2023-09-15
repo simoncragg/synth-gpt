@@ -227,19 +227,6 @@ describe("UserMessageProcessor: Web Search response", () => {
 					},
 					{
 						id: expect.any(String),
-						role: "function",
-						attachments: [],
-						content: {
-							type: "functionResult",
-							value: {
-								name: "perform_web_search",
-								result: `{webSearchResults: ${JSON.stringify(results)}}`
-							}
-						},
-						timestamp: expect.any(Number),
-					},
-					{
-						id: expect.any(String),
 						role: "assistant",
 						attachments: [],
 						content: {

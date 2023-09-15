@@ -74,7 +74,7 @@ class ChatCompletionService {
 	private buildMessages(chatMessages: ChatMessage[]): ChatCompletionMessage[] {
 		return [
 			{ role: "system", content: prePrompt },
-			...this.chatCompletionMessageMapper.mapFromChatMessages(chatMessages),
+			...chatMessages.flatMap(chatMessage => this.chatCompletionMessageMapper.mapFromChatMessage(chatMessage)),
 		];
 	}
 
