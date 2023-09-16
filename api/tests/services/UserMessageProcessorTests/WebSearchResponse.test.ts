@@ -25,7 +25,7 @@ import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
-import { generateChatResponseAsync, generateChatResponseDeltasAsync } from "@clients/openaiApiClient";
+import { generateChatResponseDeltasAsync } from "@clients/openaiApiClient";
 import { newChatText } from "@src/constants";
 import { performWebSearchAsync } from "@clients/bingSearchApiClient";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
@@ -38,7 +38,6 @@ jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
 
 const performWebSearchAsyncMock = mocked(performWebSearchAsync);
-const generateChatResponseAsyncMock = mocked(generateChatResponseAsync);
 const generateChatResponseDeltasAsyncMock = mocked(generateChatResponseDeltasAsync);
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
@@ -80,8 +79,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 		webSearchResponse = buildWebSearchResponse();
 		userMessageProcessor = new UserMessageProcessor();
 
-		arrangeGenerateChatResponseDeltasAsyncMock(searchTerm);
-		arrangeGenerateChatResponseAsyncMock(assistantAnswer);
+		arrangeGenerateChatResponseDeltasAsyncMock(searchTerm, assistantAnswer);
 		arrangePerformWebSearchAsyncMock(webSearchResponse);
 		arrangeTextToSpeechServiceMock(TextToSpeechServiceMock);
 	});
@@ -127,7 +125,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			{
 				type: "webActivity",
 				value: {
-					...webActivity,
+					searchTerm,
 					currentState: "readingResults",
 					actions: expect.arrayContaining([
 						...webActivity.actions,
@@ -142,7 +140,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			{
 				type: "webActivity",
 				value: {
-					...webActivity,
+					searchTerm,
 					currentState: "finished",
 					actions: [
 						...webActivity.actions,
@@ -257,7 +255,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 						url: "https://www.radiotimes.com/tv/sport/tennis/wimbledon-2023-date/",
 						isFamilyFriendly: true,
 						displayUrl: "https://www.radiotimes.com/tv/sport/tennis/wimbledon-2023-date",
-						snippet: "Wimbledon 2023 will begin on Monday 3rd July 2023 and run until the men's singles final on ...",
+						snippet: "Wimbledon 2023 will begin on Monday 3rd July 2023 and run until ...",
 						dateLastCrawled: "2023-04-30T07: 07: 00.0000000Z",
 						language: "en",
 						isNavigational: false
@@ -266,16 +264,12 @@ describe("UserMessageProcessor: Web Search response", () => {
 			} as WebPages
 		} as WebSearchResponse;
 	};
-
-	const arrangeGenerateChatResponseAsyncMock = (content: string) => {
-		generateChatResponseAsyncMock.mockResolvedValueOnce({
-			role: "assistant",
-			content,
-		});
-	};
-		
-	const arrangeGenerateChatResponseDeltasAsyncMock = (searchTerm: string) => {
-		generateChatResponseDeltasAsyncMock.mockImplementation(async (
+	
+	const arrangeGenerateChatResponseDeltasAsyncMock = (
+		searchTerm: string, 
+		assistantAnswer: string) =>
+	{
+		generateChatResponseDeltasAsyncMock.mockImplementationOnce(async (
 			_,
 			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
 		): Promise<void> => {
@@ -296,6 +290,16 @@ describe("UserMessageProcessor: Web Search response", () => {
 				}, null);
 			}
 			await onDeltaReceived({}, "function_call");
+		});
+
+		generateChatResponseDeltasAsyncMock.mockImplementationOnce(async (
+			_,
+			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>): Promise<void> => {
+			
+			for (const chunk of tokenizeAndDecodeChunks(assistantAnswer)) {
+				await onDeltaReceived({	content: chunk }, null);
+			}
+			await onDeltaReceived({}, "done");
 		});
 	};
 		

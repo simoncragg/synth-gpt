@@ -1,11 +1,6 @@
 import type { AssistantMessageSegmentPayload } from "./types";
 import type { Chat, ChatMessage } from "../types";
 
-import AssistantVoiceProcessor from "./AssistantVoiceProcessor";
-import ChatCompletionService from "@services/ChatCompletionService";
-import { performWebSearchAsync } from "@clients/bingSearchApiClient";
-import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
-
 import type {
 	ReadingWebSearchResultsAction,
 	SearchingWebAction,
@@ -13,24 +8,24 @@ import type {
 	WebSearchResult,
 } from "../types";
 
+import AssistantMessageProcessor from "./AssistantMessageProcessor";
+import { performWebSearchAsync } from "@clients/bingSearchApiClient";
+import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
+
 class WebActivityProcessor {
 
 	private readonly connectionId: string;
 	private readonly chat: Chat;
-	private readonly chatCompletionService: ChatCompletionService;
-	private readonly assistantVoiceProcessor: AssistantVoiceProcessor;
 
 	constructor(connectionId: string, chat: Chat) {
 		this.connectionId = connectionId;
 		this.chat = chat;
-		this.chatCompletionService = new ChatCompletionService();
-		this.assistantVoiceProcessor = new AssistantVoiceProcessor(connectionId, chat);
 	}
 
 	public async process(assistantMessage: ChatMessage): Promise<void> {
 
 		const { searchTerm } = (assistantMessage.content.value as WebActivity);
-		const { chatId, model } = this.chat;
+		const { chatId } = this.chat;
 
 		const webActivity = {
 			...(assistantMessage.content.value as WebActivity),
@@ -99,12 +94,12 @@ class WebActivityProcessor {
 			} as AssistantMessageSegmentPayload,
 		});
 
-		const updatedAssistantMessage = {
+		const finishedMessage = {
 			...assistantMessage,
 			content: {
 				type: "webActivity",
 				value: {
-					...webActivity,
+					searchTerm,
 					currentState: "finished",
 					actions: [
 						...webActivity.actions,
@@ -117,34 +112,18 @@ class WebActivityProcessor {
 			},
 		} as ChatMessage;
 
-		this.chat.messages.push(updatedAssistantMessage);
-
-		const finalAssistantMessage = await this.chatCompletionService
-			.generateAssistantMessageAsync(model, this.chat.messages);
-
 		await postToConnectionAsync(this.connectionId, {
 			type: "assistantMessageSegment",
 			payload: {
 				chatId,
-				message: updatedAssistantMessage,
+				message: finishedMessage,
 				isLastSegment: false,
-			} as AssistantMessageSegmentPayload,
+			} as AssistantMessageSegmentPayload
 		});
+	
+		this.chat.messages.push(finishedMessage);
 
-		await Promise.all([
-			postToConnectionAsync(this.connectionId, {
-				type: "assistantMessageSegment",
-				payload: {
-					chatId,
-					message: finalAssistantMessage,
-					isLastSegment: true,
-				} as AssistantMessageSegmentPayload,
-			}),
-
-			this.assistantVoiceProcessor.process(finalAssistantMessage),
-		]);
-
-		this.chat.messages.push(finalAssistantMessage);
+		await new AssistantMessageProcessor(this.connectionId, this.chat).process();
 	}
 }
 
