@@ -3,6 +3,7 @@
 		"baseUrl": ".",
 		"paths": {
 			"@src/*": ["src/*"],
+			"@builders/*": ["src/builders/*"],
 			"@clients/*": ["src/clients/*"],
 			"@handlers/*": ["src/handlers/*"],
 			"@libs/*": ["src/libs/*"],
