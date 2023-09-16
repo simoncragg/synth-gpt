@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { newChatText } from "../../constants";
+import { mergeMessages } from "./mergeMessages";
 
 const initialState: ChatState = {
 	chatId: uuidv4(),
@@ -13,7 +14,7 @@ const initialState: ChatState = {
 
 type SetChatModelPayloadType = { model: ChatModelType };
 type SetActiveChatPayloadType = { chat: Chat };
-type AddOrUpdateMessagePayloadType = { message: ChatMessage };
+type AddOrUpdateMessagePayloadType = { message: ChatMessage, isLastSegment: boolean };
 type AttachFilePayloadType = { file: AttachedFile };
 type AttachCodeSnippetPayloadType = { codeSnippet: CodeSnippet };
 type RemoveAttachmentPayloadType = { attachmentId: string };
@@ -82,28 +83,17 @@ const chatSlice = createSlice({
 			chat: ChatState,
 			action: PayloadAction<AddOrUpdateMessagePayloadType>
 		) => {
-			const { message } = action.payload;
+			const { message: newMessage, isLastSegment } = action.payload;
+			const existingMessage = chat.messages.find((msg) => msg.id === newMessage.id);
 
-			const matchedMessage = chat.messages.find((msg) => msg.id === message.id);
-			if (matchedMessage) {
-				let updatedMessage: ChatMessage;
-				if (message.content.type === "text") {
-					updatedMessage = {
-						...matchedMessage,
-						content: {
-							type: "text",
-							value: `${matchedMessage.content.value}${message.content.value}`,
-						},
-					};
-				} else {
-					updatedMessage = message;
-				}
+			if (existingMessage) {
+				const mergedMessage = mergeMessages(existingMessage, newMessage, isLastSegment);
 				chat.messages = [
-					...chat.messages.filter((msg) => msg.id !== matchedMessage.id),
-					updatedMessage,
+					...chat.messages.filter((msg) => msg.id !== existingMessage.id),
+					mergedMessage,
 				];
-			} else {
-				chat.messages.push(message);
+			} else  {
+				chat.messages.push(newMessage);
 				chat.attachments = [];
 			}
 		},

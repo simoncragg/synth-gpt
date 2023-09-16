@@ -42,7 +42,11 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 	const userId = uuidv4();
 	const model = "gpt-3.5-turbo";
 	const title = newChatText;
-	const code = "import math\\nresult=math.sqrt(144)";
+	const codeSegments = [
+		"import math\\n",
+		"result=math.sqrt(144)"
+	];
+	const code = codeSegments.join("");
 	const executionSummary: CodeExecutionSummary = {
 		success: true,
 		result: "# Result\n12.0",
@@ -94,12 +98,11 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 			{
 				type: "codingActivity",
 				value: {
-					code: unescapeNewLines(code),
+					code: unescapeNewLines(codeSegments[0]),
 					currentState: "working",
 				},
 			},
 			userMessagePayload,
-			false
 		);
 
 		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
@@ -112,7 +115,6 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 				},
 			},
 			userMessagePayload,
-			false
 		);
 
 		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(

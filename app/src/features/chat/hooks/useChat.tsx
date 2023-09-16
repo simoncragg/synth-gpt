@@ -42,7 +42,7 @@ const useChat = () => {
 	const onTranscriptionEnded = (transcript: string) => {
 		const message = buildMessage(transcript, attachments);
 		setIsAwaitingAudio(true);
-		dispatch(addOrUpdateMessage({ message }));
+		dispatch(addOrUpdateMessage({ message, isLastSegment: true }));
 		send({
 			type: "userMessage" as const,
 			payload: {
@@ -104,6 +104,7 @@ const useChat = () => {
 		dispatch(
 			addOrUpdateMessage({
 				message,
+				isLastSegment,
 			})
 		);
 	};

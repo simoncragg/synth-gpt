@@ -1,5 +1,4 @@
-import { FunctionCall } from "@clients/openaiApiClient";
-import { ChatMessage } from "src/types";
+import type { ChatMessage, Content  } from "@src/types";
 
 class ChatMessagesBuilder {
 
@@ -19,65 +18,15 @@ class ChatMessagesBuilder {
 		};
 	}
 
-	buildChatMessageWithFunctionCall(
-		id: string,
-		functionCall: FunctionCall
-	): ChatMessage {
-
-		if (functionCall.name == "execute_python_code") {
-			return this.buildCodingActivityMessage(id, functionCall);
-		}
-
-		if (functionCall.name == "perform_web_search") {
-			return this.buildWebActivityMessage(id, functionCall);
-		}
-	}
-
-	private buildCodingActivityMessage(
+	buildChatMessageWithContent(
 		id: string, 
-		functionCall: FunctionCall,
+		content: Content
 	): ChatMessage {
-
-		const code = JSON.parse(
-			functionCall.arguments.replace(/\n/g, "")
-		).code;
-
 		return {
 			id,
 			role: "assistant",
 			attachments: [],
-			content: {
-				type: "codingActivity",
-				value: {
-					code,
-					currentState: "working",
-				},
-			},
-			timestamp: Date.now(),
-		};
-	}
-
-	private buildWebActivityMessage(
-		id: string, 
-		functionCall: FunctionCall
-	): ChatMessage {
-		
-		const searchTerm = JSON.parse(
-			functionCall.arguments
-		).search_term;
-
-		return {
-			id,
-			role: "assistant",
-			attachments: [],
-			content: {
-				type: "webActivity",
-				value: {
-					searchTerm,
-					currentState: "searching",
-					actions: [],
-				},
-			},
+			content,
 			timestamp: Date.now(),
 		};
 	}
