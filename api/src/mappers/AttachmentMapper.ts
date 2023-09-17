@@ -1,5 +1,8 @@
-
-import { Attachment, CodeAttachment, FileAttachment } from "src/types";
+import type {
+	Attachment,
+	CodeAttachment,
+	FileAttachment
+} from "@src/types";
 
 class AttachmentMapper {
 	

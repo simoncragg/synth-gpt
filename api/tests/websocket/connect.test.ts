@@ -2,7 +2,7 @@ import type { APIGatewayProxyEvent } from "aws-lambda";
 import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
-import type { WebSocketToken } from "src/types";
+import type { WebSocketToken } from "@src/types";
 import WebSocketTokenRepository from "@repositories/WebSocketTokenRepository";
 import {
 	buildApiGatewayProxyEvent,

@@ -1,7 +1,8 @@
 import type { MockedFunction } from "jest-mock";
 
-import type { Content, WebSocketMessage } from "src/types";
+import type { Content, WebSocketMessage } from "@src/types";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
+
 import { baseAudioUrl } from "./constants";
 
 type PostToConnectionMockedFunction = MockedFunction<(connectionId: string, data: WebSocketMessage) => Promise<void>>

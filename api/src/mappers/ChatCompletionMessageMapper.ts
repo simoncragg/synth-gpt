@@ -1,13 +1,13 @@
 import { ChatCompletionMessage } from "@clients/openaiApiClient";
 
-import AttachmentMapper from "./AttachmentMapper";
-
-import { 
+import type { 
 	ChatMessage, 
 	CodingActivity, 
 	ReadingWebSearchResultsAction, 
 	WebActivity
-} from "src/types";
+} from "@src/types";
+
+import AttachmentMapper from "./AttachmentMapper";
 
 class ChatCompletionMessageMapper {
 
