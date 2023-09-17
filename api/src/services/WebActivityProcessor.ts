@@ -24,11 +24,11 @@ class WebActivityProcessor {
 
 	public async process(assistantMessage: ChatMessage): Promise<void> {
 
-		const { searchTerm } = (assistantMessage.content.value as WebActivity);
+		const { searchTerm } = (assistantMessage.activity?.value as WebActivity);
 		const { chatId } = this.chat;
 
 		const webActivity = {
-			...(assistantMessage.content.value as WebActivity),
+			...(assistantMessage.activity?.value as WebActivity),
 			actions: [
 				{
 					type: "searching",
@@ -43,7 +43,7 @@ class WebActivityProcessor {
 				chatId,
 				message: {
 					...assistantMessage,
-					content: {
+					activity: {
 						type: "webActivity",
 						value: webActivity,
 					},
@@ -75,7 +75,7 @@ class WebActivityProcessor {
 				chatId,
 				message: {
 					...assistantMessage,
-					content: {
+					activity: {
 						type: "webActivity",
 						value: {
 							...webActivity,
@@ -96,7 +96,7 @@ class WebActivityProcessor {
 
 		const finishedMessage = {
 			...assistantMessage,
-			content: {
+			activity: {
 				type: "webActivity",
 				value: {
 					searchTerm,

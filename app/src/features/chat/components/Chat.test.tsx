@@ -64,6 +64,7 @@ describe("Chat", () => {
 	const tokenId = "token-123";
 	const userId = "user-123";
 	const chatId = uuidv4();
+	const model = "gpt-3.5-turbo";
 	const transcript = "this is a test";
 
 	beforeAll(() => {
@@ -149,18 +150,16 @@ describe("Chat", () => {
 		fireEvent.click(getByLabelText("listen-send"));
 
 		expect(mockSend).toHaveBeenCalledWith({
-			type: "userMessage" as const,
+			type: "userMessage",
 			payload: {
 				chatId,
 				userId,
+				model,
 				message: {
 					id: expect.any(String),
-					role: "user" as const,
+					role: "user",
 					attachments: [],
-					content: {
-						type: "text",
-						value: transcript,
-					},
+					content: transcript,
 					timestamp: expect.any(Number),
 				},
 			},
@@ -174,17 +173,15 @@ describe("Chat", () => {
 			chat: {
 				chatId,
 				title: newChatText,
+				model,
 				transcript,
 				attachments: [],
 				messages: [
 					{
 						id: uuidv4(),
-						role: "user" as const,
+						role: "user",
 						attachments: [],
-						content: {
-							type: "text",
-							value: transcript,
-						},
+						content: transcript,
 						timestamp: Date.now(),
 					},
 				],
@@ -242,10 +239,11 @@ describe("Chat", () => {
 
 		await waitFor(() => {
 			expect(mockSend).toHaveBeenCalledWith({
-				type: "userMessage" as const,
+				type: "userMessage",
 				payload: {
 					chatId,
 					userId,
+					model,
 					message: {
 						id: expect.any(String),
 						role: "user",
@@ -258,10 +256,7 @@ describe("Chat", () => {
 								},
 							},
 						],
-						content: {
-							type: "text",
-							value: transcript,
-						},
+						content: transcript,
 						timestamp: expect.any(Number),
 					},
 				},
@@ -301,10 +296,11 @@ describe("Chat", () => {
 		userEvent.click(getByLabelText("listen-send"));
 
 		expect(mockSend).toHaveBeenCalledWith({
-			type: "userMessage" as const,
+			type: "userMessage",
 			payload: {
 				chatId,
 				userId,
+				model,
 				message: {
 					id: expect.any(String),
 					role: "user",
@@ -320,10 +316,7 @@ describe("Chat", () => {
 								size: f.size,
 							},
 						})),
-					content: {
-						type: "text",
-						value: transcript,
-					},
+					content: transcript,
 					timestamp: expect.any(Number),
 				},
 			},
@@ -349,6 +342,7 @@ describe("Chat", () => {
 				chat: {
 					chatId,
 					title: newChatText,
+					model,
 					transcript: "",
 					attachments: [],
 					messages: [],

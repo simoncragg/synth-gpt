@@ -30,9 +30,7 @@ class CodingActivityProcessor {
 	}
 
 	public async process(assistantMessage: ChatMessage): Promise<void> {
-
-		await this.postToConnection(assistantMessage);
-		const { code } = assistantMessage.content.value as CodingActivity;
+		const { code } = assistantMessage.activity.value as CodingActivity;
 		const executionResponse = await this.codeInterpreter.executeCode(code);
 		await this.processExecutionResponse(executionResponse, assistantMessage);
 		await new AssistantMessageProcessor(this.connectionId, this.chat).process();
@@ -41,7 +39,7 @@ class CodingActivityProcessor {
 	private async processExecutionResponse(executionResponse: CodeExecutionResponse, assistantMessage: ChatMessage) {
 
 		const executionSummary = this.mapToExecutionSummary(executionResponse);
-		const { code } = assistantMessage.content.value as CodingActivity;
+		const { code } = assistantMessage.activity?.value as CodingActivity;
 
 		const codingActivity = {
 			code,
@@ -51,14 +49,18 @@ class CodingActivityProcessor {
 
 		const updatedAssistantMessage = {
 			...assistantMessage,
-			content: {
+			activity: {
 				type: "codingActivity",
 				value: codingActivity,
 			},
 		} as ChatMessage;
 
 		this.chat.messages.push(updatedAssistantMessage);
-		await this.postToConnection(updatedAssistantMessage);
+		
+		await this.postToConnection({
+			...updatedAssistantMessage,
+			content: undefined,
+		});
 	}
 
 	//

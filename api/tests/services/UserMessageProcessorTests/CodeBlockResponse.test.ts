@@ -84,10 +84,7 @@ describe("UserMessageProcessor: Complex code block response", () => {
 			id: uuidv4(),
 			role: "user",
 			attachments: [],
-			content: {
-				type: "text",
-				value: "Calculate the sum of even numbers from 1 to 10 using 2 lines of Python and show the expected output",
-			},
+			content: "Calculate the sum of even numbers from 1 to 10 using 2 lines of Python and show the expected output",
 			timestamp: 1234567890,
 		};
 
@@ -110,11 +107,8 @@ describe("UserMessageProcessor: Complex code block response", () => {
 		await userMessageProcessor.process(userMessagePayload);
 
 		for (const line of generatedLines.map(x => x.line)) {
-			postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
-				{
-					type: "text",
-					value: line,
-				},
+			postToConnectionMockUtility.expectContentToBePostedToClient(
+				line,
 				userMessagePayload,
 			);
 		}
@@ -128,7 +122,7 @@ describe("UserMessageProcessor: Complex code block response", () => {
 			.map(x => x.line);
 
 		for (const transcript of spokenLines) {
-			postToConnectionMockUtility.expectAudioMessageSegmentToBePostedToClient(transcript, userMessagePayload);
+			postToConnectionMockUtility.expectAudioMessageToBePostedToClient(transcript, userMessagePayload);
 		}
 
 		const unspokenLines = generatedLines
@@ -136,7 +130,7 @@ describe("UserMessageProcessor: Complex code block response", () => {
 			.map(x => x.line);
 
 		for (const transcript of unspokenLines) {
-			postToConnectionMockUtility.expectAudioMessageSegmentNotToBePostedToClient(transcript, userMessagePayload);
+			postToConnectionMockUtility.expectAudioMessageNotToBePostedToClient(transcript, userMessagePayload);
 		}
 	});
 
@@ -154,10 +148,7 @@ describe("UserMessageProcessor: Complex code block response", () => {
 						id: expect.any(String),
 						role: "assistant",
 						attachments: [],
-						content: {
-							type: "text",
-							value: generatedLines.map(x => x.line).join(""),
-						},
+						content: generatedLines.map(x => x.line).join(""),
 						timestamp: expect.any(Number),
 					}
 				],

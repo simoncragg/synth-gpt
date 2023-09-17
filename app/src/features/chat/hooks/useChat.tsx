@@ -59,10 +59,7 @@ const useChat = () => {
 			id: uuidv4(),
 			role: "user",
 			attachments,
-			content: {
-				type: "text",
-				value: transcript,
-			},
+			content: transcript,
 			timestamp: Date.now(),
 		};
 	};

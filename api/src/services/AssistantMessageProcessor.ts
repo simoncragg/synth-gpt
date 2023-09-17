@@ -1,7 +1,14 @@
-import { v4 as uuidv4 } from "uuid";
+import type {
+	AssistantMessageSegmentPayload
+} from "./types";
 
-import type { AssistantMessageSegmentPayload } from "./types";
-import type { Chat, ChatMessage, CodingActivity, MessageSegment } from "../types";
+import type { 
+	Chat, 
+	ChatMessage, 
+	CodingActivity, 
+	MessageSegment,
+	WebActivity
+} from "../types";
 
 import AssistantVoiceProcessor from "./AssistantVoiceProcessor";
 import ChatCompletionService from "@services/ChatCompletionService";
@@ -19,9 +26,7 @@ class AssistantMessageProcessor {
 	private readonly webActivityProcessor: WebActivityProcessor;
 	private readonly assistantVoiceProcessor: AssistantVoiceProcessor;
 	
-	private assistantMessage?: ChatMessage = null;
-	private codingActivityMessage?: ChatMessage = null;
-	private webActivityMessage?: ChatMessage = null;
+	private assistantMessage: ChatMessage = null;
 	private isInsideCodeBlock = false;
 		
 	constructor(connectionId: string, chat: Chat) {
@@ -34,74 +39,37 @@ class AssistantMessageProcessor {
 	}
 
 	async process(): Promise<void> {
+
 		await this.chatCompletionService.generateAssistantMessageSegmentsAsync(
 			this.chat.model,
 			this.chat.messages,
 			async (segment: MessageSegment) => this.processSegment(segment)
 		);
 
-		if (this.assistantMessage) {
-			this.chat.messages = [...this.chat.messages, this.assistantMessage];
+		if (this.assistantMessage.activity) {
+			await this.processActivity();
 		}
-
-		else if (this.codingActivityMessage) {
-			await this.codingActivityProcessor.process(this.codingActivityMessage);
-		}
-		
-		else if (this.webActivityMessage) {
-			await this.webActivityProcessor.process(this.webActivityMessage);
+		else {
+			this.chat.messages.push(this.assistantMessage);
 		}
 	}
 
 	private async processSegment(segment: MessageSegment) {
 		const { message } = segment;
 
-		if (message.content.type === "codingActivity") {
-			await this.processCodingActivitySegment(segment);
+		if (message.content) {
+			await this.processContentSegment(segment);
 		}
 
-		else if (message.content.type === "webActivity") {
-			await this.processWebActivitySegment(segment);
-		}
-
-		else {
-			await this.processTextMessage(segment);
+		if (message.activity) {
+			await this.processActivitySegment(segment);
 		}
 	}
 
-	private async processCodingActivitySegment(segment: MessageSegment) {
-		const { message } = segment;
-		if (!this.codingActivityMessage) {
-			this.codingActivityMessage = {
-				...message,
-				content: {
-					...message.content
-				},
-			};
-		}
-		else {
-			const { code } = message.content.value as CodingActivity;
-			(this.codingActivityMessage.content.value as CodingActivity).code = code;
-		}
-		await this.postToClient(segment);
-	}
-
-	private async processWebActivitySegment(segment: MessageSegment) {
-		const { message } = segment;
-		this.webActivityMessage = {
-			...message,
-			id: uuidv4(),
-			content: {
-				...message.content
-			}
-		};
-	}
-
-	private async processTextMessage(segment: MessageSegment) {
+	private async processContentSegment(segment: MessageSegment) {
 		const { message } = segment;
 		
-		const value = message.content.value as string;
-		if (this.isCodeBoundary(value)) {
+		if (this.isCodeBoundary(message.content)) {
 			this.isInsideCodeBlock = !this.isInsideCodeBlock;
 		}
 		else if (!this.isInsideCodeBlock) {
@@ -109,18 +77,70 @@ class AssistantMessageProcessor {
 		}
 	
 		if (!this.assistantMessage) {
-			this.assistantMessage = {
-				...message,
-				content: {
-					...message.content
-				},
-			};
+			this.assistantMessage = structuredClone(message);
 		}
 		else {
-			this.assistantMessage.content.value += message.content.value as string;
+			this.assistantMessage.content += message.content;
 		}
 
 		this.postToClient(segment);
+	}
+
+	private async processActivitySegment(segment: MessageSegment) {
+		const { message } = segment;
+		if (message.activity?.type === "codingActivity") {
+			await this.processCodingActivitySegment(segment);
+		}
+		else if (message.activity?.type === "webActivity") {
+			await this.processWebActivitySegment(segment);
+		}
+	}
+
+	private async processCodingActivitySegment(segment: MessageSegment) {
+		const { message } = segment;
+
+		if (!this.assistantMessage) {
+			this.assistantMessage = structuredClone(message);
+		}
+		else
+		{
+			if (!this.assistantMessage.activity) {
+				this.assistantMessage.activity = structuredClone(message.activity);
+			}
+			const { code } = message.activity.value as CodingActivity;
+			(this.assistantMessage.activity.value as CodingActivity).code = code;
+		}
+
+		await this.postToClient(segment);
+	}
+
+	private async processWebActivitySegment(segment: MessageSegment) {
+		const { message } = segment;
+
+		if (!this.assistantMessage) {
+			this.assistantMessage = structuredClone(message);
+		}
+		else
+		{
+			if (!this.assistantMessage.activity) {
+				this.assistantMessage.activity = structuredClone(message.activity);
+			}
+			const { searchTerm } = message.activity.value as WebActivity;
+			(this.assistantMessage.activity.value as WebActivity).searchTerm = searchTerm;
+		}
+
+		await this.postToClient(segment);
+	}
+
+	private async processActivity() {
+		const { activity } = this.assistantMessage;
+
+		if (activity.type === "codingActivity") {
+			await this.codingActivityProcessor.process(this.assistantMessage);
+		}
+		else if (activity?.type === "webActivity") {
+			return await this.webActivityProcessor.process(this.assistantMessage);
+		}
 	}
 
 	private isCodeBoundary(value: string): boolean {

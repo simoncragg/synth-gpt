@@ -23,7 +23,8 @@ export interface ChatMessage {
 	id: string;
 	role: RoleType;
 	attachments: Attachment[],
-	content: Content,
+	content?: string,
+	activity?: Activity,
 	timestamp: number;
 }
 
@@ -55,11 +56,11 @@ export interface CodeSnippet {
 	code: string;
 }
 
-export type ContentType = "text" | "codingActivity" | "webActivity";
+export type ActivityType = "codingActivity" | "webActivity";
 
-export interface Content {
-	type: ContentType;
-	value: string | CodingActivity | WebActivity;
+export interface Activity {
+	type: ActivityType;
+	value: CodingActivity | WebActivity;
 }
 
 //

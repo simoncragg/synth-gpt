@@ -2,9 +2,7 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
 import type { CodeExecutionSummary, ExecutionResultString } from "@src/types";
-
 import type { Delta } from "@clients/openaiApiClient";
-
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
 import ChatRepository from "@repositories/ChatRepository";
@@ -42,9 +40,13 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 	const userId = uuidv4();
 	const model = "gpt-3.5-turbo";
 	const title = newChatText;
+	const contentSegments = [
+		"To calculate the square root of 144, I will use the mathematical operation of finding the square root.\n\n",
+		"In this case, I will use the formula sqrt(144) to find the square root of 144."
+	];
 	const codeSegments = [
 		"import math\\n",
-		"result=math.sqrt(144)"
+		"result=math.sqrt(144)",
 	];
 	const code = codeSegments.join("");
 	const executionSummary: CodeExecutionSummary = {
@@ -66,10 +68,7 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 				id: uuidv4(),
 				role: "user",
 				attachments: [],
-				content: {
-					type: "text",
-					value: "What is the square root of 144?",
-				},
+				content: "Calculate sqrt 144. Describe your strategy before executing it.",
 				timestamp: Date.now(),
 			},
 		};
@@ -94,7 +93,17 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 	it("should post assistant message segments to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
 
-		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
+		postToConnectionMockUtility.expectContentToBePostedToClient(
+			contentSegments[0],
+			userMessagePayload,
+		);
+
+		postToConnectionMockUtility.expectContentToBePostedToClient(
+			contentSegments[1],
+			userMessagePayload,
+		);
+
+		postToConnectionMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "codingActivity",
 				value: {
@@ -105,7 +114,7 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 			userMessagePayload,
 		);
 
-		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
+		postToConnectionMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "codingActivity",
 				value: {
@@ -117,19 +126,16 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 			userMessagePayload,
 		);
 
-		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
-			{
-				type: "text",
-				value: assistantAnswer,
-			},
+		postToConnectionMockUtility.expectContentToBePostedToClient(
+			assistantAnswer,
 			userMessagePayload,
-			true
+			true,
 		);
 	});
 
 	it("should post audio to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
-		postToConnectionMockUtility.expectAudioMessageSegmentToBePostedToClient(
+		postToConnectionMockUtility.expectAudioMessageToBePostedToClient(
 			assistantAnswer,
 			userMessagePayload
 		);
@@ -152,7 +158,8 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 					id: expect.any(String),
 					role: "assistant",
 					attachments: [],
-					content: {
+					content: contentSegments.join(""),
+					activity: {
 						type: "codingActivity",
 						value: {
 							code: unescapeNewLines(code),
@@ -166,10 +173,7 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 					id: expect.any(String),
 					role: "assistant",
 					attachments: [],
-					content: {
-						type: "text",
-						value: assistantAnswer,
-					},
+					content: assistantAnswer,
 					timestamp: expect.any(Number),
 				},
 			],
@@ -179,11 +183,18 @@ describe("UserMessageProcessor: Code Interpreter response", () => {
 	});
 
 	const arrangeGenerateChatResponseDeltasAsyncMock = (code: string) => {
+		
 		generateChatResponseDeltasAsyncMock.mockImplementationOnce(
 			async (
 				_,
 				onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
 			): Promise<void> => {
+
+				const content = contentSegments.join("");
+				for (const chunk of tokenizeAndDecodeChunks(content)) {
+					await onDeltaReceived({ content: chunk }, null);
+				}
+
 				await onDeltaReceived(
 					{
 						function_call: {

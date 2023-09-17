@@ -7,33 +7,30 @@ import { renderWithProviders } from "../../../utils/test-utils";
 describe("ChatLog", () => {
 	const chat = {
 		chatId: uuidv4(),
-		model: "gpt-3.5-turbo" as const,
+		model: "gpt-3.5-turbo",
 		title: newChatText,
 		transcript: "",
 		attachments: [],
 		messages: [],
-	};
+		userId: uuidv4(),
+		createdTime: Date.now(),
+		updatedTime: Date.now(),
+	} as Chat;
 
 	it("displays simple paragraph messages", () => {
 		const messages = [
 			{
 				id: uuidv4(),
-				role: "user" as const,
+				role: "user",
 				attachments: [],
-				content: {
-					type: "text" as const,
-					value: "Hello",
-				},
+				content: "Hello",
 				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
-				role: "assistant" as const,
+				role: "assistant",
 				attachments: [],
-				content: {
-					type: "text" as const,
-					value: "Hi there!",
-				},
+				content: "Hi there!",
 				timestamp: Date.now() + 1000,
 			},
 		];
@@ -43,7 +40,7 @@ describe("ChatLog", () => {
 		});
 
 		for (const msg of messages) {
-			const messageEl = getByText(msg.content.value);
+			const messageEl = getByText(msg.content);
 			expect(messageEl).toBeInTheDocument();
 		}
 	});
@@ -62,25 +59,19 @@ describe("ChatLog", () => {
 		const messages = [
 			{
 				id: uuidv4(),
-				role: "user" as const,
+				role: "user",
 				attachments: [],
-				content: {
-					type: "text" as const,
-					value: "Hello",
-				},
+				content: "Hello",
 				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
-				role: "assistant" as const,
+				role: "assistant",
 				attachments: [],
-				content: {
-					type: "text" as const,
-					value: fullResponse,
-				},
+				content: fullResponse,
 				timestamp: Date.now() + 1000,
 			},
-		];
+		] as ChatMessage[];
 
 		const { getByText, getByTestId } = renderWithProviders(<ChatLog />, {
 			preloadedState: { chat: { ...chat, messages } },
@@ -109,22 +100,16 @@ describe("ChatLog", () => {
 		const messages = [
 			{
 				id: uuidv4(),
-				role: "user" as const,
+				role: "user",
 				attachments: [],
-				content: {
-					type: "text" as const,
-					value: userCommand,
-				},
+				content: userCommand,
 				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
-				role: "assistant" as const,
+				role: "assistant",
 				attachments: [],
-				content: {
-					type: "text" as const,
-					value: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}`,
-				},
+				content: `${responseText1}\n\n\`\`\`typescript\n${code}\`\`\`\n\n${responseText2}`,
 				timestamp: Date.now() + 1321,
 			},
 		];
@@ -151,26 +136,23 @@ describe("ChatLog", () => {
 		const messages = [
 			{
 				id: uuidv4(),
-				role: "user" as const,
+				role: "user",
 				attachments: [],
-				content: {
-					type: "text" as const,
-					value: userText,
-				},
+				content: userText,
 				timestamp: Date.now(),
 			},
 			{
 				id: uuidv4(),
-				role: "assistant" as const,
+				role: "assistant",
 				attachments: [],
-				content: {
-					type: "webActivity" as const,
+				activity: {
+					type: "webActivity",
 					value: {
 						currentState: "searching",
 						searchTerm,
 						actions: [
 							{
-								type: "searching" as const,
+								type: "searching",
 								searchTerm,
 							},
 						],

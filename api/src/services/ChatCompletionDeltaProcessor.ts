@@ -36,7 +36,11 @@ class ChatCompletionDeltaProcessor {
 		if (delta.content) {
 			await this.handleContentDelta(delta);
 		} 
-		else if (delta.function_call) {
+		
+		if (delta.function_call) {
+			if (this.content !== "") {
+				await this.flushSegment();
+			}
 			await this.handleFunctionCallDelta(delta);
 		}
 	
@@ -53,11 +57,11 @@ class ChatCompletionDeltaProcessor {
 	}
 
 	private async handleFunctionCallDelta(delta: Delta) {
-		if (this.functionCall.name === "") {
-			this.functionCall.name += delta.function_call.name;
-			await this.flushSegment();
+		if (delta.function_call.name && this.functionCall.name === "") {
+			this.functionCall.name = delta.function_call.name;
 		}
-		else if (delta.function_call.arguments) {
+		
+		if (delta.function_call.arguments) {
 			
 			this.functionCall.arguments += delta.function_call.arguments;
 			this.functionCall.argumentsSegment += delta.function_call.arguments;
@@ -76,7 +80,7 @@ class ChatCompletionDeltaProcessor {
 
 		const message = isFunctionCall
 			? this.buildChatMessageWithFunctionCall()
-			: this.buildChatMessageWithTextContent();
+			: this.buildChatMessageWithContent();
 
 		await this.onSegmentReceived({
 			message,
@@ -92,8 +96,8 @@ class ChatCompletionDeltaProcessor {
 		}
 	}
 
-	private buildChatMessageWithTextContent(): ChatMessage {
-		return this.chatMessageBuilder.buildChatMessageWithTextContent(this.id, this.content);
+	private buildChatMessageWithContent(): ChatMessage {
+		return this.chatMessageBuilder.buildChatMessageWithContent(this.id, this.content);
 	}
 
 	private buildChatMessageWithFunctionCall(): ChatMessage {
@@ -113,7 +117,7 @@ class ChatCompletionDeltaProcessor {
 			? JSON.parse(this.functionCall.arguments.replace(/\n/g, "")).code
 			: this.functionCall.argumentsSegment.replace(/^\s*{\s*"code":\s*"/, "").trim().replace(/\\n/g, "\n");
 
-		return this.chatMessageBuilder.buildChatMessageWithContent(this.id, {
+		return this.chatMessageBuilder.buildChatMessageWithActivity(this.id, {
 			type: "codingActivity",
 			value: {
 				code,
@@ -128,7 +132,7 @@ class ChatCompletionDeltaProcessor {
 			? JSON.parse(this.functionCall.arguments.replace(/\n/g, "")).search_term
 			: "";
 
-		return this.chatMessageBuilder.buildChatMessageWithContent(this.id, {
+		return this.chatMessageBuilder.buildChatMessageWithActivity(this.id, {
 			type: "webActivity",
 			value: {
 				searchTerm,

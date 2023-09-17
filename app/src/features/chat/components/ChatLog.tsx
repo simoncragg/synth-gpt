@@ -23,7 +23,7 @@ const ChatLog = () => {
 			data-testid="chat-log"
 			className="w-full relative border-l border-gray-700"
 		>
-			{messages.map(({ id, role, timestamp, attachments, content }) => (
+			{messages.map(({ id, role, timestamp, attachments, content, activity }) => (
 				<li key={id} className="mb-10 ml-6 zoom-in">
 					<span
 						className={`absolute flex items-center justify-center w-6 h-6 rounded-full -left-3 -mt-1 ring-8 ring-gray-800 ${
@@ -39,8 +39,8 @@ const ChatLog = () => {
 
 					{attachments?.length > 0 && <Attachments attachments={attachments} allowDeletions={false} />}
 
-					{content.type === "text" &&
-						mapToContentParts(content.value as string).map(
+					{content &&
+						mapToContentParts(content).map(
 							(part, partIndex) => {
 								switch (part.type) {
 									case "OrderedList":
@@ -92,12 +92,12 @@ const ChatLog = () => {
 							}
 						)}
 
-					{content.type === "codingActivity" && (
-						<CodingActivity id={id} activity={content.value as CodingActivity} />
+					{activity?.type === "codingActivity" && (
+						<CodingActivity id={id} activity={activity.value as CodingActivity} />
 					)}
 
-					{content.type === "webActivity" && (
-						<WebActivity id={id} activity={content.value as WebActivity} />
+					{activity?.type === "webActivity" && (
+						<WebActivity id={id} activity={activity.value as WebActivity} />
 					)}
 				</li>
 			))}

@@ -140,17 +140,18 @@ interface ChatMessage {
 	id: string;
 	role: RoleType;
 	attachments: Attachment[];
-	content: Content;
+	content?: string;
+	activity?: Activity
 	timestamp: number;
 }
 
-/* Content */
+/* Activity */
 
-type ContentType = "text" | "codingActivity" | "webActivity";
+type ActivityType = "codingActivity" | "webActivity";
 
-interface Content {
-	type: ContentType;
-	value: string | CodingActivity | WebActivity;
+interface Activity {
+	type: ActivityType;
+	value: CodingActivity | WebActivity;
 }
 
 type CodingStatusType = "working" | "done";

@@ -104,15 +104,12 @@ describe("ChatOrganiser", () => {
 				addOrUpdateMessage({
 					message: {
 						id: uuidv4(),
-						role: "assistant" as const,
+						role: "assistant",
 						attachments: [],
-						content: {
-							type: "text",
-							value:
-								"The 16th President of the United States was Abraham Lincoln",
-						},
+						content: "The 16th President of the United States was Abraham Lincoln",
 						timestamp: Date.now(),
 					},
+					isLastSegment: true,
 				})
 			);
 		});

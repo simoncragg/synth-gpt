@@ -27,9 +27,8 @@ class AssistantVoiceProcessor {
 
 	public async process(message: ChatMessage) {
 		
-		const transcript = (message
+		const transcript = message
 			.content
-			.value as string)
 			.replace(singleLineCodeBlockPattern, "");
 
 		if (transcript.length === 0) {

@@ -38,9 +38,7 @@ class ChatCompletionService {
 			functions,
 		});
 
-		return this.chatMessageBuilder.buildChatMessageWithTextContent(
-			uuidv4(), content
-		);
+		return this.chatMessageBuilder.buildChatMessageWithContent(uuidv4(), content);
 	}
 
 	async generateAssistantMessageSegmentsAsync(model: ChatModelType, chatMessages: ChatMessage[], onSegmentReceived: MessageSegmentCallbackType) {

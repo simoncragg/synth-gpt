@@ -68,10 +68,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 				id: uuidv4(),
 				role: "user",
 				attachments: [],
-				content: {
-					type: "text",
-					value: "When does Wimbledon start this year?",
-				},
+				content: "When does Wimbledon start this year?",
 				timestamp: Date.now(),
 			},
 		};
@@ -100,7 +97,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			} as SearchingWebAction],
 		} as WebActivity;
 
-		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
+		postToConnectionMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "webActivity",
 				value: webActivity,
@@ -121,7 +118,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			results,
 		} as ReadingWebSearchResultsAction;
 
-		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
+		postToConnectionMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "webActivity",
 				value: {
@@ -136,7 +133,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			userMessagePayload
 		);
 
-		postToConnectionMockUtility.expectAssistantMessageSegmentToBePostedToClient(
+		postToConnectionMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "webActivity",
 				value: {
@@ -154,7 +151,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 
 	it("should post audio to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
-		postToConnectionMockUtility.expectAudioMessageSegmentToBePostedToClient(assistantAnswer, userMessagePayload);
+		postToConnectionMockUtility.expectAudioMessageToBePostedToClient(assistantAnswer, userMessagePayload);
 	});
 
 	it("should update chat database", async () => {
@@ -207,7 +204,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 						id: expect.any(String),
 						role: "assistant",
 						attachments: [],
-						content: {
+						activity: {
 							type: "webActivity",
 							value: {
 								...webActivity,
@@ -227,10 +224,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 						id: expect.any(String),
 						role: "assistant",
 						attachments: [],
-						content: {
-							type: "text",
-							value: assistantAnswer
-						},
+						content: assistantAnswer,
 						timestamp: expect.any(Number),
 					}
 				],

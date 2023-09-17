@@ -1,6 +1,6 @@
 import type { MockedFunction } from "jest-mock";
 
-import type { Content, WebSocketMessage } from "@src/types";
+import type { Activity, WebSocketMessage } from "@src/types";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
 import { baseAudioUrl } from "./constants";
@@ -15,8 +15,8 @@ class PostToConnectionMockUtility {
 		this.mockedFunction = mockedFunction;
 	}
   
-	expectAssistantMessageSegmentToBePostedToClient(
-		content: Content,
+	expectContentToBePostedToClient(
+		content: string,
 		userMessagePayload: ProcessUserMessagePayload,
 		isLastSegment = false
 	){
@@ -39,7 +39,31 @@ class PostToConnectionMockUtility {
 		);
 	}
 
-	expectAudioMessageSegmentToBePostedToClient (
+	expectActivityToBePostedToClient(
+		activity: Activity,
+		userMessagePayload: ProcessUserMessagePayload,
+		isLastSegment = false
+	){
+		expect(this.mockedFunction).toHaveBeenCalledWith(
+			userMessagePayload.connectionId,
+			{
+				type: "assistantMessageSegment",
+				payload: {
+					chatId: userMessagePayload.chatId,
+					message: {
+						id: expect.any(String),
+						role: "assistant",
+						attachments: [],
+						activity,
+						timestamp: expect.any(Number),
+					},
+					isLastSegment,
+				},
+			},
+		);
+	}
+
+	expectAudioMessageToBePostedToClient (
 		transcript: string,
 		userMessagePayload: ProcessUserMessagePayload
 	) {
@@ -59,7 +83,7 @@ class PostToConnectionMockUtility {
 		);
 	}
     
-	expectAudioMessageSegmentNotToBePostedToClient(
+	expectAudioMessageNotToBePostedToClient(
 		transcript: string,
 		userMessagePayload: ProcessUserMessagePayload
 	) {

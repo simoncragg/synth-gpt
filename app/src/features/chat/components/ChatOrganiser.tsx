@@ -69,10 +69,10 @@ const ChatOrganiser = () => {
 	const updateTitleIfNeeded = (chat: Chat | undefined) => {
 		if (chat?.title === newChatText) {
 			const lastMessage = messages[messages.length - 1];
-			if (lastMessage.content.type === "text" && accessToken) {
+			if (lastMessage.content && accessToken) {
 				generateTitle({
 					chatId,
-					message: lastMessage.content.value as string,
+					message: lastMessage.content,
 					accessToken,
 				});
 			}
