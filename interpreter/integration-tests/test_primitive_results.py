@@ -81,5 +81,5 @@ class TestPrimitiveResults(unittest.TestCase):
             stackTrace = data.get("stackTrace")
             return (response.status_code, errorMessage, errorType, stackTrace)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

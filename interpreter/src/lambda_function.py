@@ -1,4 +1,7 @@
 import ast
+import base64
+import io
+import magic
 import types
 from last_assigned_var_visitor import LastAssignedVarVisitor
 
@@ -38,16 +41,43 @@ def execute_code(code_string, last_variable):
     return ns.__dict__[last_variable]
 
 def process_result(result):
-    if (isinstance(result, str)):
-        return string_response(result)
-    elif (isinstance(result, (int, float, bool, list))):
+    if isinstance(result, (str, int, float, bool, list)):
         return string_response(str(result))
+    elif isinstance(result, io.BytesIO):
+        return process_file(result)
     else:
         raise Exception("Unsupported result type")
+
+def process_file(result):
+    if (isinstance(result, io.BytesIO)):
+        try:
+            buf = result.read()
+            mime_type = guess_mime_type(buf)
+            b64_encoded_content = base64.b64encode(buf).decode()
+            return file_response(mime_type, b64_encoded_content)
+        finally:
+            result.close()
+
+def guess_mime_type(buf):
+    mime = magic.Magic()
+    detailed_output = mime.from_buffer(buf)
+
+    if "image data" in detailed_output.lower():
+        imageFormat = detailed_output.split()[0].lower()
+        return f"image/{imageFormat}"
+    else:
+        # TODO handle other file types
+        return "text/plain"
+
+def file_response(mime_type, b64_encoded_content):
+    return {
+        "type": "file",
+        "mime_type": mime_type,
+        "b64_encoded_content": b64_encoded_content,
+    }
 
 def string_response(value):
     return {
         "type": "string",
         "value": value 
     }
-   
