@@ -118,7 +118,7 @@ interface AudioSegmentPayload extends BasePayload {
 }
 
 interface AudioSegment {
-	audioUrl: string;
+	audioUrl: URL;
 	timestamp: number;
 }
 

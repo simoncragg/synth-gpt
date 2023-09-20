@@ -14,7 +14,7 @@ export default class TextToSpeechService {
 		this.s3Client = this.createS3Client();
 	}
 
-	async generateSignedAudioUrlAsync(transcript: string): Promise<string> {
+	async generateSignedAudioUrlAsync(transcript: string): Promise<URL> {
 		const audioStream = await performTextToSpeech(transcript);
 		const filename = `${Date.now()}.mpg`;
 
@@ -26,13 +26,15 @@ export default class TextToSpeechService {
 			})
 		);
 
-		return await getSignedUrl(
+		const signedUrl = await getSignedUrl(
 			this.s3Client,
 			new GetObjectCommand({
 				Bucket: process.env.S3_AUDIO_BUCKET_NAME,
 				Key: filename
 			}), { expiresIn: 300 }
 		);
+
+		return new URL(signedUrl);
 	}
 
 	private createS3Client() {

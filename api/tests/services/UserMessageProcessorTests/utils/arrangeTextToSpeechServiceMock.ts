@@ -8,6 +8,6 @@ export const arrangeTextToSpeechServiceMock = (TextToSpeechServiceMock: MockedCl
 		.prototype
 		.generateSignedAudioUrlAsync
 		.mockImplementation((transcript) =>
-			Promise.resolve(baseAudioUrl + encodeURIComponent(transcript) + ".mpg")
+			Promise.resolve(new URL(baseAudioUrl + encodeURIComponent(transcript) + ".mpg"))
 		);
 };

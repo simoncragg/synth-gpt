@@ -17,7 +17,7 @@ const useAudioPlayer = (): AudioPlayerHook => {
 		}
 
 		const nextAudioUrl = audioQueue[0].audioUrl;
-		const audio = new Audio(nextAudioUrl);
+		const audio = new Audio(nextAudioUrl.toString());
 
 		audio.addEventListener("ended", () => {
 			setAudioQueue((prevQueue) => prevQueue.slice(1));

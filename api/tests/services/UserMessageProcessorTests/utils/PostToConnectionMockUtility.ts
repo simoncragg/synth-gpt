@@ -75,7 +75,7 @@ class PostToConnectionMockUtility {
 				payload: {
 					chatId,
 					audioSegment: {
-						audioUrl: baseAudioUrl + encodeURIComponent(transcript) + ".mpg",
+						audioUrl: new URL(baseAudioUrl + encodeURIComponent(transcript) + ".mpg"),
 						timestamp: expect.any(Number),
 					},
 				},
@@ -95,7 +95,7 @@ class PostToConnectionMockUtility {
 				payload: {
 					chatId,
 					audioSegment: {
-						audioUrl: baseAudioUrl + encodeURIComponent(transcript) + ".mpg",
+						audioUrl: new URL(baseAudioUrl + encodeURIComponent(transcript) + ".mpg"),
 						timestamp: expect.any(Number),
 					},
 				},

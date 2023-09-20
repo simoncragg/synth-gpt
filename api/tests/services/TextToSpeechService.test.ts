@@ -14,7 +14,7 @@ const getSignedUrlMock = mocked(getSignedUrl);
 
 describe("TextToSpeechService", () => {
 	const transcript = "this is a test";
-	const signedUrl = "https://mock-audio-url.local";
+	const signedUrl = "https://mock-audio-url.local/";
 
 	beforeEach(() => {
 		performTextToSpeechMock.mockClear();
@@ -28,6 +28,6 @@ describe("TextToSpeechService", () => {
 		const textToSpeechService = new TextToSpeechService();
 		const result = await textToSpeechService.generateSignedAudioUrlAsync(transcript);
 
-		expect(result).toEqual(signedUrl);
+		expect(result).toEqual(new URL(signedUrl));
 	});
 });

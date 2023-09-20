@@ -64,6 +64,6 @@ export interface AssistantAudioSegmentPayload extends BaseWebSocketMessagePayloa
 }
 
 export interface AudioSegment {
-	audioUrl: string;
+	audioUrl: URL;
 	timestamp: number;
 }
