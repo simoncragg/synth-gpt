@@ -1,7 +1,7 @@
 import { Polly, SynthesizeSpeechCommand } from "@aws-sdk/client-polly";
 import { isDev } from "../constants";
 
-export async function performTextToSpeech(text: string) {
+export async function performTextToSpeech(text: string): Promise<Uint8Array> {
 	const command = new SynthesizeSpeechCommand({
 		Text: text,
 		OutputFormat: "mp3",
@@ -13,7 +13,7 @@ export async function performTextToSpeech(text: string) {
 
 	const polly = createPolly();
 	const response = await polly.send(command);
-	return response.AudioStream;
+	return response.AudioStream.transformToByteArray();
 }
 
 function createPolly() {
