@@ -34,7 +34,7 @@ const postToConnectionMockUtility = new PostToConnectionMockUtility(
 	postToConnectionAsyncMock
 );
 
-describe("UserMessageProcessor: Code Interpreter response", () => {
+describe("UserMessageProcessor: Code Interpreter - string response", () => {
 	const connectionId = uuidv4();
 	const chatId = uuidv4();
 	const userId = uuidv4();
