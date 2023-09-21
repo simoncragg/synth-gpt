@@ -2,6 +2,7 @@ import { Lambda } from "aws-sdk";
 
 import type {
 	CodeExecutionResponse,
+	ExecutionResultFile,
 	ExecutionResultString
 } from "../types";
 
@@ -39,6 +40,19 @@ class CodeInterpreter {
 						errorType: data["errorType"],
 						stackTrace: data["stackTrace"],
 					}
+				};
+			}
+
+			if (data["type"] == "file") {
+				const mimeType = data["mime_type"];
+				const base64EncodedContent = data["b64_encoded_content"];
+				return {
+					success: true,
+					result: {
+						type: "file",
+						mimeType,
+						base64EncodedContent,
+					} as ExecutionResultFile,
 				};
 			}
 

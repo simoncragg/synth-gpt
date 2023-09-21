@@ -11,7 +11,10 @@ import type {
 	WebSocketMessage,
 } from "../types";
 
-import { singleLineCodeBlockPattern } from "../constants";
+import { 
+	markdownImagePattern, 
+	singleLineCodeBlockPattern
+} from "../constants";
 
 class AssistantVoiceProcessor {
 
@@ -27,9 +30,9 @@ class AssistantVoiceProcessor {
 
 	public async process(message: ChatMessage) {
 		
-		const transcript = message
-			.content
-			.replace(singleLineCodeBlockPattern, "");
+		let transcript = message.content as string;
+		transcript = this.removeCodeBlocks(transcript);
+		transcript = this.removeMarkdownImages(transcript);
 
 		if (transcript.length === 0) {
 			return;
@@ -45,6 +48,14 @@ class AssistantVoiceProcessor {
 				audioSegment,
 			} as AssistantAudioSegmentPayload
 		} as WebSocketMessage);
+	}
+
+	private removeCodeBlocks(transcript: string) {
+		return transcript.replace(singleLineCodeBlockPattern, "");
+	}
+
+	private removeMarkdownImages(transcript: string) {
+		return transcript.replace(markdownImagePattern, "");
 	}
 
 	private async generateAudioSegmentAsync(transcript: string): Promise<AudioSegment> {

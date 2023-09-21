@@ -10,11 +10,13 @@ import type {
 	CodeExecutionSummary,
 	CodingActivity,
 	ExecutionError,
+	ExecutionResultFile,
 	ExecutionResultString,
 } from "../types";
 
 import AssistantMessageProcessor from "./AssistantMessageProcessor";
 import CodeInterpreter from "./CodeInterpreter";
+import FileManager from "./FileManager";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 
 class CodingActivityProcessor {
@@ -22,11 +24,15 @@ class CodingActivityProcessor {
 	private readonly connectionId: string;
 	private readonly chat: Chat;
 	private readonly codeInterpreter: CodeInterpreter;
+	private readonly fileManager: FileManager;
+
+	private fileUrl: URL | null;
 
 	constructor(connectionId: string, chat: Chat) {
 		this.connectionId = connectionId;
 		this.chat = chat;
 		this.codeInterpreter = new CodeInterpreter();
+		this.fileManager = new FileManager(process.env.S3_FILES_BUCKET_NAME);
 	}
 
 	public async process(assistantMessage: ChatMessage): Promise<void> {
@@ -38,6 +44,10 @@ class CodingActivityProcessor {
 
 	private async processExecutionResponse(executionResponse: CodeExecutionResponse, assistantMessage: ChatMessage) {
 
+		const { success, result } = executionResponse;
+		if (success && result.type === "file") {
+			await this.createFile(result);
+		}
 		const executionSummary = this.mapToExecutionSummary(executionResponse);
 		const { code } = assistantMessage.activity?.value as CodingActivity;
 
@@ -63,6 +73,14 @@ class CodingActivityProcessor {
 		});
 	}
 
+	private async createFile(result: BaseExecutionResult) {
+		const { mimeType, base64EncodedContent } = result as ExecutionResultFile;
+		const buffer = Buffer.from(base64EncodedContent, "base64");
+		const uint8Array = new Uint8Array(buffer);
+		const extension = FileManager.determineFileExtension(mimeType);
+		this.fileUrl = await this.fileManager.writeAsync(`output-${Date.now()}.${extension}`, uint8Array);
+	}
+
 	//
 	// TODO: extract all these mapppers into new mapper classes
 	//
@@ -77,8 +95,14 @@ class CodingActivityProcessor {
 	private mapToSuccessSummary(result: BaseExecutionResult): CodeExecutionSummary {
 		return {
 			success: true,
-			result: `# Result\n${(result as ExecutionResultString).value}`,
+			result: this.formatResult(result),
 		};
+	}
+
+	private formatResult(result: BaseExecutionResult): string {
+		return result.type === "file"
+			? `# Result\n${this.fileUrl}`
+			: `# Result\n${(result as ExecutionResultString).value}`;
 	}
 
 	private mapToErrorSummary(error: ExecutionError): CodeExecutionSummary {

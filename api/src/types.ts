@@ -86,11 +86,16 @@ export interface CodeExecutionResponse {
 }
 
 export interface BaseExecutionResult {
-	type: "string";
+	type: "string" | "file";
 }
 
 export interface ExecutionResultString extends BaseExecutionResult {
 	value: string;
+}
+
+export interface ExecutionResultFile extends BaseExecutionResult {
+	mimeType: string;
+	base64EncodedContent: string;
 }
 
 export interface ExecutionError {

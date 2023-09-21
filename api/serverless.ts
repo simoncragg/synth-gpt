@@ -56,6 +56,7 @@ const serverlessConfiguration: AWS = {
 			POLLY_ACCESS_KEY_ID: process.env.POLLY_ACCESS_KEY_ID,
 			POLLY_SECRET_ACCESS_KEY: process.env.POLLY_SECRET_ACCESS_KEY,
 			S3_AUDIO_BUCKET_NAME: "synth-gpt-audio-${opt:stage, 'dev'}",
+			S3_FILES_BUCKET_NAME: "synth-gpt-files-${opt:stage, 'dev'}",
 			BING_SEARCH_API_ENDPOINT: "https://api.bing.microsoft.com/v7.0/search",
 			BING_SEARCH_API_KEY: process.env.BING_SEARCH_API_KEY,
 			JWT_ISSUER_DOMAIN: process.env.JWT_ISSUER_DOMAIN,
@@ -107,6 +108,14 @@ const serverlessConfiguration: AWS = {
 					"s3:PutObject",
 				],
 				Resource: "arn:aws:s3:::synth-gpt-audio-${opt:stage, 'dev'}/*",
+			},
+			{
+				Effect: "Allow",
+				Action: [
+					"s3:GetObject",
+					"s3:PutObject",
+				],
+				Resource: "arn:aws:s3:::synth-gpt-files-${opt:stage, 'dev'}/*",
 			},
 			{
 				Effect: "Allow",
@@ -217,6 +226,21 @@ const serverlessConfiguration: AWS = {
 								Id: "DeleteOldObjects",
 								Status: "Enabled",
 								ExpirationInDays: 1
+							}
+						]
+					}
+				},
+			},
+			filesBucket: {
+				Type: "AWS::S3::Bucket",
+				Properties: {
+					BucketName: "synth-gpt-files-${opt:stage, 'dev'}",
+					LifecycleConfiguration: {
+						Rules: [
+							{
+								Id: "DeleteOldObjects",
+								Status: "Enabled",
+								ExpirationInDays: 30
 							}
 						]
 					}

@@ -38,6 +38,13 @@ export default class FileManager {
 		return new URL(signedUrl);
 	}
 
+	static determineFileExtension(mimeType: string): string {
+		if (mimeType.startsWith("image/")) {
+			return mimeType.substring(6);
+		}
+		return "txt";
+	}
+
 	private createS3Client() {
 		const config = isDev
 			? {

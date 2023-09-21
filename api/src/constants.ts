@@ -8,3 +8,4 @@ export const prePrompt = [
 ].join("");
 
 export const singleLineCodeBlockPattern = /```[\s\S]*?```/g;
+export const markdownImagePattern = /!\[(.*?)\]\(.*?\)/g;
