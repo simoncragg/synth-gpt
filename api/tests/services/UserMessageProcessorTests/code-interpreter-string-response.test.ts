@@ -2,36 +2,31 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
 import type { CodeExecutionSummary, ExecutionResultString } from "@src/types";
-import type { Delta } from "@clients/openaiApiClient";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
 import ChatRepository from "@repositories/ChatRepository";
 import CodeInterpreter from "@services/CodeInterpreter";
+import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
 import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
-import { generateChatResponseDeltasAsync } from "@clients/openaiApiClient";
 import { newChatText } from "@src/constants";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
-import { tokenizeAndDecodeChunks } from "./utils/tokenizeAndDecodeChunks";
 
 jest.mock("@clients/apiGatewayManagementApiClient");
-jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
 jest.mock("@services/CodeInterpreter");
 
-const generateChatResponseDeltasAsyncMock = mocked(
-	generateChatResponseDeltasAsync
-);
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const executeCodeMock = mocked(CodeInterpreter.prototype.executeCode);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
-const postToConnectionAsyncMock = mocked(postToConnectionAsync);
+const openAiClientMockUtility = new OpenAiClientMockUtility();
+
 const postToConnectionMockUtility = new PostToConnectionMockUtility(
-	postToConnectionAsyncMock
+	mocked(postToConnectionAsync)
 );
 
 describe("UserMessageProcessor: Code Interpreter - string response", () => {
@@ -40,25 +35,30 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 	const userId = uuidv4();
 	const model = "gpt-3.5-turbo";
 	const title = newChatText;
-	const contentSegments = [
+	
+	const preambleSegments = [
 		"To calculate the square root of 144, I will use the mathematical operation of finding the square root.\n\n",
-		"In this case, I will use the formula sqrt(144) to find the square root of 144."
+		"In this case, I will use the formula sqrt(144) to find the square root of 144.",
 	];
+	const preamble = preambleSegments.join("");
+	
 	const codeSegments = [
 		"import math\\n",
 		"result=math.sqrt(144)",
 	];
 	const code = codeSegments.join("");
+
 	const executionSummary: CodeExecutionSummary = {
 		success: true,
 		result: "# Result\n12.0",
 	};
-	const assistantAnswer = "The square root of 144 is 12";
+	const finalAssistantResponse = "The square root of 144 is 12";
 
 	let userMessageProcessor: UserMessageProcessor;
 	let userMessagePayload: ProcessUserMessagePayload;
 
 	beforeEach(() => {
+
 		userMessagePayload = {
 			connectionId,
 			chatId,
@@ -73,9 +73,9 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 			},
 		};
 
-		userMessageProcessor = new UserMessageProcessor();
-
-		arrangeGenerateChatResponseDeltasAsyncMock(code);
+		openAiClientMockUtility.arrangeCodeInterpreterDeltas(code, preamble);
+		openAiClientMockUtility.arrangeSingleContentDeltas(finalAssistantResponse);
+		
 		executeCodeMock.mockResolvedValue({
 			success: true,
 			result: {
@@ -83,7 +83,10 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 				value: "12.0",
 			} as ExecutionResultString,
 		});
+
 		arrangeTextToSpeechServiceMock(TextToSpeechServiceMock);
+		
+		userMessageProcessor = new UserMessageProcessor();
 	});
 
 	afterEach(() => {
@@ -94,12 +97,12 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 		await userMessageProcessor.process(userMessagePayload);
 
 		postToConnectionMockUtility.expectContentToBePostedToClient(
-			contentSegments[0],
+			preambleSegments[0],
 			userMessagePayload,
 		);
 
 		postToConnectionMockUtility.expectContentToBePostedToClient(
-			contentSegments[1],
+			preambleSegments[1],
 			userMessagePayload,
 		);
 
@@ -127,7 +130,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 		);
 
 		postToConnectionMockUtility.expectContentToBePostedToClient(
-			assistantAnswer,
+			finalAssistantResponse,
 			userMessagePayload,
 			true,
 		);
@@ -136,7 +139,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 	it("should post audio to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
 		postToConnectionMockUtility.expectAudioMessageToBePostedToClient(
-			assistantAnswer,
+			finalAssistantResponse,
 			userMessagePayload
 		);
 	});
@@ -158,7 +161,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 					id: expect.any(String),
 					role: "assistant",
 					attachments: [],
-					content: contentSegments.join(""),
+					content: preambleSegments.join(""),
 					activity: {
 						type: "codingActivity",
 						value: {
@@ -173,7 +176,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 					id: expect.any(String),
 					role: "assistant",
 					attachments: [],
-					content: assistantAnswer,
+					content: finalAssistantResponse,
 					timestamp: expect.any(Number),
 				},
 			],
@@ -181,62 +184,6 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 			updatedTime: expect.any(Number),
 		});
 	});
-
-	const arrangeGenerateChatResponseDeltasAsyncMock = (code: string) => {
-		
-		generateChatResponseDeltasAsyncMock.mockImplementationOnce(
-			async (
-				_,
-				onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
-			): Promise<void> => {
-
-				const content = contentSegments.join("");
-				for (const chunk of tokenizeAndDecodeChunks(content)) {
-					await onDeltaReceived({ content: chunk }, null);
-				}
-
-				await onDeltaReceived(
-					{
-						function_call: {
-							name: "execute_python_code",
-							arguments: "",
-						},
-					},
-					null
-				);
-
-				for (const chunk of tokenizeAndDecodeChunks(`{ "code": "${code}" }`)) {
-					await onDeltaReceived(
-						{
-							function_call: {
-								arguments: chunk,
-							},
-						},
-						null
-					);
-				}
-
-				await onDeltaReceived({}, "function_call");
-			}
-		);
-
-		generateChatResponseDeltasAsyncMock.mockImplementationOnce(
-			async (
-				_,
-				onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
-			): Promise<void> => {
-				for (const chunk of tokenizeAndDecodeChunks(assistantAnswer)) {
-					await onDeltaReceived(
-						{
-							content: chunk,
-						},
-						null
-					);
-				}
-				await onDeltaReceived({}, "done");
-			}
-		);
-	};
 
 	const unescapeNewLines = (escapedString: string) => {
 		return escapedString.replace("\\n", "\n");

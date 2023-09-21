@@ -8,8 +8,6 @@ import type {
 	WebSearchResult,
 } from "@src/types";
 
-import type { Delta } from "@clients/openaiApiClient";
-
 import type {
 	WebPage,
 	WebPages,
@@ -21,15 +19,14 @@ import type {
 } from "@services/UserMessageProcessor";
 
 import ChatRepository from "@repositories/ChatRepository";
+import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
 import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
-import { generateChatResponseDeltasAsync } from "@clients/openaiApiClient";
 import { newChatText } from "@src/constants";
 import { performWebSearchAsync } from "@clients/bingSearchApiClient";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
-import { tokenizeAndDecodeChunks } from "./utils/tokenizeAndDecodeChunks";
 
 jest.mock("@clients/apiGatewayManagementApiClient");
 jest.mock("@clients/bingSearchApiClient");
@@ -38,12 +35,14 @@ jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
 
 const performWebSearchAsyncMock = mocked(performWebSearchAsync);
-const generateChatResponseDeltasAsyncMock = mocked(generateChatResponseDeltasAsync);
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
-const postToConnectionAsyncMock = mocked(postToConnectionAsync);
-const postToConnectionMockUtility = new PostToConnectionMockUtility(postToConnectionAsyncMock);
+const openAiClientMockUtility = new OpenAiClientMockUtility();
+
+const postToConnectionMockUtility = new PostToConnectionMockUtility(
+	mocked(postToConnectionAsync)
+);
 
 describe("UserMessageProcessor: Web Search response", () => {
 	const connectionId = uuidv4();
@@ -76,7 +75,9 @@ describe("UserMessageProcessor: Web Search response", () => {
 		webSearchResponse = buildWebSearchResponse();
 		userMessageProcessor = new UserMessageProcessor();
 
-		arrangeGenerateChatResponseDeltasAsyncMock(searchTerm, assistantAnswer);
+		openAiClientMockUtility.arrangeWebSearchDeltas(searchTerm);
+		openAiClientMockUtility.arrangeSingleContentDeltas(assistantAnswer);
+
 		arrangePerformWebSearchAsyncMock(webSearchResponse);
 		arrangeTextToSpeechServiceMock(TextToSpeechServiceMock);
 	});
@@ -257,44 +258,6 @@ describe("UserMessageProcessor: Web Search response", () => {
 				] as WebPage[]
 			} as WebPages
 		} as WebSearchResponse;
-	};
-	
-	const arrangeGenerateChatResponseDeltasAsyncMock = (
-		searchTerm: string, 
-		assistantAnswer: string) =>
-	{
-		generateChatResponseDeltasAsyncMock.mockImplementationOnce(async (
-			_,
-			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
-		): Promise<void> => {
-		
-			await onDeltaReceived({
-				function_call: {
-					name: "perform_web_search",
-					arguments: "",
-				},
-			}, null);
-		
-			for (const chunk of tokenizeAndDecodeChunks(`{ "search_term": "${searchTerm}" }`)) {
-				await onDeltaReceived({
-					function_call: {
-						name: "perform_web_search",
-						arguments: chunk
-					},
-				}, null);
-			}
-			await onDeltaReceived({}, "function_call");
-		});
-
-		generateChatResponseDeltasAsyncMock.mockImplementationOnce(async (
-			_,
-			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>): Promise<void> => {
-			
-			for (const chunk of tokenizeAndDecodeChunks(assistantAnswer)) {
-				await onDeltaReceived({	content: chunk }, null);
-			}
-			await onDeltaReceived({}, "done");
-		});
 	};
 		
 	const arrangePerformWebSearchAsyncMock = (webSearchResponse: WebSearchResponse) => {

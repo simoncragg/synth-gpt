@@ -2,23 +2,20 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
 import type { CodeExecutionSummary, ExecutionResultFile } from "@src/types";
-import type { Delta } from "@clients/openaiApiClient";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
 import ChatRepository from "@repositories/ChatRepository";
 import CodeInterpreter from "@services/CodeInterpreter";
 import FileManager from "@services/FileManager";
+import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
 import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
-import { generateChatResponseDeltasAsync } from "@clients/openaiApiClient";
 import { newChatText } from "@src/constants";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
-import { tokenizeAndDecodeChunks } from "./utils/tokenizeAndDecodeChunks";
 
 jest.mock("@clients/apiGatewayManagementApiClient");
-jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
 jest.mock("@services/CodeInterpreter");
@@ -27,18 +24,13 @@ jest.mock("@services/FileManager");
 const timestamp = 1695153960596;
 jest.useFakeTimers().setSystemTime(timestamp);
 
-const generateChatResponseDeltasAsyncMock = mocked(
-	generateChatResponseDeltasAsync
-);
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const executeCodeMock = mocked(CodeInterpreter.prototype.executeCode);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 const writeAsyncMock = mocked(FileManager.prototype.writeAsync);
 
-const postToConnectionAsyncMock = mocked(postToConnectionAsync);
-const postToConnectionMockUtility = new PostToConnectionMockUtility(
-	postToConnectionAsyncMock
-);
+const openAiClientMockUtility = new OpenAiClientMockUtility();
+const postToConnectionMockUtility = new PostToConnectionMockUtility(mocked(postToConnectionAsync));
 
 describe("UserMessageProcessor: Code Interpreter - image response", () => {
 	const connectionId = uuidv4();
@@ -61,6 +53,7 @@ describe("UserMessageProcessor: Code Interpreter - image response", () => {
 		"Here is the circle you requested:\\n\\n",
 		`![Circle](${imageUrl})`
 	];
+	const assistantResponse = assistantResponseLines.join("");
 
 	let userMessageProcessor: UserMessageProcessor;
 	let userMessagePayload: ProcessUserMessagePayload;
@@ -80,8 +73,9 @@ describe("UserMessageProcessor: Code Interpreter - image response", () => {
 			},
 		};
 
-		arrangeGenerateChatResponseDeltasAsyncMock(code);
-
+		openAiClientMockUtility.arrangeCodeInterpreterDeltas(code);
+		openAiClientMockUtility.arrangeSingleContentDeltas(assistantResponse);
+		
 		executeCodeMock.mockResolvedValue({
 			success: true,
 			result: {
@@ -184,57 +178,6 @@ describe("UserMessageProcessor: Code Interpreter - image response", () => {
 			updatedTime: expect.any(Number),
 		});
 	});
-
-	const arrangeGenerateChatResponseDeltasAsyncMock = (code: string) => {
-		
-		generateChatResponseDeltasAsyncMock.mockImplementationOnce(
-			async (
-				_,
-				onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
-			): Promise<void> => {
-
-				await onDeltaReceived(
-					{
-						function_call: {
-							name: "execute_python_code",
-							arguments: "",
-						},
-					},
-					null,
-				);
-
-				for (const chunk of tokenizeAndDecodeChunks(`{ "code": "${code}" }`)) {
-					await onDeltaReceived(
-						{
-							function_call: {
-								arguments: chunk,
-							},
-						},
-						null,
-					);
-				}
-
-				await onDeltaReceived({}, "function_call");
-			}
-		);
-
-		generateChatResponseDeltasAsyncMock.mockImplementationOnce(
-			async (
-				_,
-				onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
-			): Promise<void> => {
-				for (const chunk of tokenizeAndDecodeChunks(assistantResponseLines.join(""))) {
-					await onDeltaReceived(
-						{
-							content: chunk,
-						},
-						null
-					);
-				}
-				await onDeltaReceived({}, "done");
-			}
-		);
-	};
 
 	const unescapeNewLines = (escapedString: string) => {
 		return escapedString.replaceAll("\\n", "\n");

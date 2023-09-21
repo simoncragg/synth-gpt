@@ -2,31 +2,30 @@ import { mocked } from "jest-mock";
 import { v4 as uuidv4 } from "uuid";
 
 import type { ChatMessage } from "@src/types";
-import type { Delta } from "@clients/openaiApiClient";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
 import ChatRepository from "@repositories/ChatRepository";
+import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
 import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
-import { generateChatResponseDeltasAsync } from "@clients/openaiApiClient";
 import { newChatText } from "@src/constants";
 import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
-import { tokenizeAndDecodeChunks } from "./utils/tokenizeAndDecodeChunks";
 
 jest.mock("@clients/apiGatewayManagementApiClient");
 jest.mock("@clients/bingSearchApiClient");
-jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
 
-const generateChatResponseDeltasAsyncMock = mocked(generateChatResponseDeltasAsync);
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
-const postToConnectionAsyncMock = mocked(postToConnectionAsync);
-const postToConnectionMockUtility = new PostToConnectionMockUtility(postToConnectionAsyncMock);
+const postToConnectionMockUtility = new PostToConnectionMockUtility(
+	mocked(postToConnectionAsync)
+);
+
+const openAiClientMockUtility = new OpenAiClientMockUtility();
 
 describe("UserMessageProcessor: Complex code block response", () => {
 
@@ -40,11 +39,11 @@ describe("UserMessageProcessor: Complex code block response", () => {
 
 	const generatedLines = [
 		{
-			line: "Sure, here's a two-line Python code to calculate the sum of even numbers from 1 to 10:\n",
+			line: "Sure, here's a two-line Python code to calculate the sum of even numbers from 1 to 10:\n\n",
 			isSpoken: true,
 		},
 		{
-			line: "```python \n",
+			line: "```python\n",
 			isSpoken: false,
 		},
 		{
@@ -64,11 +63,11 @@ describe("UserMessageProcessor: Complex code block response", () => {
 			isSpoken: true,
 		},
 		{
-			line: "```bash 30```\n",
+			line: "```bash 30```\n\n",
 			isSpoken: false,
 		},
 		{
-			line: "The provided Python code calculates and prints the sum of even numbers from 1 to 10, resulting in an expected output of 30.\n",
+			line: "The provided Python code calculates and prints the sum of even numbers from 1 to 10, resulting in an expected output of 30.",
 			isSpoken: true,
 		}
 	];
@@ -77,7 +76,11 @@ describe("UserMessageProcessor: Complex code block response", () => {
 	let userMessagePayload: ProcessUserMessagePayload;
 
 	beforeEach(() => {
-		arrangeGenerateChatResponseDeltasAsyncMock(generatedLines.map(x => x.line));
+		
+		openAiClientMockUtility.arrangeSingleContentDeltas(
+			generatedLines.map(x => x.line).join("")
+		);
+
 		arrangeTextToSpeechServiceMock(TextToSpeechServiceMock);
 
 		userMessage = {
@@ -106,10 +109,15 @@ describe("UserMessageProcessor: Complex code block response", () => {
 	it("should post assistantMessage messages to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
 
-		for (const line of generatedLines.map(x => x.line)) {
+		const segments = generatedLines.map(x => x.line);
+		for (let i=0; i < segments.length; i++) {
+			const segment = segments[i];
+			const isLastSegment = i === segments.length - 1;
+
 			postToConnectionMockUtility.expectContentToBePostedToClient(
-				line,
+				segment,
 				userMessagePayload,
+				isLastSegment,
 			);
 		}
 	});
@@ -156,19 +164,4 @@ describe("UserMessageProcessor: Complex code block response", () => {
 				updatedTime: expect.any(Number),
 			}));
 	});
-
-	const arrangeGenerateChatResponseDeltasAsyncMock = (lines: string[]) => {
-		generateChatResponseDeltasAsyncMock.mockImplementation(async (
-			_,
-			onDeltaReceived: (delta: Delta, finishReason?: string) => Promise<void>
-		): Promise<void> => {
-			for (const line of lines) {
-				const chunks = tokenizeAndDecodeChunks(line);
-				for (const chunk of chunks) {
-					await onDeltaReceived({ content: chunk }, null);
-				}
-				await onDeltaReceived({}, "stop");
-			}
-		});
-	};
 });
