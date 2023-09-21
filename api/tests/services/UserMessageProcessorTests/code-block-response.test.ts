@@ -11,9 +11,7 @@ import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
 import { newChatText } from "@src/constants";
-import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 
-jest.mock("@clients/apiGatewayManagementApiClient");
 jest.mock("@clients/bingSearchApiClient");
 jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
@@ -21,11 +19,8 @@ jest.mock("@services/TextToSpeechService");
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
-const postToConnectionMockUtility = new PostToConnectionMockUtility(
-	mocked(postToConnectionAsync)
-);
-
 const openAiClientMockUtility = new OpenAiClientMockUtility();
+const postToConnectionMockUtility = new PostToConnectionMockUtility();
 
 describe("UserMessageProcessor: Complex code block response", () => {
 

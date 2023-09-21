@@ -13,9 +13,7 @@ import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
 import { newChatText } from "@src/constants";
-import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 
-jest.mock("@clients/apiGatewayManagementApiClient");
 jest.mock("@repositories/ChatRepository");
 jest.mock("@services/TextToSpeechService");
 jest.mock("@services/CodeInterpreter");
@@ -30,7 +28,7 @@ const TextToSpeechServiceMock = mocked(TextToSpeechService);
 const writeAsyncMock = mocked(FileManager.prototype.writeAsync);
 
 const openAiClientMockUtility = new OpenAiClientMockUtility();
-const postToConnectionMockUtility = new PostToConnectionMockUtility(mocked(postToConnectionAsync));
+const postToConnectionMockUtility = new PostToConnectionMockUtility();
 
 describe("UserMessageProcessor: Code Interpreter - image response", () => {
 	const connectionId = uuidv4();

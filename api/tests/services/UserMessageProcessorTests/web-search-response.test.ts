@@ -26,9 +26,7 @@ import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
 import { newChatText } from "@src/constants";
 import { performWebSearchAsync } from "@clients/bingSearchApiClient";
-import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 
-jest.mock("@clients/apiGatewayManagementApiClient");
 jest.mock("@clients/bingSearchApiClient");
 jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");
@@ -39,10 +37,7 @@ const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
 const openAiClientMockUtility = new OpenAiClientMockUtility();
-
-const postToConnectionMockUtility = new PostToConnectionMockUtility(
-	mocked(postToConnectionAsync)
-);
+const postToConnectionMockUtility = new PostToConnectionMockUtility();
 
 describe("UserMessageProcessor: Web Search response", () => {
 	const connectionId = uuidv4();

@@ -1,18 +1,22 @@
 import type { MockedFunction } from "jest-mock";
+import { mocked } from "jest-mock";
 
 import type { Activity, WebSocketMessage } from "@src/types";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
 import { baseAudioUrl } from "./constants";
+import { postToConnectionAsync } from "@clients/apiGatewayManagementApiClient";
 
-type PostToConnectionMockedFunction = MockedFunction<(connectionId: string, data: WebSocketMessage) => Promise<void>>
+jest.mock("@clients/apiGatewayManagementApiClient");
+
+type PostToConnectionMockedFunction = MockedFunction<(connectionId: string, data: WebSocketMessage) => Promise<void>>;
 
 class PostToConnectionMockUtility {
 
 	private mockedFunction: PostToConnectionMockedFunction;
   
-	constructor(mockedFunction: PostToConnectionMockedFunction) {
-		this.mockedFunction = mockedFunction;
+	constructor() {
+		this.mockedFunction = mocked(postToConnectionAsync);
 	}
   
 	expectContentToBePostedToClient(
