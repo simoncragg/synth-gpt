@@ -23,7 +23,7 @@ type GenerateChatResponseDeltasAsyncMock = MockedFunction<(
 
 class OpenAiClientMockUtility {
 
-	private generateChatResponseDeltasAsyncMock: GenerateChatResponseDeltasAsyncMock;
+	private readonly generateChatResponseDeltasAsyncMock: GenerateChatResponseDeltasAsyncMock;
   
 	constructor() {
 		this.generateChatResponseDeltasAsyncMock = mocked(generateChatResponseDeltasAsync);

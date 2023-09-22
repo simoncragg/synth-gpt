@@ -13,7 +13,7 @@ type PostToConnectionMockedFunction = MockedFunction<(connectionId: string, data
 
 class PostToConnectionMockUtility {
 
-	private postToConnectionMock: PostToConnectionMockedFunction;
+	private readonly postToConnectionMock: PostToConnectionMockedFunction;
   
 	constructor() {
 		this.postToConnectionMock = mocked(postToConnectionAsync);
