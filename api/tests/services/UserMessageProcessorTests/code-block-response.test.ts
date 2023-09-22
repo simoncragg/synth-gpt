@@ -6,7 +6,7 @@ import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
 import ChatRepository from "@repositories/ChatRepository";
 import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
-import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
+import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
@@ -20,7 +20,7 @@ const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
 const openAiClientMockUtility = new OpenAiClientMockUtility();
-const postToConnectionMockUtility = new PostToConnectionMockUtility();
+const apiGatewayClientMockUtility = new ApiGatewayClientMockUtility();
 
 describe("UserMessageProcessor: Complex code block response", () => {
 
@@ -109,7 +109,7 @@ describe("UserMessageProcessor: Complex code block response", () => {
 			const segment = segments[i];
 			const isLastSegment = i === segments.length - 1;
 
-			postToConnectionMockUtility.expectContentToBePostedToClient(
+			apiGatewayClientMockUtility.expectContentToBePostedToClient(
 				segment,
 				userMessagePayload,
 				isLastSegment,
@@ -125,7 +125,7 @@ describe("UserMessageProcessor: Complex code block response", () => {
 			.map(x => x.line);
 
 		for (const transcript of spokenLines) {
-			postToConnectionMockUtility.expectAudioMessageToBePostedToClient(transcript, userMessagePayload);
+			apiGatewayClientMockUtility.expectAudioMessageToBePostedToClient(transcript, userMessagePayload);
 		}
 
 		const unspokenLines = generatedLines
@@ -133,7 +133,7 @@ describe("UserMessageProcessor: Complex code block response", () => {
 			.map(x => x.line);
 
 		for (const transcript of unspokenLines) {
-			postToConnectionMockUtility.expectAudioMessageNotToBePostedToClient(transcript, userMessagePayload);
+			apiGatewayClientMockUtility.expectAudioMessageNotToBePostedToClient(transcript, userMessagePayload);
 		}
 	});
 

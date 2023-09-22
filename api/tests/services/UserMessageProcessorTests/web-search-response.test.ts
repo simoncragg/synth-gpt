@@ -20,7 +20,7 @@ import type {
 
 import ChatRepository from "@repositories/ChatRepository";
 import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
-import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
+import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
@@ -37,7 +37,7 @@ const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
 const openAiClientMockUtility = new OpenAiClientMockUtility();
-const postToConnectionMockUtility = new PostToConnectionMockUtility();
+const apiGatewayClientMockUtility = new ApiGatewayClientMockUtility();
 
 describe("UserMessageProcessor: Web Search response", () => {
 	const connectionId = uuidv4();
@@ -93,7 +93,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			} as SearchingWebAction],
 		} as WebActivity;
 
-		postToConnectionMockUtility.expectActivityToBePostedToClient(
+		apiGatewayClientMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "webActivity",
 				value: webActivity,
@@ -114,7 +114,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			results,
 		} as ReadingWebSearchResultsAction;
 
-		postToConnectionMockUtility.expectActivityToBePostedToClient(
+		apiGatewayClientMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "webActivity",
 				value: {
@@ -129,7 +129,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 			userMessagePayload
 		);
 
-		postToConnectionMockUtility.expectActivityToBePostedToClient(
+		apiGatewayClientMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "webActivity",
 				value: {
@@ -147,7 +147,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 
 	it("should post audio to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
-		postToConnectionMockUtility.expectAudioMessageToBePostedToClient(assistantAnswer, userMessagePayload);
+		apiGatewayClientMockUtility.expectAudioMessageToBePostedToClient(assistantAnswer, userMessagePayload);
 	});
 
 	it("should update chat database", async () => {

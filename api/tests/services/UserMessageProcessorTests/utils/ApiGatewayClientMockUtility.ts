@@ -13,10 +13,10 @@ type PostToConnectionMockedFunction = MockedFunction<(connectionId: string, data
 
 class PostToConnectionMockUtility {
 
-	private mockedFunction: PostToConnectionMockedFunction;
+	private postToConnectionMock: PostToConnectionMockedFunction;
   
 	constructor() {
-		this.mockedFunction = mocked(postToConnectionAsync);
+		this.postToConnectionMock = mocked(postToConnectionAsync);
 	}
   
 	expectContentToBePostedToClient(
@@ -24,7 +24,7 @@ class PostToConnectionMockUtility {
 		userMessagePayload: ProcessUserMessagePayload,
 		isLastSegment = false
 	){
-		expect(this.mockedFunction).toHaveBeenCalledWith(
+		expect(this.postToConnectionMock).toHaveBeenCalledWith(
 			userMessagePayload.connectionId,
 			{
 				type: "assistantMessageSegment",
@@ -48,7 +48,7 @@ class PostToConnectionMockUtility {
 		userMessagePayload: ProcessUserMessagePayload,
 		isLastSegment = false
 	){
-		expect(this.mockedFunction).toHaveBeenCalledWith(
+		expect(this.postToConnectionMock).toHaveBeenCalledWith(
 			userMessagePayload.connectionId,
 			{
 				type: "assistantMessageSegment",
@@ -72,7 +72,7 @@ class PostToConnectionMockUtility {
 		userMessagePayload: ProcessUserMessagePayload
 	) {
 		const { connectionId, chatId } = userMessagePayload;
-		expect(this.mockedFunction).toHaveBeenCalledWith(
+		expect(this.postToConnectionMock).toHaveBeenCalledWith(
 			connectionId,
 			{
 				type: "assistantAudioSegment",
@@ -92,7 +92,7 @@ class PostToConnectionMockUtility {
 		userMessagePayload: ProcessUserMessagePayload
 	) {
 		const { connectionId, chatId } = userMessagePayload;
-		expect(this.mockedFunction).not.toHaveBeenCalledWith(
+		expect(this.postToConnectionMock).not.toHaveBeenCalledWith(
 			connectionId,
 			{
 				type: "assistantAudioSegment",

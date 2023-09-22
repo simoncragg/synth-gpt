@@ -7,7 +7,7 @@ import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 import ChatRepository from "@repositories/ChatRepository";
 import CodeInterpreter from "@services/CodeInterpreter";
 import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
-import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
+import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
@@ -22,7 +22,7 @@ const executeCodeMock = mocked(CodeInterpreter.prototype.executeCode);
 const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
 const openAiClientMockUtility = new OpenAiClientMockUtility();
-const postToConnectionMockUtility = new PostToConnectionMockUtility();
+const apiGatewayClientMockUtility = new ApiGatewayClientMockUtility();
 
 describe("UserMessageProcessor: Code Interpreter - string response", () => {
 	const connectionId = uuidv4();
@@ -91,17 +91,17 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 	it("should post assistant message segments to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
 
-		postToConnectionMockUtility.expectContentToBePostedToClient(
+		apiGatewayClientMockUtility.expectContentToBePostedToClient(
 			preambleSegments[0],
 			userMessagePayload,
 		);
 
-		postToConnectionMockUtility.expectContentToBePostedToClient(
+		apiGatewayClientMockUtility.expectContentToBePostedToClient(
 			preambleSegments[1],
 			userMessagePayload,
 		);
 
-		postToConnectionMockUtility.expectActivityToBePostedToClient(
+		apiGatewayClientMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "codingActivity",
 				value: {
@@ -112,7 +112,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 			userMessagePayload,
 		);
 
-		postToConnectionMockUtility.expectActivityToBePostedToClient(
+		apiGatewayClientMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "codingActivity",
 				value: {
@@ -124,7 +124,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 			userMessagePayload,
 		);
 
-		postToConnectionMockUtility.expectContentToBePostedToClient(
+		apiGatewayClientMockUtility.expectContentToBePostedToClient(
 			finalAssistantResponse,
 			userMessagePayload,
 			true,
@@ -133,7 +133,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 
 	it("should post audio to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
-		postToConnectionMockUtility.expectAudioMessageToBePostedToClient(
+		apiGatewayClientMockUtility.expectAudioMessageToBePostedToClient(
 			finalAssistantResponse,
 			userMessagePayload
 		);

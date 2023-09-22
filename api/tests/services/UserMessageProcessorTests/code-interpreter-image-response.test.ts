@@ -8,7 +8,7 @@ import ChatRepository from "@repositories/ChatRepository";
 import CodeInterpreter from "@services/CodeInterpreter";
 import FileManager from "@services/FileManager";
 import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
-import PostToConnectionMockUtility from "./utils/PostToConnectionMockUtility";
+import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
 import TextToSpeechService from "@services/TextToSpeechService";
 import UserMessageProcessor from "@services/UserMessageProcessor";
 import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
@@ -28,7 +28,7 @@ const TextToSpeechServiceMock = mocked(TextToSpeechService);
 const writeAsyncMock = mocked(FileManager.prototype.writeAsync);
 
 const openAiClientMockUtility = new OpenAiClientMockUtility();
-const postToConnectionMockUtility = new PostToConnectionMockUtility();
+const apiGatewayClientMockUtility = new ApiGatewayClientMockUtility();
 
 describe("UserMessageProcessor: Code Interpreter - image response", () => {
 	const connectionId = uuidv4();
@@ -98,7 +98,7 @@ describe("UserMessageProcessor: Code Interpreter - image response", () => {
 		await userMessageProcessor.process(userMessagePayload);
 
 		for (let i=0; i < codeSegments.length-1; i++) {
-			postToConnectionMockUtility.expectActivityToBePostedToClient(
+			apiGatewayClientMockUtility.expectActivityToBePostedToClient(
 				{
 					type: "codingActivity",
 					value: {
@@ -110,7 +110,7 @@ describe("UserMessageProcessor: Code Interpreter - image response", () => {
 			);
 		}
 
-		postToConnectionMockUtility.expectActivityToBePostedToClient(
+		apiGatewayClientMockUtility.expectActivityToBePostedToClient(
 			{
 				type: "codingActivity",
 				value: {
@@ -122,7 +122,7 @@ describe("UserMessageProcessor: Code Interpreter - image response", () => {
 			userMessagePayload,
 		);
 
-		postToConnectionMockUtility.expectContentToBePostedToClient(
+		apiGatewayClientMockUtility.expectContentToBePostedToClient(
 			assistantResponseLines.join(""),
 			userMessagePayload,
 			true,
@@ -131,7 +131,7 @@ describe("UserMessageProcessor: Code Interpreter - image response", () => {
 
 	it("should post audio to client", async () => {
 		await userMessageProcessor.process(userMessagePayload);
-		postToConnectionMockUtility.expectAudioMessageToBePostedToClient(
+		apiGatewayClientMockUtility.expectAudioMessageToBePostedToClient(
 			assistantResponseLines[0],
 			userMessagePayload
 		);
