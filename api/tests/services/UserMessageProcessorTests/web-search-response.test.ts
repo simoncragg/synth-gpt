@@ -18,26 +18,23 @@ import type {
 	ProcessUserMessagePayload,
 } from "@services/UserMessageProcessor";
 
+import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
 import ChatRepository from "@repositories/ChatRepository";
 import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
-import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
-import TextToSpeechService from "@services/TextToSpeechService";
+import TextToSpeechServiceMockUtility from "./utils/TextToSpeechServiceMockUtility";
 import UserMessageProcessor from "@services/UserMessageProcessor";
-import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
 import { newChatText } from "@src/constants";
 import { performWebSearchAsync } from "@clients/bingSearchApiClient";
 
 jest.mock("@clients/bingSearchApiClient");
 jest.mock("@clients/openaiApiClient");
 jest.mock("@repositories/ChatRepository");
-jest.mock("@services/TextToSpeechService");
 
-const performWebSearchAsyncMock = mocked(performWebSearchAsync);
-const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
-const TextToSpeechServiceMock = mocked(TextToSpeechService);
-
-const openAiClientMockUtility = new OpenAiClientMockUtility();
 const apiGatewayClientMockUtility = new ApiGatewayClientMockUtility();
+const openAiClientMockUtility = new OpenAiClientMockUtility();
+const performWebSearchAsyncMock = mocked(performWebSearchAsync);
+const textToSpeechServiceMockUtility = new TextToSpeechServiceMockUtility();
+const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 
 describe("UserMessageProcessor: Web Search response", () => {
 	const connectionId = uuidv4();
@@ -74,7 +71,7 @@ describe("UserMessageProcessor: Web Search response", () => {
 		openAiClientMockUtility.arrangeSingleContentDeltas(assistantAnswer);
 
 		arrangePerformWebSearchAsyncMock(webSearchResponse);
-		arrangeTextToSpeechServiceMock(TextToSpeechServiceMock);
+		textToSpeechServiceMockUtility.arrangeSignedAudioUrls();
 	});
 
 	afterEach(() => {

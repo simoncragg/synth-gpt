@@ -4,23 +4,20 @@ import { v4 as uuidv4 } from "uuid";
 import type { ChatMessage } from "@src/types";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
+import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
 import ChatRepository from "@repositories/ChatRepository";
 import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
-import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
-import TextToSpeechService from "@services/TextToSpeechService";
+import TextToSpeechServiceMockUtility from "./utils/TextToSpeechServiceMockUtility";
 import UserMessageProcessor from "@services/UserMessageProcessor";
-import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
 import { newChatText } from "@src/constants";
 
 jest.mock("@clients/bingSearchApiClient");
 jest.mock("@repositories/ChatRepository");
-jest.mock("@services/TextToSpeechService");
 
-const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
-const TextToSpeechServiceMock = mocked(TextToSpeechService);
-
-const openAiClientMockUtility = new OpenAiClientMockUtility();
 const apiGatewayClientMockUtility = new ApiGatewayClientMockUtility();
+const openAiClientMockUtility = new OpenAiClientMockUtility();
+const textToSpeechServiceMockUtility = new TextToSpeechServiceMockUtility();
+const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 
 describe("UserMessageProcessor: Complex code block response", () => {
 
@@ -71,12 +68,11 @@ describe("UserMessageProcessor: Complex code block response", () => {
 	let userMessagePayload: ProcessUserMessagePayload;
 
 	beforeEach(() => {
-		
 		openAiClientMockUtility.arrangeSingleContentDeltas(
 			generatedLines.map(x => x.line).join("")
 		);
 
-		arrangeTextToSpeechServiceMock(TextToSpeechServiceMock);
+		textToSpeechServiceMockUtility.arrangeSignedAudioUrls();
 
 		userMessage = {
 			id: uuidv4(),

@@ -4,25 +4,23 @@ import { v4 as uuidv4 } from "uuid";
 import type { CodeExecutionSummary, ExecutionResultString } from "@src/types";
 import type { ProcessUserMessagePayload } from "@services/UserMessageProcessor";
 
+import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
 import ChatRepository from "@repositories/ChatRepository";
 import CodeInterpreter from "@services/CodeInterpreter";
 import OpenAiClientMockUtility from "./utils/OpenAiClientMockUtility";
-import ApiGatewayClientMockUtility from "./utils/ApiGatewayClientMockUtility";
-import TextToSpeechService from "@services/TextToSpeechService";
+import TextToSpeechServiceMockUtility from "./utils/TextToSpeechServiceMockUtility";
 import UserMessageProcessor from "@services/UserMessageProcessor";
-import { arrangeTextToSpeechServiceMock } from "./utils/arrangeTextToSpeechServiceMock";
 import { newChatText } from "@src/constants";
 
 jest.mock("@repositories/ChatRepository");
-jest.mock("@services/TextToSpeechService");
 jest.mock("@services/CodeInterpreter");
 
 const updateItemAsyncMock = mocked(ChatRepository.prototype.updateItemAsync);
 const executeCodeMock = mocked(CodeInterpreter.prototype.executeCode);
-const TextToSpeechServiceMock = mocked(TextToSpeechService);
 
 const openAiClientMockUtility = new OpenAiClientMockUtility();
 const apiGatewayClientMockUtility = new ApiGatewayClientMockUtility();
+const textToSpeechServiceMockUtility = new TextToSpeechServiceMockUtility();
 
 describe("UserMessageProcessor: Code Interpreter - string response", () => {
 	const connectionId = uuidv4();
@@ -79,7 +77,7 @@ describe("UserMessageProcessor: Code Interpreter - string response", () => {
 			} as ExecutionResultString,
 		});
 
-		arrangeTextToSpeechServiceMock(TextToSpeechServiceMock);
+		textToSpeechServiceMockUtility.arrangeSignedAudioUrls();
 		
 		userMessageProcessor = new UserMessageProcessor();
 	});
