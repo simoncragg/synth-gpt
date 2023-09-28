@@ -22,7 +22,7 @@ https://github.com/simoncragg/synth-gpt/assets/22366916/cbfb40e9-0be3-4704-a08d-
 
 ## 🛠️ Installation & Setup
 
-To configure and run the synth-gpt project on your local development machine, please refer to the comprehensive setup guide provided [here](docs/setup.md).
+To configure and run the synth-gpt project on your local development machine, please refer to the comprehensive setup guide provided [here](docs/setup-main.md).
 
 ## License
 
