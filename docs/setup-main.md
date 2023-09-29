@@ -10,6 +10,7 @@ Welcome to the installation and setup guide for the synth-gpt project! This docu
 - [Clone the repository](#clone-the-repository)
 - [API Setup](#api-setup)
 - [App Setup](#app-setup)
+- [Code Interpreter Setup](#code-interpreter-setup)
 - [Troubleshooting](#troubleshooting)
 
 ## Cloud Account Setup
@@ -75,6 +76,15 @@ Follow the link below to set up the React web app's front-end and run it on your
 Follow the link below to set up the front-end React web app and run it on your local machine:
 
 [App Setup Guide ⨠](./setup-app.md)
+
+## Code Interpreter Setup
+
+To run the code interpreter on your local machine, simply navigate to the 'interpreter' directory, then run the following commands:
+
+```bash
+./build.sh
+./run.sh dev
+``````
 
 ## Troubleshooting
 
