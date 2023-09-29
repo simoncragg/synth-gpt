@@ -8,11 +8,12 @@ https://github.com/simoncragg/synth-gpt/assets/22366916/cbfb40e9-0be3-4704-a08d-
 
 ## 🚀 Features
 
-- Voice Interaction: Engage in natural and intuitive conversations with integrated speech synthesis and speech recognition.
-- Web Search: Ask topical questions and get relevant information sourced from Bing Search.
-- Code Attachments: Attach code snippets for easy reference.
-- Syntax Highlighting: Supports many popular programming languages.
-- Chat Organizer: A familiar way to organize your chats.
+- Voice Interaction: Have natural conversations with integrated speech synthesis and speech recognition.
+- Web Search: Retrieves real-time information from the web.
+- Code Interpreter: Executes Python code in a secure environment for data visualization and problem-solving.
+- Attachments: Upload files and share code snippets during chats.
+- Syntax Highlighting: Supports popular programming languages.
+- Chat Organizer: Keep your chats easily organized.
 
 ## 🔮 Roadmap
 
