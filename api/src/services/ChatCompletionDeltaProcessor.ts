@@ -113,10 +113,7 @@ class ChatCompletionDeltaProcessor {
 
 	private buildChatMessageWithCodingActivity(): ChatMessage {
 
-		const code = this.isDone
-			? JSON.parse(this.functionCall.arguments.replace(/\n/g, "")).code
-			: this.functionCall.argumentsSegment.replace(/^\s*{\s*"code":\s*"/, "").trim().replace(/\\n/g, "\n");
-
+		const code = this.extractAndFormatCode();
 		return this.chatMessageBuilder.buildChatMessageWithActivity(this.id, {
 			type: "codingActivity",
 			value: {
@@ -126,12 +123,32 @@ class ChatCompletionDeltaProcessor {
 		});
 	}
 
+	private extractAndFormatCode(): string {
+		const code = this.isDone
+			? this.extractCompletedCode()
+			: this.extractIncompleteCode();
+		
+		return code.replace(/\\n/g, "\n");
+	}
+
+	private extractCompletedCode(): string {
+		return JSON.parse(
+			this.unPrettifyJsonString(this.functionCall.arguments)
+		).code;
+	}
+
+	private extractIncompleteCode(): string {
+		return this.functionCall.argumentsSegment
+			.replace(/^\s*{\s*"code":\s*"/, "")
+			.trim();
+	}
+
 	private buildChatMessageWithWebActivity(): ChatMessage {
 
 		const searchTerm = this.isDone
-			? JSON.parse(this.functionCall.arguments.replace(/\n/g, "")).search_term
+			? this.extractCompletedSearchTerm()
 			: "";
-
+		
 		return this.chatMessageBuilder.buildChatMessageWithActivity(this.id, {
 			type: "webActivity",
 			value: {
@@ -140,6 +157,18 @@ class ChatCompletionDeltaProcessor {
 				actions: [],
 			},
 		});
+	}
+
+	private extractCompletedSearchTerm(): string {
+		return JSON.parse(
+			this.unPrettifyJsonString(this.functionCall.arguments)
+		).search_term;
+	}
+
+	private unPrettifyJsonString(prettifiedJsonStr: string): string {
+		return prettifiedJsonStr
+			.replace(/^{\s*\n\s*"/, "{ \"")
+			.replace(/\s*\n\s*}$/, " }");
 	}
 }
 
