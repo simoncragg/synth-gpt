@@ -26,7 +26,7 @@ const Navbar = () => {
 
 	return (
 		<>
-			<nav className="fixed top-0 z-50 w-full border-b bg-gray-900/10 border-gray-700 sm:hidden">
+			<nav className="fixed top-0 z-50 w-full border-b bg-gray-900/5 border-gray-700 sm:hidden">
 				<div className="px-3 py-3 lg:px-5 lg:pl-3">
 					<div className="flex items-center justify-between">
 						<div className="flex items-center">
@@ -77,7 +77,7 @@ const Navbar = () => {
 
 			<aside aria-label="Sidebar" className={`
 				fixed top-0 left-0 z-40 w-64 h-screen p-0 pt-2 transition-transform 
-				border-r sm:translate-x-0 bg-gray-900 md:bg-gray-900/10 border-gray-700 
+				border-r sm:translate-x-0 bg-gray-900 md:bg-gray-900/5 border-gray-700 
 				${ isSidebarOpen ? "transform-none" : "-translate-x-full"}
 			`}>
 				<div className="px-4 pb-4 mt-16 md:mt-0 overflow-y-auto h-full">
