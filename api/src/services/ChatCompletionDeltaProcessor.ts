@@ -11,129 +11,152 @@ class ChatCompletionDeltaProcessor {
 	private readonly onSegmentReceived: MessageSegmentCallbackType;
 	private readonly chatMessageBuilder: ChatMessageBuilder;
     
-	private id: string;
+	private chatMessageId: string;
 	private content: string;
 	private functionCall: FunctionCall & { argumentsSegment: string };
-	private isDone: boolean;
+	private isLastDelta: boolean;
     
 	constructor(onSegmentReceived: MessageSegmentCallbackType) {
 		this.onSegmentReceived = onSegmentReceived;
 		this.chatMessageBuilder = new ChatMessageBuilder();
 
-		this.id = uuidv4();
+		this.chatMessageId = uuidv4();
 		this.content = "";
 		this.functionCall = {
 			name: "",
 			arguments: "",
 			argumentsSegment: ""
 		};
-		this.isDone = false;
+		this.isLastDelta = false;
 	}
 
 	async processDelta(delta: Delta, finishReason: string) {
-		this.isDone = finishReason !== null;
-	
+		this.isLastDelta = finishReason !== null;
+		
+		if (this.isLastDelta) {
+			await this.flushSegment();
+			return;
+		}
+
 		if (delta.content) {
 			await this.handleContentDelta(delta);
-		} 
+		}
 		
 		if (delta.function_call) {
-			if (this.content !== "") {
-				await this.flushSegment();
-			}
+			if (this.isFlushableContent()) await this.flushSegment();
 			await this.handleFunctionCallDelta(delta);
-		}
-	
-		if (this.isDone) {
-			await this.flushSegment();
-		}
-	}
- 
-	private async handleContentDelta(delta: Delta) {
-		this.content += delta.content ?? "";
-		if (delta.content?.indexOf("\n") !== -1) {
-			await this.flushSegment();
 		}
 	}
 
+	private isFlushableContent() {
+		return this.content !== "";
+	}
+ 
+	private async handleContentDelta(delta: Delta) {
+		this.appendContent(delta?.content);
+		if (this.containsNewLine(delta?.content)) await this.flushSegment();
+	}
+
+	private appendContent(content?: string) {
+		if (content) this.content += content;
+	}
+
+	private containsNewLine(content?: string): boolean {
+		return content && content?.includes("\n");
+	}
+
 	private async handleFunctionCallDelta(delta: Delta) {
-		if (delta.function_call.name && this.functionCall.name === "") {
-			this.functionCall.name = delta.function_call.name;
+		this.setFunctionCallName(delta.function_call?.name);
+		this.appendFunctionCallArguments(delta.function_call?.arguments);
+		if (this.shouldFlushFunctionCall()) await this.flushSegment();
+	}
+
+	private setFunctionCallName(name?: string) {
+		if (name && this.functionCall.name === "") {
+			this.functionCall.name = name;
+		}		
+	}
+
+	private appendFunctionCallArguments(args: string) {
+		if (args) {
+			const deltaArgs = this.escapeNewLines(args);
+			this.functionCall.arguments += deltaArgs;
+			this.functionCall.argumentsSegment += deltaArgs;
 		}
-		
-		if (delta.function_call.arguments) {
-			
-			this.functionCall.arguments += delta.function_call.arguments;
-			this.functionCall.argumentsSegment += delta.function_call.arguments;
-			
-			if (this.functionCall.name === "execute_python_code" && 
-                delta.function_call.arguments.indexOf("\\n") > -1)
-			{
-				await this.flushSegment();
-			}
-		}
+	}
+
+	private shouldFlushFunctionCall() {
+		return this.isExecutePythonCode() && this.functionCall.argumentsSegment.includes("\\n");
 	}
 
 	private async flushSegment() {
 
-		const isFunctionCall = this.functionCall.name !== "";
-
-		const message = isFunctionCall
+		const message = this.isFunctionCall()
 			? this.buildChatMessageWithFunctionCall()
 			: this.buildChatMessageWithContent();
 
 		await this.onSegmentReceived({
 			message,
-			isLastSegment: this.isDone,
+			isLastSegment: this.isLastDelta,
 		});
 
 		this.content = "";
 		this.functionCall.argumentsSegment = "";
 
-		if (this.isDone) {
+		if (this.isLastDelta) {
 			this.functionCall.name = "";
 			this.functionCall.arguments = "";
 		}
 	}
 
+	private isFunctionCall(): boolean {
+		return this.functionCall.name !== "";
+	}
+
 	private buildChatMessageWithContent(): ChatMessage {
-		return this.chatMessageBuilder.buildChatMessageWithContent(this.id, this.content);
+		return this.chatMessageBuilder.buildChatMessageWithContent(
+			this.chatMessageId, this.content
+		);
 	}
 
 	private buildChatMessageWithFunctionCall(): ChatMessage {
 
-		if (this.functionCall.name === "execute_python_code") {
+		if (this.isExecutePythonCode()) {
 			return this.buildChatMessageWithCodingActivity();
 		}
 		
-		if (this.functionCall.name === "perform_web_search") {
+		if (this.isPerformWebSearch()) {
 			return this.buildChatMessageWithWebActivity();
 		}
 	}
 
+	private isExecutePythonCode(): boolean {
+		return this.functionCall.name === "execute_python_code";
+	}
+
+	private isPerformWebSearch(): boolean {
+		return this.functionCall.name === "perform_web_search";
+	}
+
 	private buildChatMessageWithCodingActivity(): ChatMessage {
 
-		const code = this.extractAndFormatCode();
-		return this.chatMessageBuilder.buildChatMessageWithActivity(this.id, {
+		const code = this.isLastDelta
+			? this.extractCompletedCode()
+			: this.extractIncompleteCode();
+
+		return this.chatMessageBuilder.buildChatMessageWithActivity(this.chatMessageId, {
 			type: "codingActivity",
 			value: {
-				code,
+				code: this.unescapeNewLines(code),
 				currentState: "working",			
 			},
 		});
 	}
 
-	private extractAndFormatCode(): string {
-		const code = this.isDone
-			? this.extractCompletedCode()
-			: this.extractIncompleteCode();
-		
-		return code.replace(/\\n/g, "\n");
-	}
-
 	private extractCompletedCode(): string {
+		console.log("getCompletedCode", this.functionCall.arguments);
 		return JSON.parse(
-			this.unPrettifyJsonString(this.functionCall.arguments)
+			this.cleanJsonString(this.functionCall.arguments)
 		).code;
 	}
 
@@ -145,11 +168,11 @@ class ChatCompletionDeltaProcessor {
 
 	private buildChatMessageWithWebActivity(): ChatMessage {
 
-		const searchTerm = this.isDone
-			? this.extractCompletedSearchTerm()
+		const searchTerm = this.isLastDelta
+			? this.extractSearchTerm()
 			: "";
 		
-		return this.chatMessageBuilder.buildChatMessageWithActivity(this.id, {
+		return this.chatMessageBuilder.buildChatMessageWithActivity(this.chatMessageId, {
 			type: "webActivity",
 			value: {
 				searchTerm,
@@ -159,16 +182,24 @@ class ChatCompletionDeltaProcessor {
 		});
 	}
 
-	private extractCompletedSearchTerm(): string {
+	private extractSearchTerm(): string {
 		return JSON.parse(
-			this.unPrettifyJsonString(this.functionCall.arguments)
+			this.cleanJsonString(this.functionCall.arguments)
 		).search_term;
 	}
 
-	private unPrettifyJsonString(prettifiedJsonStr: string): string {
+	private cleanJsonString(prettifiedJsonStr: string): string {
 		return prettifiedJsonStr
-			.replace(/^{\s*\n\s*"/, "{ \"")
-			.replace(/\s*\n\s*}$/, " }");
+			.replace(/^{\s*\\n\s*"/, "{ \"")
+			.replace(/\s*\\n\s*}$/, " }");
+	}
+
+	private escapeNewLines(input: string): string {
+		return input.replace(/(?<!\\)\n/g, "\\n");
+	}
+
+	private unescapeNewLines(input: string): string {
+		return input.replaceAll("\\n", "\n");
 	}
 }
 
