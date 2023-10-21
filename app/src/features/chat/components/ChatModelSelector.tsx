@@ -52,7 +52,7 @@ const ChatModelSelector = () => {
     };
 
     return (
-        <div className="w-full flex flex-col mb-6">
+        <div className="w-full flex flex-col mb-11">
             <div className="relative flex flex-col items-stretch justify-center gap-2 sm:items-center">
                 <div className="relative flex rounded-xl bg-gray-900 p-1 text-gray-900">
                     <ul className="flex w-full list-none gap-1 sm:w-auto">

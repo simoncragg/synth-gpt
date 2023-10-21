@@ -21,7 +21,7 @@ const Chat = () => {
 
 	return (
 		<>
-			{messages.length === 0 && attachments.length === 0 && <HeroSection />}
+			{messages.length === 0 && attachments.length === 0 && <div className="mt-[10vh]"><HeroSection /></div>}
 
 			<div className="flex flex-col w-full mb-[100px]">
 				<ChatModelSelector />
